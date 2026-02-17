@@ -47,12 +47,6 @@ function cors(response: Response): Response {
   return new Response(response.body, { status: response.status, headers });
 }
 
-function getClientIP(request: Request): string {
-  return request.headers.get("cf-connecting-ip") ||
-         request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-         "unknown";
-}
-
 async function checkRateLimit(
   kv: KVNamespace,
   key: string,
@@ -153,22 +147,22 @@ export default {
       ? authHeader.slice(7)
       : url.searchParams.get("apikey");
 
-    let keyName = "anonymous";
-    let rateLimits = { perMinute: 5, perDay: 50 };
-
-    if (apiKey) {
-      const keyData = await env.FAQ_API_KEYS.get<ApiKeyData>(apiKey, "json");
-      if (!keyData) {
-        return cors(json({ error: "Unauthorized", message: "Invalid API key." }, 401));
-      }
-      keyName = keyData.name;
-      rateLimits = keyData.tier === "premium"
-        ? { perMinute: 100, perDay: 10000 }
-        : { perMinute: 30, perDay: 1000 };
+    if (!apiKey) {
+      return cors(json({ error: "Unauthorized", message: "API key required. Pass via Authorization: Bearer <key> header or ?apikey= parameter." }, 401));
     }
 
+    const keyData = await env.FAQ_API_KEYS.get<ApiKeyData>(apiKey, "json");
+    if (!keyData) {
+      return cors(json({ error: "Unauthorized", message: "Invalid API key." }, 401));
+    }
+
+    const keyName = keyData.name;
+    const rateLimits = keyData.tier === "premium"
+      ? { perMinute: 100, perDay: 10000 }
+      : { perMinute: 30, perDay: 1000 };
+
     // ── Rate Limit ──
-    const rlKey = apiKey || getClientIP(request);
+    const rlKey = apiKey;
     const rl = await checkRateLimit(env.RATE_LIMITS, rlKey, rateLimits);
 
     if (!rl.allowed) {
@@ -208,9 +202,9 @@ export default {
           "GET /claude-faqs/v1/slugs": "List all slugs",
         },
         auth: {
-          description: "Optional API key for higher rate limits",
+          description: "API key required for all requests",
           methods: ["Authorization: Bearer <key>", "?apikey=<key>"],
-          tiers: { public: "5/min, 50/day", standard: "30/min, 1000/day", premium: "100/min, 10000/day" },
+          tiers: { standard: "30/min, 1000/day", premium: "100/min, 10000/day" },
         },
       });
     }
