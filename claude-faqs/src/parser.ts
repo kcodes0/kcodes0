@@ -1,6 +1,6 @@
 import type { FAQEntry } from "./types";
 
-const FILLER_WORDS = new Set([
+const STOP_WORDS = new Set([
   "my", "i", "im", "ive", "me", "the", "a", "an", "is", "are", "was", "were",
   "do", "does", "did", "can", "could", "would", "should", "will", "what", "why",
   "how", "when", "where", "which", "who", "whom", "that", "this", "it", "its",
@@ -8,70 +8,62 @@ const FILLER_WORDS = new Set([
   "in", "for", "on", "with", "at", "dont", "cant", "wont", "isnt", "arent",
   "wasnt", "werent", "doesnt", "didnt", "and", "or", "but", "not", "no", "yes",
   "if", "then", "than", "from", "by", "about", "up", "out", "get", "got",
+  "your", "you", "youre", "there", "their", "they", "them", "some", "all",
+  "any", "each", "every", "more", "most", "other", "into", "also", "just",
+  "like", "such", "these", "those", "may", "might", "here", "very", "too",
+  "still", "even", "well", "only", "own", "same", "while", "during", "before",
+  "after", "between", "through", "use", "using", "used", "make", "made",
 ]);
-
-const GITHUB_BASE = "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content";
 
 export function generateSlug(question: string): string {
   const words = question
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, "")
     .split(/\s+/)
-    .filter(w => w.length > 1 && !FILLER_WORDS.has(w));
+    .filter(w => w.length > 1 && !STOP_WORDS.has(w));
   return words.slice(0, 4).join("-") || "untitled";
 }
 
-export function githubAnchor(heading: string): string {
-  return heading
-    .toLowerCase()
-    .replace(/[^a-z0-9 -]/g, "")
-    .trim()
-    .replace(/\s+/g, "-");
-}
-
-function extractTags(question: string, answer: string): string[] {
-  const text = `${question} ${answer}`.toLowerCase();
-  const words = text
+function extractTags(question: string, subcategory: string, answer: string): string[] {
+  // Pull meaningful keywords from question, subcategory, and first ~500 chars of answer
+  const source = `${question} ${subcategory} ${answer.slice(0, 500)}`.toLowerCase();
+  const words = source
     .replace(/[^a-z0-9\s]/g, "")
     .split(/\s+/)
-    .filter(w => w.length > 2 && !FILLER_WORDS.has(w));
-  const seen = new Set<string>();
-  const tags: string[] = [];
+    .filter(w => w.length > 2 && !STOP_WORDS.has(w));
+
+  // Frequency-based: words that appear more are more relevant
+  const freq = new Map<string, number>();
   for (const w of words) {
-    if (!seen.has(w) && tags.length < 10) {
-      seen.add(w);
-      tags.push(w);
-    }
+    freq.set(w, (freq.get(w) || 0) + 1);
   }
-  return tags;
+
+  // Sort by frequency, deduplicate
+  return [...freq.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 15)
+    .map(([word]) => word);
 }
 
 interface ParsedAnswer {
   text: string;
-  status: "answered" | "temp" | "stub";
+  hasContent: boolean;
 }
 
 function parseAnswer(raw: string): ParsedAnswer {
   const trimmed = raw.trim();
 
   if (!trimmed || trimmed === "</>") {
-    return { text: "", status: "stub" };
+    return { text: "", hasContent: false };
   }
 
-  const tempPatterns = [
-    /^\*\*\[temp answer\]\*\*\s*/i,
-    /^\[temp answer\]\s*/i,
-  ];
+  // Strip [temp answer] prefixes
+  const cleaned = trimmed
+    .replace(/^\*\*\[temp answer\]\*\*\s*/i, "")
+    .replace(/^\[temp answer\]\s*/i, "")
+    .trim();
 
-  for (const pattern of tempPatterns) {
-    if (pattern.test(trimmed)) {
-      const text = trimmed.replace(pattern, "").trim();
-      if (!text) return { text: "", status: "stub" };
-      return { text, status: "temp" };
-    }
-  }
-
-  return { text: trimmed, status: "answered" };
+  return { text: cleaned, hasContent: cleaned.length > 0 };
 }
 
 export function parseMarkdownFile(content: string, filename: string): FAQEntry[] {
@@ -88,19 +80,21 @@ export function parseMarkdownFile(content: string, filename: string): FAQEntry[]
     if (!currentQuestion) return;
 
     const rawAnswer = currentAnswerLines.join("\n").trim();
-    const { text, status } = parseAnswer(rawAnswer);
+    const { text, hasContent } = parseAnswer(rawAnswer);
+
+    // Skip entries with no answer content
+    if (!hasContent) return;
+
+    const sub = isGeneralFaq ? category : subcategory;
 
     entries.push({
-      id: "",
       slug: "",
+      tags: extractTags(currentQuestion, sub, text),
       category,
-      subcategory: isGeneralFaq ? category : subcategory,
+      subcategory: sub,
       question: currentQuestion,
       answer: text,
-      answer_status: status,
       source_file: filename,
-      github_url: `${GITHUB_BASE}/${filename}#${githubAnchor(currentQuestion)}`,
-      tags: extractTags(currentQuestion, text),
     });
 
     currentQuestion = "";
@@ -118,12 +112,10 @@ export function parseMarkdownFile(content: string, filename: string): FAQEntry[]
     const h2Match = line.match(/^## (.+)$/);
     if (h2Match) {
       const heading = h2Match[1].trim();
-
       if (heading.toLowerCase().startsWith("still need help")) {
         flushEntry();
         break;
       }
-
       if (isGeneralFaq) {
         flushEntry();
         currentQuestion = heading;
@@ -177,6 +169,5 @@ export function assignSlugs(entries: FAQEntry[]): void {
     usedSlugs.set(finalSlug, count + 1);
 
     entries[i].slug = finalSlug;
-    entries[i].id = `${entries[i].source_file.replace(/\.md$/, "")}/${finalSlug}`;
   }
 }

@@ -5,6 +5,15 @@ compatibility_date = "2024-01-01"
 # Route pattern: handles api.kcodes.me/claude-faqs/* while c-lion-api handles everything else
 routes = [{ pattern = "api.kcodes.me/claude-faqs/*", zone_name = "kcodes.me" }]
 
+# Cloudflare Workers AI
+[ai]
+binding = "AI"
+
+# Import JSON files
+rules = [
+  { type = "Data", globs = ["**/*.json"], fallthrough = true }
+]
+
 [[kv_namespaces]]
 binding = "RATE_LIMITS"
 id = "53d068af6c1c4727aa11be06b2af5913"
@@ -12,3 +21,7 @@ id = "53d068af6c1c4727aa11be06b2af5913"
 [[kv_namespaces]]
 binding = "FAQ_API_KEYS"
 id = "FAQ_API_KEYS_PLACEHOLDER"
+
+[[kv_namespaces]]
+binding = "FAQ_EMBEDDINGS"
+id = "FAQ_EMBEDDINGS_PLACEHOLDER"

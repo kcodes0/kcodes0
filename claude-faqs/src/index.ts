@@ -1,18 +1,18 @@
 import type { Env, FAQEntry, DiscordEmbed, RateLimitData, ApiKeyData } from "./types";
 import { FAQ_DATA } from "./data";
-import { searchEntries } from "./search";
+import { tagSearch, embeddingSearch } from "./search";
 
 const DISCORD_COLOR = 0x7855FA;
+const EMBEDDING_CACHE_KEY = "faq:embeddings:v1";
 
 function toDiscordEmbed(entry: FAQEntry): DiscordEmbed {
   const description = entry.answer.length > 4096
     ? entry.answer.slice(0, 4093) + "..."
-    : entry.answer || "_No answer available yet — this FAQ entry needs a response._";
+    : entry.answer;
 
   return {
     title: entry.question,
     description,
-    url: entry.github_url,
     color: DISCORD_COLOR,
     fields: [
       {
@@ -23,15 +23,8 @@ function toDiscordEmbed(entry: FAQEntry): DiscordEmbed {
         inline: true,
       },
       {
-        name: "Status",
-        value: entry.answer_status === "answered" ? "Answered"
-             : entry.answer_status === "temp" ? "Temp Answer"
-             : "Needs Answer",
-        inline: true,
-      },
-      {
-        name: "Source",
-        value: `[View on GitHub](${entry.github_url})`,
+        name: "Tags",
+        value: entry.tags.slice(0, 5).join(", "),
         inline: true,
       },
     ],
@@ -39,23 +32,19 @@ function toDiscordEmbed(entry: FAQEntry): DiscordEmbed {
   };
 }
 
-function jsonResponse(data: object, status = 200): Response {
+function json(data: object, status = 200): Response {
   return new Response(JSON.stringify(data, null, 2), {
     status,
     headers: { "Content-Type": "application/json" },
   });
 }
 
-function handleCors(response: Response): Response {
+function cors(response: Response): Response {
   const headers = new Headers(response.headers);
   headers.set("Access-Control-Allow-Origin", "*");
-  headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+  headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
+  return new Response(response.body, { status: response.status, headers });
 }
 
 function getClientIP(request: Request): string {
@@ -107,11 +96,33 @@ async function checkRateLimit(
 
   return {
     allowed: true,
-    remaining: {
-      minute: limits.perMinute - newMinute.count,
-      day: limits.perDay - newDay.count,
-    },
+    remaining: { minute: limits.perMinute - newMinute.count, day: limits.perDay - newDay.count },
   };
+}
+
+// Get or compute FAQ embeddings, cached in KV
+async function getEmbeddings(env: Env): Promise<number[][] | null> {
+  // Try cache first
+  const cached = await env.FAQ_EMBEDDINGS.get<number[][]>(EMBEDDING_CACHE_KEY, "json");
+  if (cached) return cached;
+
+  // Compute embeddings for all entries
+  const texts = FAQ_DATA.entries.map(e =>
+    `${e.tags.join(" ")} ${e.question} ${e.answer.slice(0, 300)}`
+  );
+
+  try {
+    const result = await env.AI.run("@cf/google/embeddinggemma-300m", { text: texts }) as {
+      data: number[][];
+    };
+    // Cache for 1 hour
+    await env.FAQ_EMBEDDINGS.put(EMBEDDING_CACHE_KEY, JSON.stringify(result.data), {
+      expirationTtl: 3600,
+    });
+    return result.data;
+  } catch {
+    return null;
+  }
 }
 
 export default {
@@ -120,14 +131,15 @@ export default {
     const path = url.pathname;
 
     if (request.method === "OPTIONS") {
-      return handleCors(new Response(null, { status: 204 }));
+      return cors(new Response(null, { status: 204 }));
     }
 
-    if (request.method !== "GET") {
-      return handleCors(jsonResponse({ error: "Method not allowed. Use GET." }, 405));
+    // /ask accepts POST with JSON body
+    if (request.method !== "GET" && request.method !== "POST") {
+      return cors(json({ error: "Method not allowed." }, 405));
     }
 
-    // Strip the /claude-faqs prefix if present (route pattern includes it)
+    // Normalize path
     const subPath = path.startsWith("/claude-faqs/v1")
       ? path.slice("/claude-faqs/v1".length)
       : path.startsWith("/v1")
@@ -147,10 +159,7 @@ export default {
     if (apiKey) {
       const keyData = await env.FAQ_API_KEYS.get<ApiKeyData>(apiKey, "json");
       if (!keyData) {
-        return handleCors(jsonResponse({
-          error: "Unauthorized",
-          message: "Invalid API key. Contact the admin for access.",
-        }, 401));
+        return cors(json({ error: "Unauthorized", message: "Invalid API key." }, 401));
       }
       keyName = keyData.name;
       rateLimits = keyData.tier === "premium"
@@ -159,122 +168,190 @@ export default {
     }
 
     // ── Rate Limit ──
-    const rateLimitKey = apiKey || getClientIP(request);
-    const rateCheck = await checkRateLimit(env.RATE_LIMITS, rateLimitKey, rateLimits);
+    const rlKey = apiKey || getClientIP(request);
+    const rl = await checkRateLimit(env.RATE_LIMITS, rlKey, rateLimits);
 
-    if (!rateCheck.allowed) {
-      const resp = jsonResponse({
-        error: "Rate limit exceeded",
-        message: "Too many requests. Please try again later.",
-        retryAfter: rateCheck.retryAfter,
-        limits: rateLimits,
-      }, 429);
-      const headers = new Headers(resp.headers);
-      headers.set("Retry-After", String(rateCheck.retryAfter));
-      return handleCors(new Response(resp.body, { status: 429, headers }));
+    if (!rl.allowed) {
+      const resp = json({ error: "Rate limit exceeded", retryAfter: rl.retryAfter, limits: rateLimits }, 429);
+      const h = new Headers(resp.headers);
+      h.set("Retry-After", String(rl.retryAfter));
+      return cors(new Response(resp.body, { status: 429, headers: h }));
     }
 
-    // Helper to attach rate limit headers
-    function withRateHeaders(resp: Response): Response {
-      const headers = new Headers(resp.headers);
-      headers.set("X-RateLimit-Remaining-Minute", String(rateCheck.remaining?.minute));
-      headers.set("X-RateLimit-Remaining-Day", String(rateCheck.remaining?.day));
-      headers.set("X-Authenticated-As", keyName);
-      return handleCors(new Response(resp.body, { status: resp.status, headers }));
+    function respond(data: object, status = 200): Response {
+      const resp = json(data, status);
+      const h = new Headers(resp.headers);
+      h.set("X-RateLimit-Remaining-Minute", String(rl.remaining?.minute));
+      h.set("X-RateLimit-Remaining-Day", String(rl.remaining?.day));
+      h.set("X-Authenticated-As", keyName);
+      return cors(new Response(resp.body, { status, headers: h }));
     }
 
     // ── Routes ──
 
     // API info
     if (subPath === "" || subPath === "/") {
-      return withRateHeaders(jsonResponse({
+      return respond({
         name: "Claude FAQ API",
         version: FAQ_DATA.version,
         generated_at: FAQ_DATA.generated_at,
         entry_count: FAQ_DATA.entry_count,
         categories: FAQ_DATA.categories,
         endpoints: {
-          "GET /claude-faqs/v1/{slug}": "Get FAQ entry by slug",
-          "GET /claude-faqs/v1/{slug}?format=discord": "Get FAQ entry as Discord embed JSON",
-          "GET /claude-faqs/v1/search?q={query}": "Search FAQ entries (top 5)",
-          "GET /claude-faqs/v1/search?q={query}&limit=10": "Search with custom limit (max 20)",
-          "GET /claude-faqs/v1/categories": "List all categories with subcategories",
-          "GET /claude-faqs/v1/entries": "List all entries",
-          "GET /claude-faqs/v1/entries?category={name}": "Filter entries by category",
-          "GET /claude-faqs/v1/entries?status=answered": "Filter by status (answered|temp|stub)",
-          "GET /claude-faqs/v1/slugs": "List all available slugs",
+          "GET /claude-faqs/v1/{slug}": "Get FAQ entry by slug (direct lookup)",
+          "GET /claude-faqs/v1/{slug}?format=discord": "Get as Discord embed",
+          "GET /claude-faqs/v1/search?q={query}": "Tag-based keyword search",
+          "GET /claude-faqs/v1/search?q={query}&mode=semantic": "AI semantic search (embeddings)",
+          "POST /claude-faqs/v1/ask": "AI-powered answer (body: { question: '...' })",
+          "GET /claude-faqs/v1/categories": "List categories",
+          "GET /claude-faqs/v1/entries": "List entries (?category=, filter)",
+          "GET /claude-faqs/v1/slugs": "List all slugs",
         },
         auth: {
           description: "Optional API key for higher rate limits",
-          usage: "Authorization: Bearer <key> or ?apikey=<key>",
-          tiers: {
-            public: "5/min, 50/day",
-            standard: "30/min, 1000/day",
-            premium: "100/min, 10000/day",
-          },
+          methods: ["Authorization: Bearer <key>", "?apikey=<key>"],
+          tiers: { public: "5/min, 50/day", standard: "30/min, 1000/day", premium: "100/min, 10000/day" },
         },
-      }));
+      });
     }
 
-    // Search
+    // ── Search (tag-based or semantic) ──
     if (subPath === "/search") {
       const query = url.searchParams.get("q");
       if (!query) {
-        return withRateHeaders(jsonResponse({
-          error: "Missing query parameter",
-          usage: "GET /claude-faqs/v1/search?q=your+search+terms",
-        }, 400));
+        return respond({ error: "Missing ?q= parameter" }, 400);
       }
 
       const limit = Math.min(parseInt(url.searchParams.get("limit") || "5") || 5, 20);
-      const results = searchEntries(FAQ_DATA.entries, query, limit);
+      const mode = url.searchParams.get("mode") || "tags";
 
-      if (format === "discord") {
-        return withRateHeaders(jsonResponse({
-          query,
-          count: results.length,
-          results: results.map(toDiscordEmbed),
-        }));
+      let results: FAQEntry[];
+
+      if (mode === "semantic") {
+        // AI-powered embedding search
+        const embeddings = await getEmbeddings(env);
+        if (!embeddings) {
+          // Fallback to tag search if embeddings fail
+          results = tagSearch(FAQ_DATA.entries, query, limit);
+        } else {
+          const qResult = await env.AI.run("@cf/google/embeddinggemma-300m", { text: [query] }) as {
+            data: number[][];
+          };
+          const matches = embeddingSearch(qResult.data[0], embeddings, FAQ_DATA.entries, limit);
+          results = matches.map(m => m.entry);
+        }
+      } else {
+        results = tagSearch(FAQ_DATA.entries, query, limit);
       }
 
-      return withRateHeaders(jsonResponse({
+      if (format === "discord") {
+        return respond({ query, count: results.length, results: results.map(toDiscordEmbed) });
+      }
+
+      return respond({
         query,
+        mode,
         count: results.length,
         results: results.map(e => ({
           slug: e.slug,
           question: e.question,
+          tags: e.tags.slice(0, 5),
           answer_preview: e.answer.slice(0, 200) + (e.answer.length > 200 ? "..." : ""),
           category: e.category,
           subcategory: e.subcategory,
-          answer_status: e.answer_status,
-          github_url: e.github_url,
         })),
-      }));
-    }
-
-    // Categories
-    if (subPath === "/categories") {
-      const categorized = FAQ_DATA.categories.map(cat => {
-        const entries = FAQ_DATA.entries.filter(e => e.category === cat);
-        const subcategories = [...new Set(entries.map(e => e.subcategory))];
-        return {
-          name: cat,
-          entry_count: entries.length,
-          subcategories,
-        };
       });
-
-      return withRateHeaders(jsonResponse({
-        count: FAQ_DATA.categories.length,
-        categories: categorized,
-      }));
     }
 
-    // Entries list
+    // ── Ask (LLM-powered contextual answer) ──
+    if (subPath === "/ask") {
+      let question: string | null = null;
+
+      if (request.method === "POST") {
+        const body = await request.json() as { question?: string };
+        question = body.question || null;
+      } else {
+        question = url.searchParams.get("q");
+      }
+
+      if (!question) {
+        return respond({ error: "Missing question", usage: "POST { question: '...' } or GET ?q=..." }, 400);
+      }
+
+      // Find relevant FAQ entries using embeddings (or tag fallback)
+      let context: FAQEntry[];
+      const embeddings = await getEmbeddings(env);
+      if (embeddings) {
+        const qResult = await env.AI.run("@cf/google/embeddinggemma-300m", { text: [question] }) as {
+          data: number[][];
+        };
+        const matches = embeddingSearch(qResult.data[0], embeddings, FAQ_DATA.entries, 3);
+        context = matches.map(m => m.entry);
+      } else {
+        context = tagSearch(FAQ_DATA.entries, question, 3);
+      }
+
+      if (context.length === 0) {
+        return respond({
+          question,
+          answer: "I couldn't find any relevant FAQ entries for your question. Try rephrasing or browse /categories.",
+          sources: [],
+        });
+      }
+
+      // Build context for the LLM
+      const faqContext = context.map((e, i) =>
+        `[FAQ ${i + 1}] ${e.question}\n${e.answer}`
+      ).join("\n\n---\n\n");
+
+      const messages = [
+        {
+          role: "system" as const,
+          content: `You are a helpful assistant for the Claude AI community. Answer the user's question using ONLY the FAQ entries provided below. Be concise and friendly. If the FAQ entries don't fully answer the question, say so and suggest they check the official docs at docs.anthropic.com.\n\nFAQ ENTRIES:\n${faqContext}`,
+        },
+        { role: "user" as const, content: question },
+      ];
+
+      try {
+        const llmResult = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", { messages }) as {
+          response: string;
+        };
+
+        return respond({
+          question,
+          answer: llmResult.response,
+          sources: context.map(e => ({ slug: e.slug, question: e.question })),
+        });
+      } catch (err) {
+        // Fallback: return the best matching FAQ entry directly
+        return respond({
+          question,
+          answer: context[0].answer,
+          sources: [{ slug: context[0].slug, question: context[0].question }],
+          note: "AI response unavailable, returning best FAQ match directly.",
+        });
+      }
+    }
+
+    // ── Categories ──
+    if (subPath === "/categories") {
+      return respond({
+        count: FAQ_DATA.categories.length,
+        categories: FAQ_DATA.categories.map(cat => {
+          const entries = FAQ_DATA.entries.filter(e => e.category === cat);
+          return {
+            name: cat,
+            entry_count: entries.length,
+            subcategories: [...new Set(entries.map(e => e.subcategory))],
+          };
+        }),
+      });
+    }
+
+    // ── Entries ──
     if (subPath === "/entries") {
       let entries = FAQ_DATA.entries;
       const category = url.searchParams.get("category")?.toLowerCase();
-      const status = url.searchParams.get("status") as "answered" | "temp" | "stub" | null;
 
       if (category) {
         entries = entries.filter(e =>
@@ -283,58 +360,45 @@ export default {
         );
       }
 
-      if (status && ["answered", "temp", "stub"].includes(status)) {
-        entries = entries.filter(e => e.answer_status === status);
-      }
-
-      return withRateHeaders(jsonResponse({
+      return respond({
         count: entries.length,
         entries: entries.map(e => ({
           slug: e.slug,
           question: e.question,
+          tags: e.tags.slice(0, 5),
           category: e.category,
           subcategory: e.subcategory,
-          answer_status: e.answer_status,
         })),
-      }));
+      });
     }
 
-    // Slug list
+    // ── Slugs ──
     if (subPath === "/slugs") {
-      return withRateHeaders(jsonResponse({
-        count: FAQ_DATA.entry_count,
-        slugs: Object.keys(FAQ_DATA.slugs),
-      }));
+      return respond({ count: FAQ_DATA.entry_count, slugs: Object.keys(FAQ_DATA.slugs) });
     }
 
     // ── Slug lookup (catch-all) ──
     const slug = subPath.replace(/^\//, "");
     if (!slug || slug.includes("/")) {
-      return withRateHeaders(jsonResponse({
-        error: "Not Found",
-        message: `Unknown endpoint: ${path}`,
-      }, 404));
+      return respond({ error: "Not Found", message: `Unknown endpoint: ${path}` }, 404);
     }
 
     const entryIndex = FAQ_DATA.slugs[slug];
     if (entryIndex === undefined) {
-      const results = searchEntries(FAQ_DATA.entries, slug.replace(/-/g, " "), 3);
-      return withRateHeaders(jsonResponse({
+      const suggestions = tagSearch(FAQ_DATA.entries, slug.replace(/-/g, " "), 3);
+      return respond({
         error: "FAQ entry not found",
         slug,
-        did_you_mean: results.map(e => ({
-          slug: e.slug,
-          question: e.question,
-        })),
-      }, 404));
+        did_you_mean: suggestions.map(e => ({ slug: e.slug, question: e.question })),
+      }, 404);
     }
 
     const entry = FAQ_DATA.entries[entryIndex];
 
     if (format === "discord") {
-      return withRateHeaders(jsonResponse(toDiscordEmbed(entry)));
+      return respond(toDiscordEmbed(entry));
     }
 
-    return withRateHeaders(jsonResponse(entry));
+    return respond(entry);
   },
 };
