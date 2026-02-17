@@ -1,0 +1,3 @@
+[submodule "claude-faqs"]
+	path = claude-faqs
+	url = https://github.com/konacodes/claude-faqs.git
