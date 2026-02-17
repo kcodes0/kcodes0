@@ -1,0 +1,1842 @@
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
+// .wrangler/tmp/bundle-mAa11C/checked-fetch.js
+var urls = /* @__PURE__ */ new Set();
+function checkURL(request, init) {
+  const url = request instanceof URL ? request : new URL(
+    (typeof request === "string" ? new Request(request, init) : request).url
+  );
+  if (url.port && url.port !== "443" && url.protocol === "https:") {
+    if (!urls.has(url.toString())) {
+      urls.add(url.toString());
+      console.warn(
+        `WARNING: known issue with \`fetch()\` requests to custom HTTPS ports in published Workers:
+ - ${url.toString()} - the custom port will be ignored when the Worker is published using the \`wrangler deploy\` command.
+`
+      );
+    }
+  }
+}
+__name(checkURL, "checkURL");
+globalThis.fetch = new Proxy(globalThis.fetch, {
+  apply(target, thisArg, argArray) {
+    const [request, init] = argArray;
+    checkURL(request, init);
+    return Reflect.apply(target, thisArg, argArray);
+  }
+});
+
+// .wrangler/tmp/bundle-mAa11C/strip-cf-connecting-ip-header.js
+function stripCfConnectingIPHeader(input, init) {
+  const request = new Request(input, init);
+  request.headers.delete("CF-Connecting-IP");
+  return request;
+}
+__name(stripCfConnectingIPHeader, "stripCfConnectingIPHeader");
+globalThis.fetch = new Proxy(globalThis.fetch, {
+  apply(target, thisArg, argArray) {
+    return Reflect.apply(target, thisArg, [
+      stripCfConnectingIPHeader.apply(null, argArray)
+    ]);
+  }
+});
+
+// src/data.ts
+var FAQ_DATA = {
+  "version": "1.0.0",
+  "generated_at": "2026-02-17T06:32:53.365Z",
+  "entry_count": 58,
+  "entries": [
+    {
+      "id": "account-issues-faqs/account-banned",
+      "slug": "account-banned",
+      "category": "Account Issues FAQ",
+      "subcategory": "Account Bans and Suspensions",
+      "question": "My account was banned! What can I do?",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "account-issues-faqs.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/account-issues-faqs.md#my-account-was-banned-what-can-i-do",
+      "tags": [
+        "account",
+        "banned"
+      ]
+    },
+    {
+      "id": "account-issues-faqs/appeal-account-ban",
+      "slug": "appeal-account-ban",
+      "category": "Account Issues FAQ",
+      "subcategory": "Account Bans and Suspensions",
+      "question": "How do I appeal an account ban?",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "account-issues-faqs.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/account-issues-faqs.md#how-do-i-appeal-an-account-ban",
+      "tags": [
+        "appeal",
+        "account",
+        "ban"
+      ]
+    },
+    {
+      "id": "account-issues-faqs/account-temporarily-suspended-long",
+      "slug": "account-temporarily-suspended-long",
+      "category": "Account Issues FAQ",
+      "subcategory": "Account Bans and Suspensions",
+      "question": "My account is temporarily suspended. How long will it last?",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "account-issues-faqs.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/account-issues-faqs.md#my-account-is-temporarily-suspended-how-long-will-it-last",
+      "tags": [
+        "account",
+        "temporarily",
+        "suspended",
+        "long",
+        "last"
+      ]
+    },
+    {
+      "id": "account-issues-faqs/log-into-account-try",
+      "slug": "log-into-account-try",
+      "category": "Account Issues FAQ",
+      "subcategory": "Login and Access Problems",
+      "question": "I can't log into my account. What should I try?",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "account-issues-faqs.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/account-issues-faqs.md#i-cant-log-into-my-account-what-should-i-try",
+      "tags": [
+        "log",
+        "into",
+        "account",
+        "try"
+      ]
+    },
+    {
+      "id": "account-issues-faqs/forgot-password-reset",
+      "slug": "forgot-password-reset",
+      "category": "Account Issues FAQ",
+      "subcategory": "Login and Access Problems",
+      "question": "I forgot my password. How do I reset it?",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "account-issues-faqs.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/account-issues-faqs.md#i-forgot-my-password-how-do-i-reset-it",
+      "tags": [
+        "forgot",
+        "password",
+        "reset"
+      ]
+    },
+    {
+      "id": "account-issues-faqs/getting-invalid-email-password",
+      "slug": "getting-invalid-email-password",
+      "category": "Account Issues FAQ",
+      "subcategory": "Login and Access Problems",
+      "question": `I'm getting an "Invalid email or password" error`,
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "account-issues-faqs.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/account-issues-faqs.md#im-getting-an-invalid-email-or-password-error",
+      "tags": [
+        "getting",
+        "invalid",
+        "email",
+        "password",
+        "error"
+      ]
+    },
+    {
+      "id": "account-issues-faqs/claude-says-access-mean",
+      "slug": "claude-says-access-mean",
+      "category": "Account Issues FAQ",
+      "subcategory": "Login and Access Problems",
+      "question": "Claude says I don't have access. What does this mean?",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "account-issues-faqs.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/account-issues-faqs.md#claude-says-i-dont-have-access-what-does-this-mean",
+      "tags": [
+        "claude",
+        "says",
+        "access",
+        "mean"
+      ]
+    },
+    {
+      "id": "account-issues-faqs/access-account-because-changed",
+      "slug": "access-account-because-changed",
+      "category": "Account Issues FAQ",
+      "subcategory": "Account Recovery",
+      "question": "I can't access my account because I changed email addresses",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "account-issues-faqs.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/account-issues-faqs.md#i-cant-access-my-account-because-i-changed-email-addresses",
+      "tags": [
+        "access",
+        "account",
+        "because",
+        "changed",
+        "email",
+        "addresses"
+      ]
+    },
+    {
+      "id": "account-issues-faqs/deleted-account-accident-recover",
+      "slug": "deleted-account-accident-recover",
+      "category": "Account Issues FAQ",
+      "subcategory": "Account Recovery",
+      "question": "I deleted my account by accident. Can I recover it?",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "account-issues-faqs.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/account-issues-faqs.md#i-deleted-my-account-by-accident-can-i-recover-it",
+      "tags": [
+        "deleted",
+        "account",
+        "accident",
+        "recover"
+      ]
+    },
+    {
+      "id": "account-issues-faqs/someone-else-using-account",
+      "slug": "someone-else-using-account",
+      "category": "Account Issues FAQ",
+      "subcategory": "Account Recovery",
+      "question": "Someone else is using my account. What should I do?",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "account-issues-faqs.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/account-issues-faqs.md#someone-else-is-using-my-account-what-should-i-do",
+      "tags": [
+        "someone",
+        "else",
+        "using",
+        "account"
+      ]
+    },
+    {
+      "id": "account-issues-faqs/delete-account-permanently",
+      "slug": "delete-account-permanently",
+      "category": "Account Issues FAQ",
+      "subcategory": "Profile and Settings",
+      "question": "How do I delete my account permanently?",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "account-issues-faqs.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/account-issues-faqs.md#how-do-i-delete-my-account-permanently",
+      "tags": [
+        "delete",
+        "account",
+        "permanently"
+      ]
+    },
+    {
+      "id": "account-issues-faqs/change-email-address",
+      "slug": "change-email-address",
+      "category": "Account Issues FAQ",
+      "subcategory": "Profile and Settings",
+      "question": "How do I change my email address?",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "account-issues-faqs.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/account-issues-faqs.md#how-do-i-change-my-email-address",
+      "tags": [
+        "change",
+        "email",
+        "address"
+      ]
+    },
+    {
+      "id": "account-issues-faqs/access-certain-features",
+      "slug": "access-certain-features",
+      "category": "Account Issues FAQ",
+      "subcategory": "Profile and Settings",
+      "question": "Why can't I access certain features?",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "account-issues-faqs.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/account-issues-faqs.md#why-cant-i-access-certain-features",
+      "tags": [
+        "access",
+        "certain",
+        "features"
+      ]
+    },
+    {
+      "id": "general-faq/claude-ignore-instructions",
+      "slug": "claude-ignore-instructions",
+      "category": "General Questions About Claude",
+      "subcategory": "General Questions About Claude",
+      "question": "Why does Claude ignore my instructions?",
+      "answer": "Claude follows clear instructions that don't compromise safety or core functionality. If Claude seems to ignore something, check if the instruction conflicts with other requests, safety guidelines, or technical limitations. Be specific about what you want.",
+      "answer_status": "temp",
+      "source_file": "general-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/general-faq.md#why-does-claude-ignore-my-instructions",
+      "tags": [
+        "claude",
+        "ignore",
+        "instructions",
+        "follows",
+        "clear",
+        "compromise",
+        "safety",
+        "core",
+        "functionality",
+        "seems"
+      ]
+    },
+    {
+      "id": "general-faq/claude-lie",
+      "slug": "claude-lie",
+      "category": "General Questions About Claude",
+      "subcategory": "General Questions About Claude",
+      "question": "Why does Claude lie?",
+      "answer": "Claude doesn't intentionally lie, but it can provide incorrect information. Claude aims for accuracy but has limitations that can produce errors. It may give outdated information from its training data, misunderstand your question, make confident sounding mistakes about facts, or hallucinate plausible but false details. What might look like lying is often Claude refusing harmful requests or giving different responses based on context. The real issues are that Claude can generate false information confidently, has a knowledge cutoff that means missing recent events, and may fill information gaps with incorrect but reasonable-sounding details. To handle this, verify important facts independently, ask for sources when possible, point out errors so Claude can correct them, and be specific about what accuracy level you need. Claude aims for truthfulness but has limitations like any AI system.",
+      "answer_status": "temp",
+      "source_file": "general-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/general-faq.md#why-does-claude-lie",
+      "tags": [
+        "claude",
+        "lie",
+        "intentionally",
+        "provide",
+        "incorrect",
+        "information",
+        "aims",
+        "accuracy",
+        "limitations",
+        "produce"
+      ]
+    },
+    {
+      "id": "billing-faq/pro-max-plan-worth-billing-faq",
+      "slug": "pro-max-plan-worth-billing-faq",
+      "category": "Billing & Plans FAQ",
+      "subcategory": "Plan Comparisons and Pricing",
+      "question": "Is the Pro or Max plan worth it? What are the real differences?",
+      "answer": "Plan value depends on your usage patterns:\n\n**Claude Pro benefits:**\n- **Higher usage limits**: Significantly more messages per day/month\n- **Priority access**: Faster responses during peak times\n- **Advanced features**: Early access to new Claude capabilities\n- **Better reliability**: More consistent availability\n\n**Claude Max (5x/20x) benefits:**\n- **Even higher limits**: For power users and professionals (typically used for Claude Code)\n- **Premium model access**: Latest and most capable Claude models\n- **Enhanced features**: Additional tools and integrations\n\n**Worth upgrading if you:**\n- Hit free tier limits regularly\n- Use Claude for work/professional purposes\n- Need reliable access during busy periods\n- Want access to the latest features and models",
+      "answer_status": "temp",
+      "source_file": "billing-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/billing-faq.md#is-the-pro-or-max-plan-worth-it-what-are-the-real-differences",
+      "tags": [
+        "pro",
+        "max",
+        "plan",
+        "worth",
+        "real",
+        "differences",
+        "value",
+        "depends",
+        "your",
+        "usage"
+      ]
+    },
+    {
+      "id": "billing-faq/there-cheaper-plan-mid-tier-billing-faq",
+      "slug": "there-cheaper-plan-mid-tier-billing-faq",
+      "category": "Billing & Plans FAQ",
+      "subcategory": "Plan Comparisons and Pricing",
+      "question": "Is there a cheaper plan, or a mid-tier option between Pro and Max?",
+      "answer": "Plan availability varies by region and time:\n\n**Current options typically include:**\n- **Free tier**: Limited usage for casual users\n- **Pro plan**: Most popular paid option for regular users\n- **Max plan**: Premium tier for heavy users (if available)\n- **Team/Enterprise**: Business-focused plans with admin features\n\n**Cost-saving strategies:**\n- Start with Pro and assess if you need Max features\n- Monitor your usage to choose the right tier\n- Look for student or educational discounts\n- Consider sharing costs with team plans if available",
+      "answer_status": "temp",
+      "source_file": "billing-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/billing-faq.md#is-there-a-cheaper-plan-or-a-mid-tier-option-between-pro-and-max",
+      "tags": [
+        "there",
+        "cheaper",
+        "plan",
+        "midtier",
+        "option",
+        "between",
+        "pro",
+        "max",
+        "availability",
+        "varies"
+      ]
+    },
+    {
+      "id": "billing-faq/hitting-usage-limit-quickly-billing-faq",
+      "slug": "hitting-usage-limit-quickly-billing-faq",
+      "category": "Billing & Plans FAQ",
+      "subcategory": "Plan Comparisons and Pricing",
+      "question": "Why am I hitting my usage limit so quickly on the Pro/Max plan?",
+      "answer": "Fast usage consumption can be caused by:\n\n**High token usage activities:**\n- **Large codebase analysis**: Processing many files at once\n- **Long conversations**: Extended back-and-forth discussions\n- **Complex requests**: Detailed analysis, code generation, or research\n- **Claude Code usage**: Sub-agents and advanced features use more resources\n- **File uploads**: Large documents or multiple file processing\n\n**Usage optimization tips:**\n- **Break large requests** into smaller, focused tasks\n- **Start fresh conversations** for new topics to avoid context bloat\n- **Use simpler models** (like Haiku) for basic tasks when available\n- **Monitor usage patterns** to identify high-consumption activities\n- **Cache or save important responses** to avoid re-asking similar questions\n\n**Check your usage:**\n- Review usage analytics in your account settings\n- Identify which activities consume the most tokens\n- Plan your usage around your limit reset date",
+      "answer_status": "temp",
+      "source_file": "billing-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/billing-faq.md#why-am-i-hitting-my-usage-limit-so-quickly-on-the-promax-plan",
+      "tags": [
+        "hitting",
+        "usage",
+        "limit",
+        "quickly",
+        "promax",
+        "plan",
+        "fast",
+        "consumption",
+        "caused",
+        "high"
+      ]
+    },
+    {
+      "id": "billing-faq/happens-hit-usage-limit",
+      "slug": "happens-hit-usage-limit",
+      "category": "Billing & Plans FAQ",
+      "subcategory": "Payment and Billing Issues",
+      "question": "What happens when I hit my usage limit?",
+      "answer": "When you reach usage limits:\n\n**Immediate effects:**\n- New conversations may be restricted\n- Error messages about limit exceeded\n- Suggestions to upgrade or wait for reset\n- Possible queue access during off-peak times\n\n**Options available:**\n- **Wait for reset**: Limits typically reset monthly\n- **Upgrade plan**: Get higher limits immediately\n- **Use cached responses**: Review previous conversations for needed information\n- **Plan usage**: Save complex requests for when limits reset\n\n**Limit types:**\n- **Message limits**: Number of conversations/requests\n- **Token limits**: Total text processing (input + output)\n- **Feature limits**: Access to specific advanced features",
+      "answer_status": "temp",
+      "source_file": "billing-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/billing-faq.md#what-happens-when-i-hit-my-usage-limit",
+      "tags": [
+        "happens",
+        "hit",
+        "usage",
+        "limit",
+        "you",
+        "reach",
+        "limits",
+        "immediate",
+        "effects",
+        "new"
+      ]
+    },
+    {
+      "id": "billing-faq/counts-toward-usage-limits",
+      "slug": "counts-toward-usage-limits",
+      "category": "Billing & Plans FAQ",
+      "subcategory": "Usage and Features",
+      "question": "What counts toward my usage limits?",
+      "answer": "Usage typically includes:\n\n**Text processing:**\n- **Input tokens**: Your messages and prompts to Claude\n- **Output tokens**: Claude's responses to you\n- **Context tokens**: Conversation history and file contents\n- **System tokens**: Internal processing and function calls\n\n**Claude Code specific usage:**\n- **Sub-agent operations**: Each agent uses additional resources\n- **File processing**: Reading, analyzing, and modifying files\n- **Tool usage**: External integrations and API calls\n- **Project context**: Maintaining project state and memory\n\n**What typically doesn't count:**\n- **Reading your own messages**: Reviewing past conversations\n- **UI interactions**: Clicking buttons, navigating interface\n- **Account management**: Changing settings, billing updates",
+      "answer_status": "temp",
+      "source_file": "billing-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/billing-faq.md#what-counts-toward-my-usage-limits",
+      "tags": [
+        "counts",
+        "toward",
+        "usage",
+        "limits",
+        "typically",
+        "includes",
+        "text",
+        "processing",
+        "input",
+        "tokens"
+      ]
+    },
+    {
+      "id": "billing-faq/optimize-usage-stay-within",
+      "slug": "optimize-usage-stay-within",
+      "category": "Billing & Plans FAQ",
+      "subcategory": "Usage and Features",
+      "question": "How can I optimize my usage to stay within limits?",
+      "answer": "Usage optimization strategies:\n\n**Conversation management:**\n- **Start fresh**: New conversations for unrelated topics\n- **Be concise**: Clear, specific requests save tokens\n- **Avoid repetition**: Reference previous answers instead of re-asking\n- **Use summaries**: Periodically summarize long conversations\n\n**Request optimization:**\n- **Batch questions**: Ask multiple related questions at once\n- **Choose appropriate complexity**: Don't over-engineer simple requests\n- **Use examples**: Show Claude what you want instead of lengthy explanations\n- **Cache responses**: Save important answers for reference\n\n**Claude Code optimization:**\n- **Targeted file access**: Only include necessary files in project context\n- **Appropriate sub-agents**: Choose the right tool for each task\n- **Efficient workflows**: Plan multi-step processes to minimize back-and-forth",
+      "answer_status": "temp",
+      "source_file": "billing-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/billing-faq.md#how-can-i-optimize-my-usage-to-stay-within-limits",
+      "tags": [
+        "optimize",
+        "usage",
+        "stay",
+        "within",
+        "limits",
+        "optimization",
+        "strategies",
+        "conversation",
+        "management",
+        "start"
+      ]
+    },
+    {
+      "id": "billing-faq/downgrade-plan-using-enough",
+      "slug": "downgrade-plan-using-enough",
+      "category": "Billing & Plans FAQ",
+      "subcategory": "Account Management",
+      "question": "Can I downgrade my plan if I'm not using it enough?",
+      "answer": "Plan downgrades are typically available.\n\n**Important considerations:**\n- **Billing cycles**: Changes may take effect at next billing period\n- **Feature loss**: You'll lose access to premium features at cycle end\n- **Usage limits**: New limits apply according to downgrade timing\n- **No refunds**: Partial month charges aren't refunded, they are prorated (e.g. if you paid $100 for Max 5x but halfway through the month you downgrade to Pro at $20, you won't get $50 back, but you may get a credit towards the next billing cycle)\n\n**Before downgrading:**\n- Review your actual usage patterns over several months\n- Consider seasonal variations in your usage\n- Account for potential future needs",
+      "answer_status": "temp",
+      "source_file": "billing-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/billing-faq.md#can-i-downgrade-my-plan-if-im-not-using-it-enough",
+      "tags": [
+        "downgrade",
+        "plan",
+        "using",
+        "enough",
+        "downgrades",
+        "typically",
+        "available",
+        "important",
+        "considerations",
+        "billing"
+      ]
+    },
+    {
+      "id": "billing-faq/cancel-subscription-completely",
+      "slug": "cancel-subscription-completely",
+      "category": "Billing & Plans FAQ",
+      "subcategory": "Account Management",
+      "question": "How do I cancel my subscription completely?",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "billing-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/billing-faq.md#how-do-i-cancel-my-subscription-completely",
+      "tags": [
+        "cancel",
+        "subscription",
+        "completely"
+      ]
+    },
+    {
+      "id": "billing-faq/refund-subscription",
+      "slug": "refund-subscription",
+      "category": "Billing & Plans FAQ",
+      "subcategory": "Account Management",
+      "question": "Can I get a refund for my subscription?",
+      "answer": "Refunds are not generally given and may require specific and special circumstances.",
+      "answer_status": "temp",
+      "source_file": "billing-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/billing-faq.md#can-i-get-a-refund-for-my-subscription",
+      "tags": [
+        "refund",
+        "subscription",
+        "refunds",
+        "generally",
+        "given",
+        "may",
+        "require",
+        "specific",
+        "special",
+        "circumstances"
+      ]
+    },
+    {
+      "id": "claude-code-faq/new-claude-code-best",
+      "slug": "new-claude-code-best",
+      "category": "Claude Code FAQ",
+      "subcategory": "Getting Started & Best Practices",
+      "question": "I'm new to Claude Code. What are the best workflows for building projects?",
+      "answer": "Start with small, focused tasks to understand Claude Code's capabilities. Use the project feature to maintain context across sessions. Break larger projects into manageable chunks and use the todo list feature to track progress. Claude Code works best when given clear, specific instructions rather than vague requests.",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#im-new-to-claude-code-what-are-the-best-workflows-for-building-projects",
+      "tags": [
+        "new",
+        "claude",
+        "code",
+        "best",
+        "workflows",
+        "building",
+        "projects",
+        "start",
+        "small",
+        "focused"
+      ]
+    },
+    {
+      "id": "claude-code-faq/start-small-iterative-tasks",
+      "slug": "start-small-iterative-tasks",
+      "category": "Claude Code FAQ",
+      "subcategory": "Getting Started & Best Practices",
+      "question": "Should I start with small, iterative tasks or give Claude the full project scope at once?",
+      "answer": "Start with small, iterative tasks. This allows you to:\n- Verify Claude understands your requirements correctly\n- Catch issues early before they compound\n- Maintain better control over the project direction\n- Learn how Claude Code works best with your coding style\n\nOnce comfortable, you can gradually increase task complexity.",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#should-i-start-with-small-iterative-tasks-or-give-claude-the-full-project-scope-at-once",
+      "tags": [
+        "start",
+        "small",
+        "iterative",
+        "tasks",
+        "give",
+        "claude",
+        "full",
+        "project",
+        "scope",
+        "once"
+      ]
+    },
+    {
+      "id": "claude-code-faq/best-ide-setup-claude",
+      "slug": "best-ide-setup-claude",
+      "category": "Claude Code FAQ",
+      "subcategory": "Getting Started & Best Practices",
+      "question": "What is the best IDE setup for Claude Code (e.g., VS Code vs. Cursor)?",
+      "answer": 'Claude Code works as a standalone CLI tool that integrates with any development environment. Popular setups include:\n- **VS Code**: Use alongside Claude Code for file editing and project management\n- **Terminal/Command Line**: Direct interaction with Claude Code CLI\n- **Any editor**: Claude Code can read and modify files created in any text editor (just not all support "live" editing)\n\nThe choice depends on your personal preference and existing workflow.',
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#what-is-the-best-ide-setup-for-claude-code-eg-vs-code-vs-cursor",
+      "tags": [
+        "best",
+        "ide",
+        "setup",
+        "claude",
+        "code",
+        "cursor",
+        "works",
+        "standalone",
+        "cli",
+        "tool"
+      ]
+    },
+    {
+      "id": "claude-code-faq/make-claude-less-agreeable",
+      "slug": "make-claude-less-agreeable",
+      "category": "Claude Code FAQ",
+      "subcategory": "Getting Started & Best Practices",
+      "question": "How can I make Claude less agreeable and more of a critical coding partner?",
+      "answer": 'To get more critical feedback from Claude:\n- Ask explicitly for code reviews and critiques\n- Request alternative approaches or potential issues\n- Ask "What could go wrong with this approach?"\n- Request performance, security, or maintainability concerns\n- Use prompts addendums like "Challenge my assumptions" or "What am I missing?"',
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#how-can-i-make-claude-less-agreeable-and-more-of-a-critical-coding-partner",
+      "tags": [
+        "make",
+        "claude",
+        "less",
+        "agreeable",
+        "more",
+        "critical",
+        "coding",
+        "partner",
+        "feedback",
+        "ask"
+      ]
+    },
+    {
+      "id": "claude-code-faq/prevent-claude-over-engineering-code",
+      "slug": "prevent-claude-over-engineering-code",
+      "category": "Claude Code FAQ",
+      "subcategory": "Getting Started & Best Practices",
+      "question": "How do I prevent Claude from over-engineering my code?",
+      "answer": `To keep Claude's code simple and focused:
+- Specify "keep it simple" or "minimal implementation" in your requests
+- Ask for "the simplest solution that works"
+- Ask Claude for a Minimum Viable Product (MVP) first and build from there
+- Avoid asking for optimizations or advanced features until the basic version is complete
+- Set constraints like "use only standard library" or "maximum 50 lines"
+- Request explanations for complex patterns Claude suggests
+- Explicitly state when you prefer simple over optimal solutions`,
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#how-do-i-prevent-claude-from-over-engineering-my-code",
+      "tags": [
+        "prevent",
+        "claude",
+        "overengineering",
+        "code",
+        "keep",
+        "claudes",
+        "simple",
+        "focused",
+        "specify",
+        "minimal"
+      ]
+    },
+    {
+      "id": "claude-code-faq/developer-use-claude-build",
+      "slug": "developer-use-claude-build",
+      "category": "Claude Code FAQ",
+      "subcategory": "Getting Started & Best Practices",
+      "question": "I'm not a developer. How can I use Claude to build simple apps or for creative projects?",
+      "answer": "Non-developers can use Claude Code for:\n- **Simple scripts**: Automation tasks, file processing\n- **Web pages**: Basic HTML/CSS/JavaScript sites\n- **Creative tools**: Text processing, data manipulation\n- **Learning**: Understanding code through explanation and modification\n\nStart with very small projects and ask Claude to explain everything it creates.",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#im-not-a-developer-how-can-i-use-claude-to-build-simple-apps-or-for-creative-projects",
+      "tags": [
+        "developer",
+        "use",
+        "claude",
+        "build",
+        "simple",
+        "apps",
+        "creative",
+        "projects",
+        "nondevelopers",
+        "code"
+      ]
+    },
+    {
+      "id": "claude-code-faq/make-claude-remember-our",
+      "slug": "make-claude-remember-our",
+      "category": "Claude Code FAQ",
+      "subcategory": "Context, Memory, and Limits",
+      "question": "How can I make Claude remember our past conversations (persistent memory)?",
+      "answer": "Claude Code doesn't have persistent memory between sessions by default, but you can:\n- Use the `#<what you want claude to know across sessions>` feature to append important context about your codebase to the `CLAUDE.md` file\n- Save important information to files that Claude can read (typically within the same directory)\n- Create documentation files that capture important decisions and context",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#how-can-i-make-claude-remember-our-past-conversations-persistent-memory",
+      "tags": [
+        "make",
+        "claude",
+        "remember",
+        "our",
+        "past",
+        "conversations",
+        "persistent",
+        "memory",
+        "code",
+        "between"
+      ]
+    },
+    {
+      "id": "claude-code-faq/context-rot-prevent-claude",
+      "slug": "context-rot-prevent-claude",
+      "category": "Claude Code FAQ",
+      "subcategory": "Context, Memory, and Limits",
+      "question": 'What is "context rot" and how can I prevent Claude from losing context in long chats/sessions?',
+      "answer": "Context rot occurs when very long conversations and/or sessions cause Claude to lose track of earlier information. To prevent it:\n- Start fresh conversations for new topics (e.g. new features or larger changes, unrelated tasks for the same codebase)\n- Summarize important points periodically (you can use `/compact` or create your own summary files for Claude to read)\n- Break complex tasks into focused sessions\n- Reference specific files rather than relying on conversation memory (e.g. tagging a file with `@/path/to/filename`)",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#what-is-context-rot-and-how-can-i-prevent-claude-from-losing-context-in-long-chatssessions",
+      "tags": [
+        "context",
+        "rot",
+        "prevent",
+        "claude",
+        "losing",
+        "long",
+        "chatssessions",
+        "occurs",
+        "very",
+        "conversations"
+      ]
+    },
+    {
+      "id": "claude-code-faq/auto-compaction-affect-conversation",
+      "slug": "auto-compaction-affect-conversation",
+      "category": "Claude Code FAQ",
+      "subcategory": "Context, Memory, and Limits",
+      "question": 'What is "auto-compaction" and how does it affect my conversation?',
+      "answer": "Auto-compaction is a feature that summarizes or compresses older parts of long conversations to maintain performance during longer sessions. Effects include:\n- Earlier conversation details may become less accessible (e.g. specific remarks, instructions, etc.)\n- Context from early in the conversation may be summarized\n- Performance remains consistent in very long chats (note: there typically is consistent performance across coding tasks, but degradation of conversation context may occur)\n- Important information should be saved to files rather than relying on chat memory",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#what-is-auto-compaction-and-how-does-it-affect-my-conversation",
+      "tags": [
+        "autocompaction",
+        "affect",
+        "conversation",
+        "feature",
+        "summarizes",
+        "compresses",
+        "older",
+        "parts",
+        "long",
+        "conversations"
+      ]
+    },
+    {
+      "id": "claude-code-faq/hitting-usage-limit-quickly-claude-code-faq",
+      "slug": "hitting-usage-limit-quickly-claude-code-faq",
+      "category": "Claude Code FAQ",
+      "subcategory": "Context, Memory, and Limits",
+      "question": "Why am I hitting my usage limit so quickly on the Pro/Max plan?",
+      "answer": "Usage limits can be reached quickly due to:\n- Large codebases: Processing many files uses significant tokens (remember: input tokens + output tokens count against your limit)\n- Long conversations: Extended back-and-forth discussions (e.g. debugging sessions, reviewing code, planning, errors all count against your limit)\n- Complex requests: Detailed analysis or code generation (e.g. longer initial prompts, more comments, explanations, etc.)\n- Parallel operations: Multiple sub-agents running simultaneously or multiple `claude` instances running simultaneously\n\nMonitor your usage in account settings and consider breaking large tasks into smaller sessions (see above for tips/tricks).",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#why-am-i-hitting-my-usage-limit-so-quickly-on-the-promax-plan",
+      "tags": [
+        "hitting",
+        "usage",
+        "limit",
+        "quickly",
+        "promax",
+        "plan",
+        "limits",
+        "reached",
+        "due",
+        "large"
+      ]
+    },
+    {
+      "id": "claude-code-faq/check-remaining-usage-limit",
+      "slug": "check-remaining-usage-limit",
+      "category": "Claude Code FAQ",
+      "subcategory": "Context, Memory, and Limits",
+      "question": "How do I check my remaining usage or when my limit resets?",
+      "answer": "Unfortunately, Claude Code does not currently provide a built-in way to check usage or limits for Pro/Max users. To monitor your usage for API users you can:\n- Check your account dashboard on https://console.anthropic.com/ for API usage details\n- Track your usage manually based on your known limits and typical usage patterns\n- Contact support for specific questions about your plan and usage\n- Contact sales if you need a custom plan or higher limits",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#how-do-i-check-my-remaining-usage-or-when-my-limit-resets",
+      "tags": [
+        "check",
+        "remaining",
+        "usage",
+        "limit",
+        "resets",
+        "unfortunately",
+        "claude",
+        "code",
+        "currently",
+        "provide"
+      ]
+    },
+    {
+      "id": "claude-code-faq/pro-max-plan-worth-claude-code-faq",
+      "slug": "pro-max-plan-worth-claude-code-faq",
+      "category": "Claude Code FAQ",
+      "subcategory": "Context, Memory, and Limits",
+      "question": "Is the Pro or Max plan worth it? What are the real differences?",
+      "answer": "Plan differences typically include:\n- **Usage limits**: Higher message/token limits on paid plans\n- **Priority access**: Faster response times during peak usage\n- **Advanced features**: Early access to new Claude Code features\n- **Model access**: Access to newer or more capable Claude models (note: as of 08/28/2025 Pro users do not have access to Claude 4/4.1 Opus via Claude Code; Opus models are available via the web app)\n\nConsider upgrading if you hit free tier limits regularly or need consistent access during peak times.",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#is-the-pro-or-max-plan-worth-it-what-are-the-real-differences",
+      "tags": [
+        "pro",
+        "max",
+        "plan",
+        "worth",
+        "real",
+        "differences",
+        "typically",
+        "include",
+        "usage",
+        "limits"
+      ]
+    },
+    {
+      "id": "claude-code-faq/there-cheaper-plan-mid-tier-claude-code-faq",
+      "slug": "there-cheaper-plan-mid-tier-claude-code-faq",
+      "category": "Claude Code FAQ",
+      "subcategory": "Context, Memory, and Limits",
+      "question": "Is there a cheaper plan, or a mid-tier option between Pro and Max?",
+      "answer": "Plan availability and pricing may vary. Check the current pricing page for:\n- Available subscription tiers\n- Regional pricing differences\n- Student or educational discounts\n- Usage-based vs subscription options\n\nCurrently, there are no mid-tier options between Pro and Max.",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#is-there-a-cheaper-plan-or-a-mid-tier-option-between-pro-and-max",
+      "tags": [
+        "there",
+        "cheaper",
+        "plan",
+        "midtier",
+        "option",
+        "between",
+        "pro",
+        "max",
+        "availability",
+        "pricing"
+      ]
+    },
+    {
+      "id": "claude-code-faq/effectively-use-sub-agents-mcps",
+      "slug": "effectively-use-sub-agents-mcps",
+      "category": "Claude Code FAQ",
+      "subcategory": "Claude Code: Advanced Features (Agents & MCPs)",
+      "question": "How do I effectively use Sub-agents and MCPs with Claude Code?",
+      "answer": "Sub-agents and MCPs (Model Context Protocols) allow specialized functionality:\n- **Sub-agents**: Use for specific tasks like code review, documentation, or testing\n- **MCPs**: Connect external tools and services to Claude Code\n- **Best practices**: Choose the right agent for each task, monitor their progress, provide clear instructions",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#how-do-i-effectively-use-sub-agents-and-mcps-with-claude-code",
+      "tags": [
+        "effectively",
+        "use",
+        "subagents",
+        "mcps",
+        "claude",
+        "code",
+        "model",
+        "context",
+        "protocols",
+        "allow"
+      ]
+    },
+    {
+      "id": "claude-code-faq/most-popular-useful-community-built",
+      "slug": "most-popular-useful-community-built",
+      "category": "Claude Code FAQ",
+      "subcategory": "Claude Code: Advanced Features (Agents & MCPs)",
+      "question": "What are the most popular or useful community-built MCPs?",
+      "answer": "Popular community MCPs include:\n- Database connectors for various databases\n- API integrations for common services\n- Development tools (linters, formatters, testing frameworks)\n- File system utilities and search tools\n- Cloud service integrations\n\nCheck the Claude Code documentation and community repositories for current options.",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#what-are-the-most-popular-or-useful-community-built-mcps",
+      "tags": [
+        "most",
+        "popular",
+        "useful",
+        "communitybuilt",
+        "mcps",
+        "community",
+        "include",
+        "database",
+        "connectors",
+        "various"
+      ]
+    },
+    {
+      "id": "claude-code-faq/see-sub-agent-doing-improve",
+      "slug": "see-sub-agent-doing-improve",
+      "category": "Claude Code FAQ",
+      "subcategory": "Claude Code: Advanced Features (Agents & MCPs)",
+      "question": "How can I see what a sub-agent is doing and improve its visibility?",
+      "answer": "To monitor sub-agent activity:\n- Check the task/todo list for sub-agent progress\n- Request progress updates from sub-agents during long-running tasks",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#how-can-i-see-what-a-sub-agent-is-doing-and-improve-its-visibility",
+      "tags": [
+        "see",
+        "subagent",
+        "doing",
+        "improve",
+        "visibility",
+        "monitor",
+        "activity",
+        "check",
+        "tasktodo",
+        "list"
+      ]
+    },
+    {
+      "id": "claude-code-faq/sub-agents-run-parallel-instead",
+      "slug": "sub-agents-run-parallel-instead",
+      "category": "Claude Code FAQ",
+      "subcategory": "Claude Code: Advanced Features (Agents & MCPs)",
+      "question": "How can I get sub-agents to run in parallel instead of one by one?",
+      "answer": 'Parallel sub-agent execution:\n- Specify parallel execution in your request to the Delegator agent (e.g., "Run these tasks in parallel" or "Use sub-agent x and y simultaneously")\n- Break independent tasks into separate sub-agent calls\n- Some sub-agents may run in parallel automatically depending on the task',
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#how-can-i-get-sub-agents-to-run-in-parallel-instead-of-one-by-one",
+      "tags": [
+        "subagents",
+        "run",
+        "parallel",
+        "instead",
+        "one",
+        "subagent",
+        "execution",
+        "specify",
+        "your",
+        "request"
+      ]
+    },
+    {
+      "id": "claude-code-faq/connect-own-custom-mcp",
+      "slug": "connect-own-custom-mcp",
+      "category": "Claude Code FAQ",
+      "subcategory": "Claude Code: Advanced Features (Agents & MCPs)",
+      "question": "How do I connect my own custom MCP server to Claude?",
+      "answer": "",
+      "answer_status": "stub",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#how-do-i-connect-my-own-custom-mcp-server-to-claude",
+      "tags": [
+        "connect",
+        "own",
+        "custom",
+        "mcp",
+        "server",
+        "claude"
+      ]
+    },
+    {
+      "id": "claude-code-faq/claudes-personality-changed-feels",
+      "slug": "claudes-personality-changed-feels",
+      "category": "Claude Code FAQ",
+      "subcategory": "Troubleshooting, Bugs, and Performance Issues",
+      "question": "Why has Claude's personality changed? It feels colder/more robotic.",
+      "answer": "Perceived personality changes may be due to:\n- Model updates or improvements\n- Different conversation context\n- Changes in how you're interacting with Claude\n- Temporary technical issues\n\nTry starting a fresh conversation or adjusting your communication style.",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#why-has-claudes-personality-changed-it-feels-coldermore-robotic",
+      "tags": [
+        "claudes",
+        "personality",
+        "changed",
+        "feels",
+        "coldermore",
+        "robotic",
+        "perceived",
+        "changes",
+        "may",
+        "due"
+      ]
+    },
+    {
+      "id": "claude-code-faq/claude-say-youre-absolutely",
+      "slug": "claude-say-youre-absolutely",
+      "category": "Claude Code FAQ",
+      "subcategory": "Troubleshooting, Bugs, and Performance Issues",
+      "question": `Why does Claude say "You're absolutely right!" all the time, and how can I stop it?`,
+      "answer": "To reduce overly agreeable responses:\n- Ask Claude to be more critical or challenging\n- Request honest feedback and different perspectives\n- Use prompts that encourage disagreement when appropriate\n- Specify that you want authentic responses, not just agreement",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#why-does-claude-say-youre-absolutely-right-all-the-time-and-how-can-i-stop-it",
+      "tags": [
+        "claude",
+        "say",
+        "youre",
+        "absolutely",
+        "right",
+        "all",
+        "time",
+        "stop",
+        "reduce",
+        "overly"
+      ]
+    },
+    {
+      "id": "claude-code-faq/stop-claude-lying-falsely",
+      "slug": "stop-claude-lying-falsely",
+      "category": "Claude Code FAQ",
+      "subcategory": "Troubleshooting, Bugs, and Performance Issues",
+      "question": 'How do I stop Claude from "lying" or falsely claiming a task is complete?',
+      "answer": "To ensure accurate completion reporting:\n- Ask Claude to verify its work before marking tasks complete\n- Request specific evidence of completion\n- Use the todo list to track actual progress\n- Ask for screenshots or file outputs as proof\n- Break large tasks into verifiable smaller steps",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#how-do-i-stop-claude-from-lying-or-falsely-claiming-a-task-is-complete",
+      "tags": [
+        "stop",
+        "claude",
+        "lying",
+        "falsely",
+        "claiming",
+        "task",
+        "complete",
+        "ensure",
+        "accurate",
+        "completion"
+      ]
+    },
+    {
+      "id": "claude-code-faq/token-counter-todo-list",
+      "slug": "token-counter-todo-list",
+      "category": "Claude Code FAQ",
+      "subcategory": "Troubleshooting, Bugs, and Performance Issues",
+      "question": "Why are the token counter and TODO list missing in Claude Code?",
+      "answer": "If UI elements are missing:\n- Refresh the application or restart Claude Code\n- Check for updates to Claude Code as they may have removed previously available UI features\n- Contact support if features remain missing (despite other users having them)",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#why-are-the-token-counter-and-todo-list-missing-in-claude-code",
+      "tags": [
+        "token",
+        "counter",
+        "todo",
+        "list",
+        "missing",
+        "claude",
+        "code",
+        "elements",
+        "refresh",
+        "application"
+      ]
+    },
+    {
+      "id": "claude-code-faq/voice-chat-cutting-off",
+      "slug": "voice-chat-cutting-off",
+      "category": "Claude Code FAQ",
+      "subcategory": "Troubleshooting, Bugs, and Performance Issues",
+      "question": "Why is my voice chat cutting off mid-sentence?",
+      "answer": "Voice chat issues may be caused by:\n- Network connectivity problems\n- Microphone or audio settings\n- Browser permissions for microphone access\n- Background noise interference\n- Usage limits or technical maintenance\n\nCheck audio settings and network connection.",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#why-is-my-voice-chat-cutting-off-mid-sentence",
+      "tags": [
+        "voice",
+        "chat",
+        "cutting",
+        "off",
+        "midsentence",
+        "issues",
+        "may",
+        "caused",
+        "network",
+        "connectivity"
+      ]
+    },
+    {
+      "id": "claude-code-faq/chat-messages-appearing-wrong",
+      "slug": "chat-messages-appearing-wrong",
+      "category": "Claude Code FAQ",
+      "subcategory": "Troubleshooting, Bugs, and Performance Issues",
+      "question": "Why are my chat messages appearing in the wrong order?",
+      "answer": "Message ordering issues can result from:\n- Network latency or connection problems\n- Browser or app synchronization issues\n- Rapid message sending overwhelming the system\n- Technical maintenance or server issues\n\nTry refreshing the application or slowing down message frequency.",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#why-are-my-chat-messages-appearing-in-the-wrong-order",
+      "tags": [
+        "chat",
+        "messages",
+        "appearing",
+        "wrong",
+        "order",
+        "message",
+        "ordering",
+        "issues",
+        "result",
+        "network"
+      ]
+    },
+    {
+      "id": "claude-code-faq/claude-running-slowly-lagging",
+      "slug": "claude-running-slowly-lagging",
+      "category": "Claude Code FAQ",
+      "subcategory": "Troubleshooting, Bugs, and Performance Issues",
+      "question": "My Claude is running slowly or lagging when I type. How can I fix it?",
+      "answer": "Performance issues may be due to:\n- Large conversation history\n- Complex ongoing operations\n- Network connectivity problems\n- High system resource usage\n- Browser performance issues\n\nTry starting a new conversation or closing other applications.",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#my-claude-is-running-slowly-or-lagging-when-i-type-how-can-i-fix-it",
+      "tags": [
+        "claude",
+        "running",
+        "slowly",
+        "lagging",
+        "type",
+        "fix",
+        "performance",
+        "issues",
+        "may",
+        "due"
+      ]
+    },
+    {
+      "id": "claude-code-faq/claude-execute-dangerous-commands",
+      "slug": "claude-execute-dangerous-commands",
+      "category": "Claude Code FAQ",
+      "subcategory": "Troubleshooting, Bugs, and Performance Issues",
+      "question": "Why does Claude execute dangerous commands (rm -rf) without permission?",
+      "answer": "This should not happen as Claude Code has safety measures. If it does:\n- Report this immediately as a safety issue\n- Review what commands you've authorized\n- Check your project permissions and settings\n- Consider this a critical bug that needs reporting\n- Be more explicit about command restrictions in future requests",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#why-does-claude-execute-dangerous-commands-rm--rf-without-permission",
+      "tags": [
+        "claude",
+        "execute",
+        "dangerous",
+        "commands",
+        "without",
+        "permission",
+        "happen",
+        "code",
+        "safety",
+        "measures"
+      ]
+    },
+    {
+      "id": "claude-code-faq/request-blocked-usage-policy",
+      "slug": "request-blocked-usage-policy",
+      "category": "Claude Code FAQ",
+      "subcategory": "Troubleshooting, Bugs, and Performance Issues",
+      "question": 'Why is my request being blocked for a "Usage Policy violation" for harmless topics?',
+      "answer": "Policy violations can be triggered by:\n- Misinterpreted intent by safety systems\n- Keywords that seem problematic out of context\n- Complex requests that appear suspicious\n- Overly sensitive filtering during high-traffic periods\n\nTry rephrasing your request more clearly or contact support for review.",
+      "answer_status": "temp",
+      "source_file": "claude-code-faq.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-code-faq.md#why-is-my-request-being-blocked-for-a-usage-policy-violation-for-harmless-topics",
+      "tags": [
+        "request",
+        "blocked",
+        "usage",
+        "policy",
+        "violation",
+        "harmless",
+        "topics",
+        "violations",
+        "triggered",
+        "misinterpreted"
+      ]
+    },
+    {
+      "id": "claude-usage/claude-compare-chatgpt-gemini",
+      "slug": "claude-compare-chatgpt-gemini",
+      "category": "Claude's Capabilities & Usage",
+      "subcategory": "Model Comparisons and Capabilities",
+      "question": "How does Claude compare to ChatGPT, Gemini, and other models for coding?",
+      "answer": "Claude generally excels at:\n- **Code analysis and review**: Strong at identifying issues and suggesting improvements\n- **Long-form code explanations**: Detailed, educational responses about code functionality\n- **Complex problem solving**: Multi-step reasoning through coding challenges\n- **Following coding conventions**: Adhering to established patterns and best practices\n\nCompared to others, Claude tends to be more conservative and thorough in its approach to coding tasks. However, it is worth noting that several users find Claude to be over-eager or lazy at times, so results may vary based on the specific task. It may help to reach out to the community and share your prompts to get feedback on how to get the best results.",
+      "answer_status": "temp",
+      "source_file": "claude-usage.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-usage.md#how-does-claude-compare-to-chatgpt-gemini-and-other-models-for-coding",
+      "tags": [
+        "claude",
+        "compare",
+        "chatgpt",
+        "gemini",
+        "other",
+        "models",
+        "coding",
+        "generally",
+        "excels",
+        "code"
+      ]
+    },
+    {
+      "id": "claude-usage/claude-compare-creative-writing",
+      "slug": "claude-compare-creative-writing",
+      "category": "Claude's Capabilities & Usage",
+      "subcategory": "Model Comparisons and Capabilities",
+      "question": "How does Claude compare for creative writing and conversation?",
+      "answer": "Claude's strengths in creative tasks include:\n- **Nuanced dialogue**: Natural, context-aware conversations\n- **Long-form content**: Maintains consistency across extended pieces\n- **Analytical writing**: Strong at research-based and technical writing\n- **Collaborative editing**: Good at refining and improving existing content\n\nClaude tends to be more thoughtful and less prone to repetitive patterns than some alternatives.",
+      "answer_status": "temp",
+      "source_file": "claude-usage.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-usage.md#how-does-claude-compare-for-creative-writing-and-conversation",
+      "tags": [
+        "claude",
+        "compare",
+        "creative",
+        "writing",
+        "conversation",
+        "claudes",
+        "strengths",
+        "tasks",
+        "include",
+        "nuanced"
+      ]
+    },
+    {
+      "id": "claude-usage/claude-model-best-task",
+      "slug": "claude-model-best-task",
+      "category": "Claude's Capabilities & Usage",
+      "subcategory": "Model Comparisons and Capabilities",
+      "question": "Which Claude model is best for my task (Opus vs. Sonnet vs. Haiku)?",
+      "answer": "Model selection depends on your needs:\n\n**Claude 4 Sonnet (most common)**:\n- Best balance of capability and speed\n- Excellent for most coding and writing tasks\n- Good for complex reasoning and analysis\n\n**Claude 4/4.1 Opus (most capable, but not always necessary)**:\n- Most sophisticated reasoning and creativity\n- Best for complex, nuanced tasks\n- Slower and more expensive than others\n- Should be used when top-tier performance is essential, otherwise Sonnet is often more than sufficient for the given task\n\n**Claude 3.5 Haiku (fastest)**:\n- Quick responses for simple tasks\n- Good for basic coding help and simple questions\n- Most cost-effective option",
+      "answer_status": "temp",
+      "source_file": "claude-usage.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-usage.md#which-claude-model-is-best-for-my-task-opus-vs-sonnet-vs-haiku",
+      "tags": [
+        "claude",
+        "model",
+        "best",
+        "task",
+        "opus",
+        "sonnet",
+        "haiku",
+        "selection",
+        "depends",
+        "your"
+      ]
+    },
+    {
+      "id": "claude-usage/programming-languages-claude-perform",
+      "slug": "programming-languages-claude-perform",
+      "category": "Claude's Capabilities & Usage",
+      "subcategory": "Model Comparisons and Capabilities",
+      "question": "Which programming languages does Claude perform best with?",
+      "answer": "Claude generally performs well with:\n- **Python**: Excellent support, great for data science and web development\n- **JavaScript/TypeScript**: Strong web development capabilities\n- **Java**: Good enterprise application support\n- **C++/C**: Solid systems programming knowledge\n- **Go, Rust**: Good modern language support\n- **SQL**: Strong database query capabilities\n\nPerformance may vary based on the specific task and complexity level as well as dataset presence (e.g. Rust appears less in training data than Python, so Claude may struggle with Rust a bit more than Python for certain tasks).",
+      "answer_status": "temp",
+      "source_file": "claude-usage.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-usage.md#which-programming-languages-does-claude-perform-best-with",
+      "tags": [
+        "programming",
+        "languages",
+        "claude",
+        "perform",
+        "best",
+        "generally",
+        "performs",
+        "well",
+        "python",
+        "excellent"
+      ]
+    },
+    {
+      "id": "claude-usage/code-data-safe-anthropic",
+      "slug": "code-data-safe-anthropic",
+      "category": "Claude's Capabilities & Usage",
+      "subcategory": "Privacy and Data Safety",
+      "question": "Is my code and data safe? Does Anthropic use it for training?",
+      "answer": "According to Anthropic's current policies:\n- **Claude Code conversations**: May be used to improve Claude Code specifically\n- **Data handling**: Anthropic has specific privacy policies about data usage\n- **Training data**: Check current terms of service for training data usage policies\n- **Enterprise options**: May offer different data handling guarantees\n\nAlways check the most current privacy policy and terms of service for definitive information.",
+      "answer_status": "temp",
+      "source_file": "claude-usage.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-usage.md#is-my-code-and-data-safe-does-anthropic-use-it-for-training",
+      "tags": [
+        "code",
+        "data",
+        "safe",
+        "anthropic",
+        "use",
+        "training",
+        "according",
+        "anthropics",
+        "current",
+        "policies"
+      ]
+    },
+    {
+      "id": "claude-usage/claude-generate-images",
+      "slug": "claude-generate-images",
+      "category": "Claude's Capabilities & Usage",
+      "subcategory": "Privacy and Data Safety",
+      "question": "Can Claude generate images?",
+      "answer": "No, Claude cannot generate, create, edit, or produce images. Claude can only:\n- **Analyze images** you share with it\n- **Describe images** in detail\n- **Answer questions** about images\n- **Read text** from images\n- **Suggest image ideas** or concepts for you to create elsewhere\n\nFor image generation, you'll need to use other AI tools like GPT-4o-Imagen, Midjourney, Kontext, Gemini, or others.",
+      "answer_status": "temp",
+      "source_file": "claude-usage.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-usage.md#can-claude-generate-images",
+      "tags": [
+        "claude",
+        "generate",
+        "images",
+        "cannot",
+        "create",
+        "edit",
+        "produce",
+        "only",
+        "analyze",
+        "you"
+      ]
+    },
+    {
+      "id": "claude-usage/convert-existing-chat-into",
+      "slug": "convert-existing-chat-into",
+      "category": "Claude's Capabilities & Usage",
+      "subcategory": "Privacy and Data Safety",
+      "question": "Can I convert an existing chat into a Project?",
+      "answer": "I think this is no?",
+      "answer_status": "temp",
+      "source_file": "claude-usage.md",
+      "github_url": "https://github.com/konacodes/konacodes/blob/main/claude-faqs/faq-content/claude-usage.md#can-i-convert-an-existing-chat-into-a-project",
+      "tags": [
+        "convert",
+        "existing",
+        "chat",
+        "into",
+        "project",
+        "think"
+      ]
+    }
+  ],
+  "slugs": {
+    "account-banned": 0,
+    "appeal-account-ban": 1,
+    "account-temporarily-suspended-long": 2,
+    "log-into-account-try": 3,
+    "forgot-password-reset": 4,
+    "getting-invalid-email-password": 5,
+    "claude-says-access-mean": 6,
+    "access-account-because-changed": 7,
+    "deleted-account-accident-recover": 8,
+    "someone-else-using-account": 9,
+    "delete-account-permanently": 10,
+    "change-email-address": 11,
+    "access-certain-features": 12,
+    "claude-ignore-instructions": 13,
+    "claude-lie": 14,
+    "pro-max-plan-worth-billing-faq": 15,
+    "there-cheaper-plan-mid-tier-billing-faq": 16,
+    "hitting-usage-limit-quickly-billing-faq": 17,
+    "happens-hit-usage-limit": 18,
+    "counts-toward-usage-limits": 19,
+    "optimize-usage-stay-within": 20,
+    "downgrade-plan-using-enough": 21,
+    "cancel-subscription-completely": 22,
+    "refund-subscription": 23,
+    "new-claude-code-best": 24,
+    "start-small-iterative-tasks": 25,
+    "best-ide-setup-claude": 26,
+    "make-claude-less-agreeable": 27,
+    "prevent-claude-over-engineering-code": 28,
+    "developer-use-claude-build": 29,
+    "make-claude-remember-our": 30,
+    "context-rot-prevent-claude": 31,
+    "auto-compaction-affect-conversation": 32,
+    "hitting-usage-limit-quickly-claude-code-faq": 33,
+    "check-remaining-usage-limit": 34,
+    "pro-max-plan-worth-claude-code-faq": 35,
+    "there-cheaper-plan-mid-tier-claude-code-faq": 36,
+    "effectively-use-sub-agents-mcps": 37,
+    "most-popular-useful-community-built": 38,
+    "see-sub-agent-doing-improve": 39,
+    "sub-agents-run-parallel-instead": 40,
+    "connect-own-custom-mcp": 41,
+    "claudes-personality-changed-feels": 42,
+    "claude-say-youre-absolutely": 43,
+    "stop-claude-lying-falsely": 44,
+    "token-counter-todo-list": 45,
+    "voice-chat-cutting-off": 46,
+    "chat-messages-appearing-wrong": 47,
+    "claude-running-slowly-lagging": 48,
+    "claude-execute-dangerous-commands": 49,
+    "request-blocked-usage-policy": 50,
+    "claude-compare-chatgpt-gemini": 51,
+    "claude-compare-creative-writing": 52,
+    "claude-model-best-task": 53,
+    "programming-languages-claude-perform": 54,
+    "code-data-safe-anthropic": 55,
+    "claude-generate-images": 56,
+    "convert-existing-chat-into": 57
+  },
+  "categories": [
+    "Account Issues FAQ",
+    "General Questions About Claude",
+    "Billing & Plans FAQ",
+    "Claude Code FAQ",
+    "Claude's Capabilities & Usage"
+  ]
+};
+
+// src/search.ts
+var WEIGHTS = {
+  slug: 3,
+  question: 2,
+  subcategory: 1.5,
+  tag: 1,
+  answer: 0.5
+};
+function searchEntries(entries, query, limit = 5) {
+  const terms = query.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter((t) => t.length > 0);
+  if (terms.length === 0)
+    return [];
+  const scored = entries.map((entry) => {
+    let score = 0;
+    for (const term of terms) {
+      if (entry.slug.includes(term))
+        score += WEIGHTS.slug;
+      if (entry.question.toLowerCase().includes(term))
+        score += WEIGHTS.question;
+      if (entry.subcategory.toLowerCase().includes(term))
+        score += WEIGHTS.subcategory;
+      if (entry.tags.some((t) => t.includes(term)))
+        score += WEIGHTS.tag;
+      if (entry.answer.toLowerCase().includes(term))
+        score += WEIGHTS.answer;
+    }
+    return { entry, score };
+  });
+  return scored.filter((s) => s.score > 0).sort((a, b) => b.score - a.score).slice(0, limit).map((s) => s.entry);
+}
+__name(searchEntries, "searchEntries");
+
+// src/index.ts
+var DISCORD_COLOR = 7886330;
+function toDiscordEmbed(entry) {
+  const description = entry.answer.length > 4096 ? entry.answer.slice(0, 4093) + "..." : entry.answer || "_No answer available yet \u2014 this FAQ entry needs a response._";
+  return {
+    title: entry.question,
+    description,
+    url: entry.github_url,
+    color: DISCORD_COLOR,
+    fields: [
+      {
+        name: "Category",
+        value: entry.subcategory !== entry.category ? `${entry.category} > ${entry.subcategory}` : entry.category,
+        inline: true
+      },
+      {
+        name: "Status",
+        value: entry.answer_status === "answered" ? "Answered" : entry.answer_status === "temp" ? "Temp Answer" : "Needs Answer",
+        inline: true
+      },
+      {
+        name: "Source",
+        value: `[View on GitHub](${entry.github_url})`,
+        inline: true
+      }
+    ],
+    footer: { text: "Claude Community FAQ | api.kcodes.me" }
+  };
+}
+__name(toDiscordEmbed, "toDiscordEmbed");
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data, null, 2), {
+    status,
+    headers: { "Content-Type": "application/json" }
+  });
+}
+__name(jsonResponse, "jsonResponse");
+function handleCors(response) {
+  const headers = new Headers(response.headers);
+  headers.set("Access-Control-Allow-Origin", "*");
+  headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
+}
+__name(handleCors, "handleCors");
+function getClientIP(request) {
+  return request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+}
+__name(getClientIP, "getClientIP");
+async function checkRateLimit(kv, key, limits) {
+  const now = Date.now();
+  const minuteKey = `rl:faq:min:${key}`;
+  const dayKey = `rl:faq:day:${key}`;
+  const minuteData = await kv.get(minuteKey, "json");
+  let minuteCount = 0;
+  if (minuteData && minuteData.resetAt > now) {
+    minuteCount = minuteData.count;
+    if (minuteCount >= limits.perMinute) {
+      return { allowed: false, retryAfter: Math.ceil((minuteData.resetAt - now) / 1e3) };
+    }
+  }
+  const dayData = await kv.get(dayKey, "json");
+  let dayCount = 0;
+  if (dayData && dayData.resetAt > now) {
+    dayCount = dayData.count;
+    if (dayCount >= limits.perDay) {
+      return { allowed: false, retryAfter: Math.ceil((dayData.resetAt - now) / 1e3) };
+    }
+  }
+  const newMinute = {
+    count: minuteCount + 1,
+    resetAt: minuteData && minuteData.resetAt > now ? minuteData.resetAt : now + 6e4
+  };
+  const newDay = {
+    count: dayCount + 1,
+    resetAt: dayData && dayData.resetAt > now ? dayData.resetAt : now + 864e5
+  };
+  await Promise.all([
+    kv.put(minuteKey, JSON.stringify(newMinute), { expirationTtl: 70 }),
+    kv.put(dayKey, JSON.stringify(newDay), { expirationTtl: 86410 })
+  ]);
+  return {
+    allowed: true,
+    remaining: {
+      minute: limits.perMinute - newMinute.count,
+      day: limits.perDay - newDay.count
+    }
+  };
+}
+__name(checkRateLimit, "checkRateLimit");
+var src_default = {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    const path = url.pathname;
+    if (request.method === "OPTIONS") {
+      return handleCors(new Response(null, { status: 204 }));
+    }
+    if (request.method !== "GET") {
+      return handleCors(jsonResponse({ error: "Method not allowed. Use GET." }, 405));
+    }
+    const subPath = path.startsWith("/claude-faqs/v1") ? path.slice("/claude-faqs/v1".length) : path.startsWith("/v1") ? path.slice("/v1".length) : path;
+    const format = url.searchParams.get("format");
+    const authHeader = request.headers.get("authorization");
+    const apiKey = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : url.searchParams.get("apikey");
+    let keyName = "anonymous";
+    let rateLimits = { perMinute: 5, perDay: 50 };
+    if (apiKey) {
+      const keyData = await env.FAQ_API_KEYS.get(apiKey, "json");
+      if (!keyData) {
+        return handleCors(jsonResponse({
+          error: "Unauthorized",
+          message: "Invalid API key. Contact the admin for access."
+        }, 401));
+      }
+      keyName = keyData.name;
+      rateLimits = keyData.tier === "premium" ? { perMinute: 100, perDay: 1e4 } : { perMinute: 30, perDay: 1e3 };
+    }
+    const rateLimitKey = apiKey || getClientIP(request);
+    const rateCheck = await checkRateLimit(env.RATE_LIMITS, rateLimitKey, rateLimits);
+    if (!rateCheck.allowed) {
+      const resp = jsonResponse({
+        error: "Rate limit exceeded",
+        message: "Too many requests. Please try again later.",
+        retryAfter: rateCheck.retryAfter,
+        limits: rateLimits
+      }, 429);
+      const headers = new Headers(resp.headers);
+      headers.set("Retry-After", String(rateCheck.retryAfter));
+      return handleCors(new Response(resp.body, { status: 429, headers }));
+    }
+    function withRateHeaders(resp) {
+      const headers = new Headers(resp.headers);
+      headers.set("X-RateLimit-Remaining-Minute", String(rateCheck.remaining?.minute));
+      headers.set("X-RateLimit-Remaining-Day", String(rateCheck.remaining?.day));
+      headers.set("X-Authenticated-As", keyName);
+      return handleCors(new Response(resp.body, { status: resp.status, headers }));
+    }
+    __name(withRateHeaders, "withRateHeaders");
+    if (subPath === "" || subPath === "/") {
+      return withRateHeaders(jsonResponse({
+        name: "Claude FAQ API",
+        version: FAQ_DATA.version,
+        generated_at: FAQ_DATA.generated_at,
+        entry_count: FAQ_DATA.entry_count,
+        categories: FAQ_DATA.categories,
+        endpoints: {
+          "GET /claude-faqs/v1/{slug}": "Get FAQ entry by slug",
+          "GET /claude-faqs/v1/{slug}?format=discord": "Get FAQ entry as Discord embed JSON",
+          "GET /claude-faqs/v1/search?q={query}": "Search FAQ entries (top 5)",
+          "GET /claude-faqs/v1/search?q={query}&limit=10": "Search with custom limit (max 20)",
+          "GET /claude-faqs/v1/categories": "List all categories with subcategories",
+          "GET /claude-faqs/v1/entries": "List all entries",
+          "GET /claude-faqs/v1/entries?category={name}": "Filter entries by category",
+          "GET /claude-faqs/v1/entries?status=answered": "Filter by status (answered|temp|stub)",
+          "GET /claude-faqs/v1/slugs": "List all available slugs"
+        },
+        auth: {
+          description: "Optional API key for higher rate limits",
+          usage: "Authorization: Bearer <key> or ?apikey=<key>",
+          tiers: {
+            public: "5/min, 50/day",
+            standard: "30/min, 1000/day",
+            premium: "100/min, 10000/day"
+          }
+        }
+      }));
+    }
+    if (subPath === "/search") {
+      const query = url.searchParams.get("q");
+      if (!query) {
+        return withRateHeaders(jsonResponse({
+          error: "Missing query parameter",
+          usage: "GET /claude-faqs/v1/search?q=your+search+terms"
+        }, 400));
+      }
+      const limit = Math.min(parseInt(url.searchParams.get("limit") || "5") || 5, 20);
+      const results = searchEntries(FAQ_DATA.entries, query, limit);
+      if (format === "discord") {
+        return withRateHeaders(jsonResponse({
+          query,
+          count: results.length,
+          results: results.map(toDiscordEmbed)
+        }));
+      }
+      return withRateHeaders(jsonResponse({
+        query,
+        count: results.length,
+        results: results.map((e) => ({
+          slug: e.slug,
+          question: e.question,
+          answer_preview: e.answer.slice(0, 200) + (e.answer.length > 200 ? "..." : ""),
+          category: e.category,
+          subcategory: e.subcategory,
+          answer_status: e.answer_status,
+          github_url: e.github_url
+        }))
+      }));
+    }
+    if (subPath === "/categories") {
+      const categorized = FAQ_DATA.categories.map((cat) => {
+        const entries = FAQ_DATA.entries.filter((e) => e.category === cat);
+        const subcategories = [...new Set(entries.map((e) => e.subcategory))];
+        return {
+          name: cat,
+          entry_count: entries.length,
+          subcategories
+        };
+      });
+      return withRateHeaders(jsonResponse({
+        count: FAQ_DATA.categories.length,
+        categories: categorized
+      }));
+    }
+    if (subPath === "/entries") {
+      let entries = FAQ_DATA.entries;
+      const category = url.searchParams.get("category")?.toLowerCase();
+      const status = url.searchParams.get("status");
+      if (category) {
+        entries = entries.filter(
+          (e) => e.category.toLowerCase().includes(category) || e.subcategory.toLowerCase().includes(category)
+        );
+      }
+      if (status && ["answered", "temp", "stub"].includes(status)) {
+        entries = entries.filter((e) => e.answer_status === status);
+      }
+      return withRateHeaders(jsonResponse({
+        count: entries.length,
+        entries: entries.map((e) => ({
+          slug: e.slug,
+          question: e.question,
+          category: e.category,
+          subcategory: e.subcategory,
+          answer_status: e.answer_status
+        }))
+      }));
+    }
+    if (subPath === "/slugs") {
+      return withRateHeaders(jsonResponse({
+        count: FAQ_DATA.entry_count,
+        slugs: Object.keys(FAQ_DATA.slugs)
+      }));
+    }
+    const slug = subPath.replace(/^\//, "");
+    if (!slug || slug.includes("/")) {
+      return withRateHeaders(jsonResponse({
+        error: "Not Found",
+        message: `Unknown endpoint: ${path}`
+      }, 404));
+    }
+    const entryIndex = FAQ_DATA.slugs[slug];
+    if (entryIndex === void 0) {
+      const results = searchEntries(FAQ_DATA.entries, slug.replace(/-/g, " "), 3);
+      return withRateHeaders(jsonResponse({
+        error: "FAQ entry not found",
+        slug,
+        did_you_mean: results.map((e) => ({
+          slug: e.slug,
+          question: e.question
+        }))
+      }, 404));
+    }
+    const entry = FAQ_DATA.entries[entryIndex];
+    if (format === "discord") {
+      return withRateHeaders(jsonResponse(toDiscordEmbed(entry)));
+    }
+    return withRateHeaders(jsonResponse(entry));
+  }
+};
+
+// node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } finally {
+    try {
+      if (request.body !== null && !request.bodyUsed) {
+        const reader = request.body.getReader();
+        while (!(await reader.read()).done) {
+        }
+      }
+    } catch (e) {
+      console.error("Failed to drain the unused request body.", e);
+    }
+  }
+}, "drainBody");
+var middleware_ensure_req_body_drained_default = drainBody;
+
+// node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
+function reduceError(e) {
+  return {
+    name: e?.name,
+    message: e?.message ?? String(e),
+    stack: e?.stack,
+    cause: e?.cause === void 0 ? void 0 : reduceError(e.cause)
+  };
+}
+__name(reduceError, "reduceError");
+var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } catch (e) {
+    const error = reduceError(e);
+    return Response.json(error, {
+      status: 500,
+      headers: { "MF-Experimental-Error-Stack": "true" }
+    });
+  }
+}, "jsonError");
+var middleware_miniflare3_json_error_default = jsonError;
+
+// .wrangler/tmp/bundle-mAa11C/middleware-insertion-facade.js
+var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
+  middleware_ensure_req_body_drained_default,
+  middleware_miniflare3_json_error_default
+];
+var middleware_insertion_facade_default = src_default;
+
+// node_modules/wrangler/templates/middleware/common.ts
+var __facade_middleware__ = [];
+function __facade_register__(...args) {
+  __facade_middleware__.push(...args.flat());
+}
+__name(__facade_register__, "__facade_register__");
+function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
+  const [head, ...tail] = middlewareChain;
+  const middlewareCtx = {
+    dispatch,
+    next(newRequest, newEnv) {
+      return __facade_invokeChain__(newRequest, newEnv, ctx, dispatch, tail);
+    }
+  };
+  return head(request, env, ctx, middlewareCtx);
+}
+__name(__facade_invokeChain__, "__facade_invokeChain__");
+function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
+  return __facade_invokeChain__(request, env, ctx, dispatch, [
+    ...__facade_middleware__,
+    finalMiddleware
+  ]);
+}
+__name(__facade_invoke__, "__facade_invoke__");
+
+// .wrangler/tmp/bundle-mAa11C/middleware-loader.entry.ts
+var __Facade_ScheduledController__ = class {
+  constructor(scheduledTime, cron, noRetry) {
+    this.scheduledTime = scheduledTime;
+    this.cron = cron;
+    this.#noRetry = noRetry;
+  }
+  #noRetry;
+  noRetry() {
+    if (!(this instanceof __Facade_ScheduledController__)) {
+      throw new TypeError("Illegal invocation");
+    }
+    this.#noRetry();
+  }
+};
+__name(__Facade_ScheduledController__, "__Facade_ScheduledController__");
+function wrapExportedHandler(worker) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
+    return worker;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
+    __facade_register__(middleware);
+  }
+  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+    if (worker.fetch === void 0) {
+      throw new Error("Handler does not export a fetch() function.");
+    }
+    return worker.fetch(request, env, ctx);
+  }, "fetchDispatcher");
+  return {
+    ...worker,
+    fetch(request, env, ctx) {
+      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+        if (type === "scheduled" && worker.scheduled !== void 0) {
+          const controller = new __Facade_ScheduledController__(
+            Date.now(),
+            init.cron ?? "",
+            () => {
+            }
+          );
+          return worker.scheduled(controller, env, ctx);
+        }
+      }, "dispatcher");
+      return __facade_invoke__(request, env, ctx, dispatcher, fetchDispatcher);
+    }
+  };
+}
+__name(wrapExportedHandler, "wrapExportedHandler");
+function wrapWorkerEntrypoint(klass) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
+    return klass;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
+    __facade_register__(middleware);
+  }
+  return class extends klass {
+    #fetchDispatcher = (request, env, ctx) => {
+      this.env = env;
+      this.ctx = ctx;
+      if (super.fetch === void 0) {
+        throw new Error("Entrypoint class does not define a fetch() function.");
+      }
+      return super.fetch(request);
+    };
+    #dispatcher = (type, init) => {
+      if (type === "scheduled" && super.scheduled !== void 0) {
+        const controller = new __Facade_ScheduledController__(
+          Date.now(),
+          init.cron ?? "",
+          () => {
+          }
+        );
+        return super.scheduled(controller);
+      }
+    };
+    fetch(request) {
+      return __facade_invoke__(
+        request,
+        this.env,
+        this.ctx,
+        this.#dispatcher,
+        this.#fetchDispatcher
+      );
+    }
+  };
+}
+__name(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
+var WRAPPED_ENTRY;
+if (typeof middleware_insertion_facade_default === "object") {
+  WRAPPED_ENTRY = wrapExportedHandler(middleware_insertion_facade_default);
+} else if (typeof middleware_insertion_facade_default === "function") {
+  WRAPPED_ENTRY = wrapWorkerEntrypoint(middleware_insertion_facade_default);
+}
+var middleware_loader_entry_default = WRAPPED_ENTRY;
+export {
+  __INTERNAL_WRANGLER_MIDDLEWARE__,
+  middleware_loader_entry_default as default
+};
+//# sourceMappingURL=index.js.map
