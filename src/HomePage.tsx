@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
 import './homepage.css';
 
-const projects = [
-  { name: 'DUCK LANG', desc: 'Say "quack" or the goose won\'t run your code.', href: 'https://github.com/konacodes/duck-lang', tag: 'RUST', rot: '-2.2deg' },
-  { name: 'BLOG CMS', desc: 'Markdown-first. Cloudflare Workers + D1.', href: 'https://blog.kcodes.me', tag: 'WORKERS', rot: '1.4deg' },
-  { name: 'FILMS CMS', desc: 'Tracking everything watched.', href: 'https://films.kcodes.me', tag: 'WORKERS', rot: '-0.8deg' },
-  { name: 'LIKWID', desc: 'Real-time fluid simulations as ASCII art in your terminal.', href: 'https://github.com/konacodes/likwid', tag: 'RUST', rot: '2.1deg' },
-  { name: 'NULL', desc: 'Built by Claude. It worked until it didn\'t.', href: 'https://github.com/konacodes/null', tag: 'AI', rot: '-1.6deg' },
+const works = [
+  { name: 'DUCK LANG', desc: 'Quack or the goose gets you.', href: 'https://github.com/konacodes/duck-lang', rot: '-2.2deg' },
+  { name: 'BLOG', desc: 'Where the words go.', href: 'https://blog.kcodes.me', rot: '1.4deg' },
+  { name: 'FILMS', desc: 'Everything watched.', href: 'https://films.kcodes.me', rot: '-0.8deg' },
+  { name: 'LIKWID', desc: 'Fluid as ASCII art.', href: 'https://github.com/konacodes/likwid', rot: '2.1deg' },
+  { name: 'NULL', desc: 'AI built it. Then it broke.', href: 'https://github.com/konacodes/null', rot: '-1.6deg' },
 ];
 
 const links = [
@@ -17,123 +17,90 @@ const links = [
   { name: 'EMAIL', href: 'mailto:hello@kcodes.me' },
 ];
 
-function useReveal(threshold = 0.15) {
+function useReveal(threshold = 0.1) {
   const ref = useRef<HTMLElement>(null);
-  const [visible, setVisible] = useState(false);
-
+  const [vis, setVis] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      ([e]) => { if (e.isIntersecting) { setVis(true); obs.disconnect(); } },
       { threshold }
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, [threshold]);
-
-  return { ref, visible };
+  return { ref, vis };
 }
 
 export function HomePage() {
-  const [entered, setEntered] = useState(false);
+  const [on, setOn] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setOn(true), 100); return () => clearTimeout(t); }, []);
 
-  useEffect(() => {
-    const t = setTimeout(() => setEntered(true), 150);
-    return () => clearTimeout(t);
-  }, []);
-
-  const about = useReveal();
+  const note = useReveal();
+  const work = useReveal(0.05);
   const phil = useReveal();
-  const builds = useReveal(0.08);
-  const connect = useReveal();
+  const links_ = useReveal();
 
   return (
     <div className="sa-page">
       <div className="sa-grain" aria-hidden="true" />
-      <div className="sa-vignette" aria-hidden="true" />
+      <div className="sa-vig" aria-hidden="true" />
 
-      {/* ===== HERO ===== */}
+      {/* HERO — just the art */}
       <section className="sa-hero">
-        <div className={`sa-glow ${entered ? 'on' : ''}`} />
+        <div className={`sa-glow ${on ? 'on' : ''}`} />
         <img
           src="/images/kona.png"
           alt="KONA — graffiti wolf"
-          className={`sa-art ${entered ? 'on' : ''}`}
+          className={`sa-art ${on ? 'on' : ''}`}
           draggable={false}
         />
-        <div className={`sa-tagline ${entered ? 'on' : ''}`}>
-          {['I', 'BUILD', 'THINGS', 'FOR', 'THE WEB'].map((word, i) => (
-            <span
-              key={word}
-              className={`sa-word${i === 4 ? ' sa-word--neon' : ''}`}
-              style={{ '--d': `${0.75 + i * 0.13}s` } as React.CSSProperties}
-            >
-              {word}
-            </span>
-          ))}
-        </div>
-        <div className={`sa-cue ${entered ? 'on' : ''}`}>
-          <span>SCROLL</span>
+        <p className={`sa-sub ${on ? 'on' : ''}`}>makes things</p>
+        <div className={`sa-cue ${on ? 'on' : ''}`}>
           <div className="sa-cue-line" />
         </div>
       </section>
 
-      {/* Paint drips */}
-      <div className={`sa-drips ${entered ? 'on' : ''}`} aria-hidden="true">
-        <div className="sa-drip" style={{ left: '22%', height: '90px', '--dd': '1.6s' } as React.CSSProperties} />
-        <div className="sa-drip" style={{ left: '68%', height: '130px', '--dd': '1.9s' } as React.CSSProperties} />
-        <div className="sa-drip" style={{ left: '42%', height: '60px', '--dd': '2.2s' } as React.CSSProperties} />
-      </div>
-
-      {/* ===== ABOUT — wheat-paste poster ===== */}
-      <section ref={about.ref} className={`sa-about ${about.visible ? 'on' : ''}`}>
-        <div className="sa-poster">
-          <div className="sa-tape sa-tape--tl" />
-          <div className="sa-tape sa-tape--tr" />
-          <h2 className="sa-poster-title">ABOUT</h2>
-          <p className="sa-poster-body">
-            Self-taught developer who learned by{' '}
-            <span className="sa-mark">breaking things</span>.{' '}
-            <span className="sa-struck">formally educated</span>{' '}
-            <span className="sa-scrawl">nah, self-taught</span>
-          </p>
-          <p className="sa-poster-sub">Film nerd. Music lover. History enthusiast.</p>
-        </div>
+      {/* NOTE — small personal scrawl */}
+      <section ref={note.ref} className={`sa-note ${note.vis ? 'on' : ''}`}>
+        <p className="sa-note-main">
+          Self-taught. I make things and <span className="sa-mark">break things</span>.
+        </p>
+        <p className="sa-note-aside">film nerd &mdash; music lover &mdash; history geek</p>
       </section>
 
-      {/* ===== PHILOSOPHY — spray paint ===== */}
-      <section ref={phil.ref} className={`sa-phil ${phil.visible ? 'on' : ''}`}>
-        <blockquote className="sa-spray">
-          "Ship it <span className="sa-neon-word">raw</span>.<br />
-          Done &gt; perfect."
-        </blockquote>
-      </section>
-
-      {/* ===== BUILDS — sticker cards ===== */}
-      <section ref={builds.ref} className={`sa-builds ${builds.visible ? 'on' : ''}`}>
-        <h2 className="sa-label">BUILDS</h2>
-        <div className="sa-stickers">
-          {projects.map((p, i) => (
+      {/* WORK */}
+      <section ref={work.ref} className={`sa-work ${work.vis ? 'on' : ''}`}>
+        <h2 className="sa-label">WORK</h2>
+        <div className="sa-grid">
+          {works.map((w, i) => (
             <a
-              key={p.name}
-              href={p.href}
+              key={w.name}
+              href={w.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="sa-sticker"
-              style={{ '--i': i, '--rot': p.rot } as React.CSSProperties}
+              className="sa-card"
+              style={{ '--i': i, '--rot': w.rot } as React.CSSProperties}
             >
-              <span className="sa-chip">{p.tag}</span>
-              <h3 className="sa-sticker-name">{p.name}</h3>
-              <p className="sa-sticker-desc">{p.desc}</p>
+              <h3 className="sa-card-name">{w.name}</h3>
+              <p className="sa-card-desc">{w.desc}</p>
               <div className="sa-peel" />
             </a>
           ))}
         </div>
       </section>
 
-      {/* ===== CONNECT ===== */}
-      <section ref={connect.ref} className={`sa-connect ${connect.visible ? 'on' : ''}`}>
+      {/* SPRAY — philosophy */}
+      <section ref={phil.ref} className={`sa-phil ${phil.vis ? 'on' : ''}`}>
+        <blockquote className="sa-spray">
+          "Ship it <span className="sa-neon">raw</span>.<br />
+          Done &gt; perfect."
+        </blockquote>
+      </section>
+
+      {/* LINKS */}
+      <section ref={links_.ref} className={`sa-links ${links_.vis ? 'on' : ''}`}>
         <div className="sa-tags">
           {links.map((l, i) => (
             <a
