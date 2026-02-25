@@ -2,11 +2,11 @@ import { useEffect, useState, useRef } from 'react';
 import './homepage.css';
 
 const works = [
-  { name: 'DUCK LANG', desc: 'Quack or the goose gets you.', href: 'https://github.com/konacodes/duck-lang', rot: '-2.2deg' },
-  { name: 'BLOG', desc: 'Where the words go.', href: 'https://blog.kcodes.me', rot: '1.4deg' },
-  { name: 'FILMS', desc: 'Everything watched.', href: 'https://films.kcodes.me', rot: '-0.8deg' },
-  { name: 'LIKWID', desc: 'Fluid as ASCII art.', href: 'https://github.com/konacodes/likwid', rot: '2.1deg' },
-  { name: 'NULL', desc: 'AI built it. Then it broke.', href: 'https://github.com/konacodes/null', rot: '-1.6deg' },
+  { name: 'DUCK LANG', desc: 'Quack or the goose gets you.', href: 'https://github.com/konacodes/duck-lang', rot: '-2.5deg' },
+  { name: 'BLOG', desc: 'Where the words go.', href: 'https://blog.kcodes.me', rot: '1.8deg' },
+  { name: 'FILMS', desc: 'Everything watched.', href: 'https://films.kcodes.me', rot: '-1.2deg' },
+  { name: 'LIKWID', desc: 'Fluid as ASCII art.', href: 'https://github.com/konacodes/likwid', rot: '2.3deg' },
+  { name: 'NULL', desc: 'AI built it. Then it broke.', href: 'https://github.com/konacodes/null', rot: '-1.8deg' },
 ];
 
 const links = [
@@ -17,91 +17,84 @@ const links = [
   { name: 'EMAIL', href: 'mailto:hello@kcodes.me' },
 ];
 
-function useReveal(threshold = 0.1) {
-  const ref = useRef<HTMLElement>(null);
-  const [vis, setVis] = useState(false);
+function Piece({ children, className = '', style }: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [on, setOn] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVis(true); obs.disconnect(); } },
-      { threshold }
+      ([e]) => { if (e.isIntersecting) { setOn(true); obs.disconnect(); } },
+      { threshold: 0.15 }
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [threshold]);
-  return { ref, vis };
+  }, []);
+  return (
+    <div ref={ref} className={`sa-p ${className}${on ? ' on' : ''}`} style={style}>
+      {children}
+    </div>
+  );
 }
 
 export function HomePage() {
-  const [on, setOn] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setOn(true), 100); return () => clearTimeout(t); }, []);
+  const [go, setGo] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setGo(true), 80); return () => clearTimeout(t); }, []);
 
-  const note = useReveal();
-  const work = useReveal(0.05);
-  const phil = useReveal();
-  const links_ = useReveal();
+  const positions = ['sa-l1', 'sa-r1', 'sa-l2', 'sa-r2', 'sa-l3'];
 
   return (
     <div className="sa-page">
       <div className="sa-grain" aria-hidden="true" />
       <div className="sa-vig" aria-hidden="true" />
 
-      {/* HERO — just the art */}
+      {/* HERO */}
       <section className="sa-hero">
-        <div className={`sa-glow ${on ? 'on' : ''}`} />
+        <div className={`sa-glow ${go ? 'on' : ''}`} />
         <img
           src="/images/kona.png"
-          alt="KONA — graffiti wolf"
-          className={`sa-art ${on ? 'on' : ''}`}
+          alt="KONA"
+          className={`sa-art ${go ? 'on' : ''}`}
           draggable={false}
         />
-        <p className={`sa-sub ${on ? 'on' : ''}`}>makes things</p>
-        <div className={`sa-cue ${on ? 'on' : ''}`}>
-          <div className="sa-cue-line" />
-        </div>
+        <p className={`sa-sub ${go ? 'on' : ''}`}>makes things</p>
       </section>
 
-      {/* NOTE — small personal scrawl */}
-      <section ref={note.ref} className={`sa-note ${note.vis ? 'on' : ''}`}>
-        <p className="sa-note-main">
-          Self-taught. I make things and <span className="sa-mark">break things</span>.
-        </p>
-        <p className="sa-note-aside">film nerd &mdash; music lover &mdash; history geek</p>
-      </section>
+      {/* THE WALL */}
+      <div className="sa-wall">
+        {/* Personal scrawl */}
+        <Piece className="sa-note">
+          self-taught. film nerd. music head. history geek.
+        </Piece>
 
-      {/* WORK */}
-      <section ref={work.ref} className={`sa-work ${work.vis ? 'on' : ''}`}>
-        <h2 className="sa-label">WORK</h2>
-        <div className="sa-grid">
-          {works.map((w, i) => (
-            <a
-              key={w.name}
-              href={w.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="sa-card"
-              style={{ '--i': i, '--rot': w.rot } as React.CSSProperties}
+        {/* Work pieces + quote interleaved */}
+        {works.map((w, i) => (
+          <div key={w.name}>
+            {i === 2 && (
+              <Piece className="sa-quote">
+                <span>"Ship it </span>
+                <span className="sa-neon">raw</span>
+                <span>. Done &gt; perfect."</span>
+              </Piece>
+            )}
+            <Piece
+              className={`sa-card ${positions[i]}`}
+              style={{ '--rot': w.rot } as React.CSSProperties}
             >
-              <h3 className="sa-card-name">{w.name}</h3>
-              <p className="sa-card-desc">{w.desc}</p>
-              <div className="sa-peel" />
-            </a>
-          ))}
-        </div>
-      </section>
+              <a href={w.href} target="_blank" rel="noopener noreferrer">
+                <h3 className="sa-card-name">{w.name}</h3>
+                <p className="sa-card-desc">{w.desc}</p>
+              </a>
+            </Piece>
+          </div>
+        ))}
 
-      {/* SPRAY — philosophy */}
-      <section ref={phil.ref} className={`sa-phil ${phil.vis ? 'on' : ''}`}>
-        <blockquote className="sa-spray">
-          "Ship it <span className="sa-neon">raw</span>.<br />
-          Done &gt; perfect."
-        </blockquote>
-      </section>
-
-      {/* LINKS */}
-      <section ref={links_.ref} className={`sa-links ${links_.vis ? 'on' : ''}`}>
-        <div className="sa-tags">
+        {/* Tags */}
+        <Piece className="sa-tags-wrap">
           {links.map((l, i) => (
             <a
               key={l.name}
@@ -109,13 +102,13 @@ export function HomePage() {
               target="_blank"
               rel="noopener noreferrer"
               className="sa-tag"
-              style={{ '--i': i } as React.CSSProperties}
+              style={{ '--r': `${[-3, 1.5, -1, 2.5, -2][i]}deg` } as React.CSSProperties}
             >
               {l.name}
             </a>
           ))}
-        </div>
-      </section>
+        </Piece>
+      </div>
 
       <footer className="sa-footer">
         {new Date().getFullYear()} &bull; painted with questionable sleep habits
