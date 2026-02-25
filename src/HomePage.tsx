@@ -1,113 +1,157 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import './homepage.css';
 
 const projects = [
-  { name: 'DUCK LANG', desc: 'Say "quack" or the goose won\'t run your code.', href: 'https://github.com/konacodes/duck-lang', rot: '-3deg' },
-  { name: 'BLOG CMS', desc: 'Markdown-first. Cloudflare Workers + D1.', href: 'https://blog.kcodes.me', rot: '2deg' },
-  { name: 'FILMS CMS', desc: 'Tracking everything watched.', href: 'https://films.kcodes.me', rot: '-1deg' },
-  { name: 'LIKWID', desc: 'Real-time fluid simulations as ASCII art in your terminal.', href: 'https://github.com/konacodes/likwid', rot: '1.5deg' },
-  { name: 'NULL', desc: 'Built by Claude. It worked until it didn\'t.', href: 'https://github.com/konacodes/null', rot: '3.5deg' },
+  { name: 'DUCK LANG', desc: 'Say "quack" or the goose won\'t run your code.', href: 'https://github.com/konacodes/duck-lang', tag: 'RUST', rot: '-2.2deg' },
+  { name: 'BLOG CMS', desc: 'Markdown-first. Cloudflare Workers + D1.', href: 'https://blog.kcodes.me', tag: 'WORKERS', rot: '1.4deg' },
+  { name: 'FILMS CMS', desc: 'Tracking everything watched.', href: 'https://films.kcodes.me', tag: 'WORKERS', rot: '-0.8deg' },
+  { name: 'LIKWID', desc: 'Real-time fluid simulations as ASCII art in your terminal.', href: 'https://github.com/konacodes/likwid', tag: 'RUST', rot: '2.1deg' },
+  { name: 'NULL', desc: 'Built by Claude. It worked until it didn\'t.', href: 'https://github.com/konacodes/null', tag: 'AI', rot: '-1.6deg' },
 ];
 
-export function HomePage() {
-  const [scattered, setScattered] = useState(false);
+const links = [
+  { name: 'BLOG', href: 'https://blog.kcodes.me' },
+  { name: 'FILMS', href: 'https://films.kcodes.me' },
+  { name: 'GITHUB', href: 'https://github.com/konacodes' },
+  { name: 'DISCORD', href: 'https://discord.com/users/1151230208783945818' },
+  { name: 'EMAIL', href: 'mailto:hello@kcodes.me' },
+];
+
+function useReveal(threshold = 0.15) {
+  const ref = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setScattered(true), 1800);
-    return () => clearTimeout(timer);
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+
+  return { ref, visible };
+}
+
+export function HomePage() {
+  const [entered, setEntered] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setEntered(true), 150);
+    return () => clearTimeout(t);
   }, []);
 
+  const about = useReveal();
+  const phil = useReveal();
+  const builds = useReveal(0.08);
+  const connect = useReveal();
+
   return (
-    <div className="cz-page">
-      {/* Hero with scatter animation */}
-      <section className="cz-hero">
-        {/* Complete image shown first, then shatters */}
+    <div className="sa-page">
+      <div className="sa-grain" aria-hidden="true" />
+      <div className="sa-vignette" aria-hidden="true" />
+
+      {/* ===== HERO ===== */}
+      <section className="sa-hero">
+        <div className={`sa-glow ${entered ? 'on' : ''}`} />
         <img
-          src="/images/light-bg-hero-section.png"
-          alt="KONA"
-          className={`cz-hero-complete ${scattered ? 'shattered' : ''}`}
+          src="/images/kona.png"
+          alt="KONA — graffiti wolf"
+          className={`sa-art ${entered ? 'on' : ''}`}
+          draggable={false}
         />
-
-        {/* Scattered fragments that appear after shatter */}
-        <div className={`cz-frags ${scattered ? 'active' : ''}`}>
-          <div className="cz-frag cz-frag--1" style={{ backgroundImage: 'url(/images/light-bg-hero-section.png)' }} />
-          <div className="cz-frag cz-frag--2" style={{ backgroundImage: 'url(/images/light-bg-hero-section.png)' }} />
-          <div className="cz-frag cz-frag--3" style={{ backgroundImage: 'url(/images/light-bg-hero-section.png)' }} />
-          <div className="cz-frag cz-frag--4" style={{ backgroundImage: 'url(/images/light-bg-hero-section.png)' }} />
-          <div className="cz-frag cz-frag--5" style={{ backgroundImage: 'url(/images/light-bg-hero-section.png)' }} />
-
-          {/* Watercolor pieces */}
-          <div className="cz-wash-piece cz-wash-piece--1" style={{ backgroundImage: 'url(/images/light-bg-no-text.png)' }} />
-          <div className="cz-wash-piece cz-wash-piece--2" style={{ backgroundImage: 'url(/images/light-bg-no-text.png)' }} />
+        <div className={`sa-tagline ${entered ? 'on' : ''}`}>
+          {['I', 'BUILD', 'THINGS', 'FOR', 'THE WEB'].map((word, i) => (
+            <span
+              key={word}
+              className={`sa-word${i === 4 ? ' sa-word--neon' : ''}`}
+              style={{ '--d': `${0.75 + i * 0.13}s` } as React.CSSProperties}
+            >
+              {word}
+            </span>
+          ))}
+        </div>
+        <div className={`sa-cue ${entered ? 'on' : ''}`}>
+          <span>SCROLL</span>
+          <div className="sa-cue-line" />
         </div>
       </section>
 
-      {/* Ransom note tagline */}
-      <div className="cz-ransom">
-        <span className="cz-ransom-word">I</span>
-        <span className="cz-ransom-word">build</span>
-        <span className="cz-ransom-word">things</span>
-        <span className="cz-ransom-word">for</span>
-        <span className="cz-ransom-word">the web</span>
+      {/* Paint drips */}
+      <div className={`sa-drips ${entered ? 'on' : ''}`} aria-hidden="true">
+        <div className="sa-drip" style={{ left: '22%', height: '90px', '--dd': '1.6s' } as React.CSSProperties} />
+        <div className="sa-drip" style={{ left: '68%', height: '130px', '--dd': '1.9s' } as React.CSSProperties} />
+        <div className="sa-drip" style={{ left: '42%', height: '60px', '--dd': '2.2s' } as React.CSSProperties} />
       </div>
 
-      <div className="cz-content">
-        {/* About */}
-        <div className="cz-section--paper" style={{ '--rot': '-1deg' } as React.CSSProperties}>
-          <h2 className="cz-heading">ABOUT ME</h2>
-          <p className="cz-about-text">
+      {/* ===== ABOUT — wheat-paste poster ===== */}
+      <section ref={about.ref} className={`sa-about ${about.visible ? 'on' : ''}`}>
+        <div className="sa-poster">
+          <div className="sa-tape sa-tape--tl" />
+          <div className="sa-tape sa-tape--tr" />
+          <h2 className="sa-poster-title">ABOUT</h2>
+          <p className="sa-poster-body">
             Self-taught developer who learned by{' '}
-            <span className="highlight">breaking things</span>.{' '}
-            <span className="crossed">formally educated</span>{' '}
-            <span className="scrawl">nah, self-taught!</span>
-            <br />
-            Film nerd. Music lover. History enthusiast.
+            <span className="sa-mark">breaking things</span>.{' '}
+            <span className="sa-struck">formally educated</span>{' '}
+            <span className="sa-scrawl">nah, self-taught</span>
           </p>
+          <p className="sa-poster-sub">Film nerd. Music lover. History enthusiast.</p>
         </div>
+      </section>
 
-        {/* Mid-content hero fragment */}
-        <div className="cz-mid-frag cz-mid-frag--1" style={{ backgroundImage: 'url(/images/light-bg-hero-section.png)' }} />
-
-        {/* Philosophy */}
-        <div className="cz-philosophy">
-          "Ship it <span className="underline">raw</span>.<br />
+      {/* ===== PHILOSOPHY — spray paint ===== */}
+      <section ref={phil.ref} className={`sa-phil ${phil.visible ? 'on' : ''}`}>
+        <blockquote className="sa-spray">
+          "Ship it <span className="sa-neon-word">raw</span>.<br />
           Done &gt; perfect."
-        </div>
+        </blockquote>
+      </section>
 
-        {/* Projects */}
-        <h2 className="cz-heading" style={{ marginLeft: '1rem' }}>BUILDS</h2>
-        <div className="cz-projects">
-          {projects.map(p => (
-            <a key={p.name} href={p.href} target="_blank" rel="noopener noreferrer"
-              className="cz-project" style={{ '--rot': p.rot } as React.CSSProperties}>
-              <h3 className="cz-project-name">{p.name}</h3>
-              <p className="cz-project-desc">{p.desc}</p>
+      {/* ===== BUILDS — sticker cards ===== */}
+      <section ref={builds.ref} className={`sa-builds ${builds.visible ? 'on' : ''}`}>
+        <h2 className="sa-label">BUILDS</h2>
+        <div className="sa-stickers">
+          {projects.map((p, i) => (
+            <a
+              key={p.name}
+              href={p.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sa-sticker"
+              style={{ '--i': i, '--rot': p.rot } as React.CSSProperties}
+            >
+              <span className="sa-chip">{p.tag}</span>
+              <h3 className="sa-sticker-name">{p.name}</h3>
+              <p className="sa-sticker-desc">{p.desc}</p>
+              <div className="sa-peel" />
             </a>
           ))}
         </div>
+      </section>
 
-        {/* Another mid-content fragment */}
-        <div className="cz-mid-frag cz-mid-frag--2" style={{ backgroundImage: 'url(/images/light-bg-hero-section.png)' }} />
-
-        {/* Connect */}
-        <nav className="cz-connect">
-          {[
-            { name: 'BLOG', href: 'https://blog.kcodes.me', r: '-2deg' },
-            { name: 'FILMS', href: 'https://films.kcodes.me', r: '1.5deg' },
-            { name: 'GITHUB', href: 'https://github.com/konacodes', r: '-1deg' },
-            { name: 'DISCORD', href: 'https://discord.com/users/1151230208783945818', r: '2.5deg' },
-            { name: 'EMAIL', href: 'mailto:hello@kcodes.me', r: '-3deg' },
-          ].map(l => (
-            <a key={l.name} href={l.href} target="_blank" rel="noopener noreferrer"
-              className="cz-connect-link" style={{ '--rot': l.r } as React.CSSProperties}>
+      {/* ===== CONNECT ===== */}
+      <section ref={connect.ref} className={`sa-connect ${connect.visible ? 'on' : ''}`}>
+        <div className="sa-tags">
+          {links.map((l, i) => (
+            <a
+              key={l.name}
+              href={l.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sa-tag"
+              style={{ '--i': i } as React.CSSProperties}
+            >
               {l.name}
             </a>
           ))}
-        </nav>
-      </div>
+        </div>
+      </section>
 
-      <footer className="cz-footer">
-        {new Date().getFullYear()} * photocopied with questionable sleep habits
+      <footer className="sa-footer">
+        {new Date().getFullYear()} &bull; painted with questionable sleep habits
       </footer>
     </div>
   );

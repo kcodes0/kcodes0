@@ -1,501 +1,719 @@
 /* ============================================
-   Homepage: Scatter Zine
-   Hero image starts complete, then shatters into
-   torn fragments scattered across the page.
-   Watercolor pieces bleed between content sections.
+   THE WALL — Street Art Portfolio
+   Dark concrete. Graffiti hero. Wheat-paste posters.
+   Sticker cards. Neon glow. Spray paint drips.
    ============================================ */
-@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Rubik+Mono+One&family=Caveat:wght@400;600;700&display=swap');
 
-/* --- Base --- */
-.cz-page {
-  --cz-paper: #f5f0e8;
-  --cz-ink: #1a1714;
-  --cz-red: #c94a3a;
-  --cz-blue: #2a5da8;
-  --cz-yellow: #e8c840;
-  --cz-pink: #e85d8a;
-  --cz-typewriter: 'Special Elite', monospace;
-  --cz-bold: 'Rubik Mono One', monospace;
-  --cz-hand: 'Caveat', cursive;
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Outfit:wght@300;400;500;600;700&family=Caveat:wght@400;600;700&display=swap');
+
+/* ---- Variables ---- */
+.sa-page {
+  --sa-wall: #0d0d0c;
+  --sa-wall-mid: #151413;
+  --sa-wall-light: #1c1b19;
+  --sa-concrete: #2a2825;
+  --sa-cream: #f5f0e8;
+  --sa-ink: #e0dcd6;
+  --sa-dim: #6b6860;
+  --sa-blue: #7eb8ff;
+  --sa-lavender: #c4b0e8;
+  --sa-amber: #e8a848;
+  --sa-red: #d44a3a;
+  --sa-marker: 'Permanent Marker', cursive;
+  --sa-body: 'Outfit', system-ui, sans-serif;
+  --sa-hand: 'Caveat', cursive;
+  --sa-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   min-height: 100vh;
-  background: var(--cz-paper);
-  color: var(--cz-ink);
+  background: var(--sa-wall);
+  color: var(--sa-ink);
   overflow-x: hidden;
   position: relative;
+  font-family: var(--sa-body);
 }
 
-/* Paper grain */
-.cz-page::before {
-  content: '';
+/* ---- Concrete grain texture ---- */
+.sa-grain {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 100;
-  opacity: 0.06;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* Halftone dots */
-.cz-page::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 99;
-  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.12) 1px, transparent 1px);
-  background-size: 6px 6px;
-  opacity: 0.3;
-  mix-blend-mode: multiply;
-}
-
-/* --- Hero --- */
-.cz-hero {
-  position: relative;
-  padding: 4rem 2rem 2rem;
-  min-height: 70vh;
   z-index: 1;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Complete image — shown first, then shatters */
-.cz-hero-complete {
-  display: block;
-  width: min(80vw, 600px);
-  margin: 0 auto;
+/* ---- Dark vignette ---- */
+.sa-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(
+    ellipse at 50% 30%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+}
+
+/* ============================================
+   HERO
+   ============================================ */
+.sa-hero {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   position: relative;
   z-index: 3;
-  transform: rotate(-3deg);
-  border: 4px solid white;
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
-  clip-path: polygon(
-    2% 3%, 5% 0%, 8% 2%, 15% 0%, 22% 1%, 30% 0%,
-    38% 2%, 46% 0%, 54% 1%, 62% 0%, 70% 2%, 78% 0%,
-    86% 1%, 94% 0%, 98% 2%, 100% 4%,
-    100% 96%, 98% 100%, 92% 98%, 85% 100%, 78% 99%,
-    70% 100%, 62% 98%, 54% 100%, 46% 99%, 38% 100%,
-    30% 98%, 22% 100%, 15% 99%, 8% 100%, 3% 98%,
-    0% 100%, 0% 4%
+  padding: 2rem;
+}
+
+/* Radial glow behind artwork */
+.sa-glow {
+  position: absolute;
+  width: 600px;
+  height: 360px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -58%);
+  background: radial-gradient(
+    ellipse,
+    rgba(126, 184, 255, 0.14) 0%,
+    rgba(196, 176, 232, 0.07) 45%,
+    transparent 72%
   );
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out, filter 0.7s ease-out;
-}
-
-.cz-hero-complete.shattered {
-  opacity: 0;
-  transform: rotate(-3deg) scale(1.06);
-  filter: blur(5px);
-}
-
-/* --- Fragments container --- */
-.cz-frags {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.cz-frags.active {
-  pointer-events: auto;
-}
-
-/* Individual fragments */
-.cz-frag {
-  position: absolute;
-  background-repeat: no-repeat;
-  border: 3px solid white;
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.15);
-  opacity: 0;
-  transition: opacity 0.5s ease-out, transform 0.3s ease;
-}
-
-.cz-frag:hover {
-  z-index: 5;
-  transform: scale(1.05) rotate(0deg) !important;
-}
-
-.cz-frags.active .cz-frag { opacity: 1; }
-.cz-frags.active .cz-frag--1 { transition-delay: 0.05s; }
-.cz-frags.active .cz-frag--2 { transition-delay: 0.1s; }
-.cz-frags.active .cz-frag--3 { transition-delay: 0.15s; }
-.cz-frags.active .cz-frag--4 { transition-delay: 0.2s; }
-.cz-frags.active .cz-frag--5 { transition-delay: 0.25s; }
-
-/* Fragment 1: largest, center-left — main KONA text */
-.cz-frag--1 {
-  width: 52%;
-  height: 55%;
-  top: 5%;
-  left: 3%;
-  transform: rotate(-3deg);
-  clip-path: polygon(2% 4%, 95% 0%, 100% 93%, 5% 100%);
-  background-size: 200%;
-  background-position: 35% 30%;
-}
-
-/* Fragment 2: medium, top-right */
-.cz-frag--2 {
-  width: 40%;
-  height: 48%;
-  top: 0%;
-  right: 2%;
-  transform: rotate(4deg);
-  clip-path: polygon(5% 0%, 100% 3%, 96% 100%, 0% 96%);
-  background-size: 250%;
-  background-position: 72% 20%;
-}
-
-/* Fragment 3: small, bottom-left */
-.cz-frag--3 {
-  width: 30%;
-  height: 32%;
-  bottom: 8%;
-  left: 6%;
-  transform: rotate(-6deg);
-  clip-path: polygon(4% 0%, 100% 5%, 95% 100%, 0% 94%);
-  background-size: 340%;
-  background-position: 15% 75%;
-}
-
-/* Fragment 4: medium, bottom-right */
-.cz-frag--4 {
-  width: 34%;
-  height: 38%;
-  bottom: 3%;
-  right: 8%;
-  transform: rotate(2.5deg);
-  clip-path: polygon(0% 2%, 97% 0%, 100% 97%, 4% 100%);
-  background-size: 290%;
-  background-position: 80% 65%;
-}
-
-/* Fragment 5: small, center overlap */
-.cz-frag--5 {
-  width: 22%;
-  height: 26%;
-  top: 42%;
-  left: 40%;
-  transform: rotate(-8deg);
-  clip-path: polygon(5% 0%, 100% 4%, 93% 100%, 0% 94%);
-  background-size: 420%;
-  background-position: 48% 45%;
-  z-index: 2;
-}
-
-/* Watercolor wash pieces in hero */
-.cz-wash-piece {
-  position: absolute;
-  background-size: 250%;
-  background-repeat: no-repeat;
-  border: 2px solid white;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.08);
+  filter: blur(50px);
   z-index: 0;
   opacity: 0;
-  transition: opacity 0.6s ease-out;
+  transition: opacity 1.4s ease 0.1s;
 }
 
-.cz-frags.active .cz-wash-piece { opacity: 0.25; }
-
-.cz-wash-piece--1 {
-  width: 240px;
-  height: 160px;
-  bottom: -3%;
-  left: 30%;
-  transform: rotate(-4deg);
-  background-position: 40% 55%;
-  clip-path: polygon(3% 0%, 98% 4%, 100% 96%, 0% 100%);
-  transition-delay: 0.3s;
+.sa-glow.on {
+  opacity: 1;
+  animation: glowBreathe 5s ease-in-out 1.6s infinite alternate;
 }
 
-.cz-wash-piece--2 {
-  width: 200px;
-  height: 130px;
-  top: 10%;
-  right: -2%;
-  transform: rotate(6deg);
-  background-position: 70% 30%;
-  clip-path: polygon(0% 3%, 100% 0%, 97% 100%, 4% 96%);
-  transition-delay: 0.35s;
+@keyframes glowBreathe {
+  0%   { opacity: 0.75; transform: translate(-50%, -58%) scale(1); }
+  100% { opacity: 1;    transform: translate(-50%, -58%) scale(1.08); }
 }
 
-/* --- Ransom note --- */
-.cz-ransom {
+/* The artwork — kona.png */
+.sa-art {
+  display: block;
+  width: min(72vw, 520px);
+  position: relative;
+  z-index: 1;
+  user-select: none;
+  opacity: 0;
+  transform: scale(0.92) rotate(-2deg);
+  filter: blur(12px);
+  transition:
+    opacity 0.9s var(--sa-ease) 0.25s,
+    transform 0.9s var(--sa-ease) 0.25s,
+    filter 0.9s var(--sa-ease) 0.25s;
+}
+
+.sa-art.on {
+  opacity: 1;
+  transform: scale(1) rotate(-2deg);
+  filter: blur(0) drop-shadow(0 0 40px rgba(126, 184, 255, 0.2));
+}
+
+.sa-art:hover {
+  filter: blur(0) drop-shadow(0 0 50px rgba(126, 184, 255, 0.35));
+  transform: scale(1.015) rotate(-2deg);
+  transition: all 0.5s var(--sa-ease);
+}
+
+/* ---- Tagline ---- */
+.sa-tagline {
   text-align: center;
-  margin: 3rem 0 2rem;
+  margin-top: 2.5rem;
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.4rem;
 }
 
-.cz-ransom-word {
+.sa-word {
   display: inline-block;
-  padding: 0.2rem 0.6rem;
-  margin: 0.2rem;
-  font-size: clamp(1.4rem, 4vw, 2.5rem);
-  line-height: 1.3;
+  font-family: var(--sa-marker);
+  font-size: clamp(1.6rem, 4.5vw, 3.2rem);
+  opacity: 0;
+  transform: translateY(18px) scale(0.96);
+  transition:
+    opacity 0.55s var(--sa-ease),
+    transform 0.55s var(--sa-ease);
+  transition-delay: var(--d, 0.7s);
 }
 
-.cz-ransom-word:nth-child(1) {
-  font-family: var(--cz-bold);
-  background: var(--cz-ink);
-  color: var(--cz-paper);
-  transform: rotate(-2deg);
+.sa-tagline.on .sa-word {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
-.cz-ransom-word:nth-child(2) {
-  font-family: var(--cz-hand);
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  transform: rotate(1.5deg);
-  color: var(--cz-red);
+.sa-word--neon {
+  color: var(--sa-blue);
+  text-shadow:
+    0 0 12px rgba(126, 184, 255, 0.5),
+    0 0 40px rgba(126, 184, 255, 0.2);
 }
 
-.cz-ransom-word:nth-child(3) {
-  font-family: var(--cz-typewriter);
-  border: 2px solid var(--cz-ink);
-  transform: rotate(-1deg);
+/* ---- Scroll cue ---- */
+.sa-cue {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  opacity: 0;
+  transition: opacity 0.6s ease 2s;
 }
 
-.cz-ransom-word:nth-child(4) {
-  font-family: var(--cz-bold);
-  background: var(--cz-red);
-  color: white;
-  transform: rotate(3deg);
+.sa-cue.on { opacity: 1; }
+
+.sa-cue span {
+  font-family: var(--sa-body);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  color: var(--sa-dim);
 }
 
-.cz-ransom-word:nth-child(5) {
-  font-family: var(--cz-hand);
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  text-decoration: underline;
-  text-decoration-style: wavy;
-  text-decoration-color: var(--cz-red);
-  transform: rotate(-2deg);
+.sa-cue-line {
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(to bottom, var(--sa-dim), transparent);
+  animation: cueSlide 2.2s ease-in-out infinite;
 }
 
-/* --- Content --- */
-.cz-content {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 2rem;
+@keyframes cueSlide {
+  0%, 100% { opacity: 0.25; transform: scaleY(0.4); transform-origin: top; }
+  50%      { opacity: 0.9;  transform: scaleY(1);   transform-origin: top; }
+}
+
+/* ============================================
+   PAINT DRIPS (decorative)
+   ============================================ */
+.sa-drips {
   position: relative;
-  z-index: 1;
+  z-index: 3;
+  height: 0;
 }
 
-/* --- Torn paper section --- */
-.cz-section--paper {
-  background: white;
-  padding: 2.5rem 2rem;
-  margin-bottom: 2rem;
-  clip-path: polygon(
-    1% 2%, 4% 0%, 7% 3%, 13% 1%, 19% 0%, 25% 2%,
-    31% 0%, 37% 1%, 43% 0%, 50% 3%, 56% 1%, 62% 0%,
-    68% 2%, 74% 0%, 80% 1%, 86% 3%, 92% 0%, 98% 1%, 100% 2%,
-    100% 98%, 97% 100%, 91% 98%, 85% 100%, 79% 99%,
-    73% 100%, 67% 98%, 61% 100%, 55% 99%, 49% 100%,
-    43% 98%, 37% 100%, 31% 99%, 25% 100%, 19% 98%,
-    13% 100%, 7% 99%, 1% 100%, 0% 98%
-  );
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
-  transform: rotate(var(--rot, 0deg));
+.sa-drip {
+  position: absolute;
+  top: 0;
+  width: 2.5px;
+  background: linear-gradient(to bottom, var(--sa-blue), transparent);
+  border-radius: 0 0 2px 2px;
+  opacity: 0.25;
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: var(--dd, 1.6s);
+}
+
+.sa-drips.on .sa-drip {
+  transform: scaleY(1);
+}
+
+/* ============================================
+   ABOUT — Wheat-paste poster
+   ============================================ */
+.sa-about {
+  padding: 8rem 2rem 4rem;
+  display: flex;
+  justify-content: center;
   position: relative;
+  z-index: 3;
 }
 
-/* --- Heading --- */
-.cz-heading {
-  font-family: var(--cz-typewriter);
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  position: relative;
-  display: inline-block;
-}
-
-.cz-heading::after {
+/* Subtle spray line above */
+.sa-about::before {
   content: '';
   position: absolute;
-  bottom: -4px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--cz-red);
-  transform: rotate(-0.5deg);
+  top: 3rem;
+  left: 15%;
+  right: 35%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(126, 184, 255, 0.1), transparent);
+  transform: rotate(-0.3deg);
 }
 
-/* --- About text --- */
-.cz-about-text {
-  font-family: var(--cz-typewriter);
-  font-size: 0.9rem;
+.sa-poster {
+  background: var(--sa-cream);
+  color: #1a1714;
+  padding: 3rem 2.5rem 2.5rem;
+  max-width: 520px;
+  width: 100%;
+  position: relative;
+  transform: rotate(-1.5deg) translateY(30px);
+  box-shadow:
+    5px 5px 0 rgba(0, 0, 0, 0.35),
+    12px 12px 40px rgba(0, 0, 0, 0.5);
+  clip-path: polygon(
+    0% 2.5%, 2.5% 0.8%, 5% 2%, 8% 0%, 12% 1.5%, 16% 0.5%,
+    20% 2%, 24% 0%, 28% 2.5%, 32% 0.8%, 36% 0%, 40% 1.8%,
+    44% 0.5%, 48% 2%, 52% 0%, 56% 1.5%, 60% 0.8%, 64% 0%,
+    68% 2.2%, 72% 0.5%, 76% 1.5%, 80% 0%, 84% 2.5%,
+    88% 0.8%, 92% 0.5%, 96% 2%, 100% 0.8%,
+    100% 97.5%, 97.5% 99.5%, 94% 97.8%, 90% 100%, 86% 98%,
+    82% 99.5%, 78% 97%, 74% 100%, 70% 98.2%, 66% 100%,
+    62% 97.5%, 58% 99%, 54% 100%, 50% 97.8%, 46% 99.5%,
+    42% 97%, 38% 100%, 34% 98.5%, 30% 100%, 26% 97.2%,
+    22% 99.5%, 18% 100%, 14% 98%, 10% 99.5%, 6% 97.5%,
+    2% 100%, 0% 98%
+  );
+  opacity: 0;
+  transition:
+    opacity 0.7s var(--sa-ease),
+    transform 0.7s var(--sa-ease);
+}
+
+.sa-about.on .sa-poster {
+  opacity: 1;
+  transform: rotate(-1.5deg) translateY(0);
+}
+
+/* Tape strips */
+.sa-tape {
+  position: absolute;
+  width: 65px;
+  height: 20px;
+  background: rgba(230, 218, 175, 0.8);
+  z-index: 5;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.sa-tape--tl {
+  top: -7px;
+  left: 22px;
+  transform: rotate(-18deg);
+}
+
+.sa-tape--tr {
+  top: -5px;
+  right: 28px;
+  transform: rotate(10deg);
+}
+
+.sa-poster-title {
+  font-family: var(--sa-marker);
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  letter-spacing: 0.04em;
+  color: #1a1714;
+}
+
+.sa-poster-body {
+  font-family: var(--sa-body);
+  font-size: 1rem;
   line-height: 2;
   color: #333;
+  margin-bottom: 0.8rem;
 }
 
-.cz-about-text .highlight {
-  background: var(--cz-yellow);
-  padding: 0 4px;
+.sa-mark {
+  background: #ffd740;
+  padding: 1px 5px;
+  border-radius: 2px;
 }
 
-.cz-about-text .crossed {
+.sa-struck {
   text-decoration: line-through;
   color: #999;
 }
 
-.cz-about-text .scrawl {
-  font-family: var(--cz-hand);
-  font-size: 1.3em;
-  color: var(--cz-red);
+.sa-scrawl {
+  font-family: var(--sa-hand);
+  font-size: 1.35em;
+  color: var(--sa-red);
+  margin-left: 0.3rem;
 }
 
-/* --- Mid-content fragments — image bleeds into body --- */
-.cz-mid-frag {
-  position: relative;
-  margin: 1.5rem 0;
-  background-repeat: no-repeat;
-  border: 3px solid white;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.12);
-  z-index: 0;
+.sa-poster-sub {
+  font-family: var(--sa-hand);
+  font-size: 1.15rem;
+  color: #777;
 }
 
-.cz-mid-frag--1 {
-  width: 220px;
-  height: 130px;
-  transform: rotate(5deg);
-  clip-path: polygon(3% 2%, 97% 5%, 100% 94%, 0% 100%);
-  background-size: 480%;
-  background-position: 35% 55%;
-  margin-left: auto;
-  margin-right: 2rem;
-}
-
-.cz-mid-frag--2 {
-  width: 190px;
-  height: 110px;
-  transform: rotate(-3.5deg);
-  clip-path: polygon(0% 4%, 100% 0%, 96% 100%, 5% 96%);
-  background-size: 500%;
-  background-position: 65% 35%;
-  margin-left: 1rem;
-}
-
-/* --- Philosophy --- */
-.cz-philosophy {
-  font-family: var(--cz-hand);
-  font-size: clamp(2.5rem, 7vw, 4.5rem);
+/* ============================================
+   PHILOSOPHY — Spray paint on the wall
+   ============================================ */
+.sa-phil {
+  padding: 7rem 2rem;
   text-align: center;
-  transform: rotate(-3deg);
-  color: var(--cz-ink);
-  padding: 3rem 1rem;
-  line-height: 1.3;
   position: relative;
-  z-index: 1;
+  z-index: 3;
 }
 
-.cz-philosophy .underline {
-  text-decoration: underline;
-  text-decoration-color: var(--cz-red);
-  text-decoration-thickness: 4px;
-  text-underline-offset: 6px;
+.sa-spray {
+  font-family: var(--sa-marker);
+  font-size: clamp(2.8rem, 9vw, 6rem);
+  line-height: 1.25;
+  color: var(--sa-ink);
+  border: none;
+  margin: 0;
+  padding: 0;
+  text-shadow: 0 0 60px rgba(126, 184, 255, 0.06);
+  opacity: 0;
+  transform: scale(0.94);
+  transition:
+    opacity 0.8s var(--sa-ease),
+    transform 0.8s var(--sa-ease);
 }
 
-/* --- Projects --- */
-.cz-projects {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  justify-content: center;
-  padding: 1rem 0 2rem;
+.sa-phil.on .sa-spray {
+  opacity: 1;
+  transform: scale(1);
 }
 
-.cz-project {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  width: 220px;
-  padding: 1.5rem;
-  background: white;
-  border: 2px solid var(--cz-ink);
+/* Neon glow on "raw" */
+.sa-neon-word {
   position: relative;
-  transition: transform 0.2s;
-  transform: rotate(var(--rot, 0deg));
+  color: var(--sa-blue);
+  text-shadow:
+    0 0 8px rgba(126, 184, 255, 0.6),
+    0 0 25px rgba(126, 184, 255, 0.35),
+    0 0 50px rgba(126, 184, 255, 0.15);
 }
 
-.cz-project:hover {
-  transform: scale(1.05) rotate(0deg) !important;
-  z-index: 2;
-}
-
-/* Staple */
-.cz-project::before {
+/* Paint drip under "raw" */
+.sa-neon-word::after {
   content: '';
   position: absolute;
-  top: 8px;
+  bottom: -18px;
   left: 50%;
   transform: translateX(-50%);
-  width: 20px;
-  height: 8px;
-  border: 2px solid #aaa;
-  border-top: none;
-  border-radius: 0 0 4px 4px;
+  width: 3px;
+  height: 18px;
+  background: linear-gradient(to bottom, var(--sa-blue), transparent);
+  border-radius: 0 0 3px 3px;
+  opacity: 0.6;
 }
 
-.cz-project-name {
-  font-family: var(--cz-bold);
-  font-size: 0.75rem;
-  margin-bottom: 0.5rem;
-  margin-top: 0.5rem;
+/* ============================================
+   BUILDS — Sticker cards
+   ============================================ */
+.sa-builds {
+  padding: 3rem 2rem 5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 3;
 }
 
-.cz-project-desc {
-  font-family: var(--cz-typewriter);
-  font-size: 0.75rem;
+/* Spray line above */
+.sa-builds::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 30%;
+  right: 10%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(196, 176, 232, 0.12), transparent);
+  transform: rotate(0.2deg);
+}
+
+.sa-label {
+  font-family: var(--sa-marker);
+  font-size: 1.8rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 2rem;
+  position: relative;
+  display: inline-block;
+}
+
+.sa-label::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--sa-blue);
+  box-shadow: 0 0 12px rgba(126, 184, 255, 0.4);
+  border-radius: 2px;
+}
+
+.sa-stickers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.8rem;
+}
+
+.sa-sticker {
+  display: block;
+  text-decoration: none;
+  color: var(--sa-ink);
+  background: var(--sa-wall-mid);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1.8rem;
+  position: relative;
+  transform: rotate(var(--rot, 0deg));
+  transition: all 0.4s var(--sa-ease);
+  overflow: hidden;
+  opacity: 0;
+}
+
+.sa-builds.on .sa-sticker {
+  animation: stickerPop 0.55s var(--sa-ease) backwards;
+  animation-delay: calc(var(--i) * 0.09s + 0.15s);
+}
+
+@keyframes stickerPop {
+  from {
+    opacity: 0;
+    transform: rotate(var(--rot, 0deg)) translateY(30px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(var(--rot, 0deg)) translateY(0) scale(1);
+  }
+}
+
+.sa-sticker:hover {
+  transform: rotate(0deg) translateY(-6px);
+  border-color: var(--sa-blue);
+  box-shadow:
+    0 0 0 1px var(--sa-blue),
+    0 10px 35px rgba(0, 0, 0, 0.45),
+    0 0 50px rgba(126, 184, 255, 0.07);
+}
+
+/* Peel corner */
+.sa-peel {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(
+    225deg,
+    var(--sa-wall) 50%,
+    rgba(255, 255, 255, 0.04) 50%
+  );
+  transition: all 0.35s var(--sa-ease);
+}
+
+.sa-sticker:hover .sa-peel {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(
+    225deg,
+    var(--sa-wall) 50%,
+    rgba(126, 184, 255, 0.06) 50%
+  );
+}
+
+.sa-chip {
+  display: inline-block;
+  font-family: var(--sa-body);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sa-blue);
+  margin-bottom: 0.8rem;
+}
+
+.sa-sticker-name {
+  font-family: var(--sa-marker);
+  font-size: 1.15rem;
+  margin-bottom: 0.45rem;
+  transition: color 0.3s ease;
+  line-height: 1.3;
+}
+
+.sa-sticker:hover .sa-sticker-name {
+  color: var(--sa-blue);
+}
+
+.sa-sticker-desc {
+  font-family: var(--sa-body);
+  font-size: 0.85rem;
+  color: var(--sa-dim);
   line-height: 1.6;
-  color: #555;
+  font-weight: 300;
 }
 
-/* --- Connect --- */
-.cz-connect {
+/* ============================================
+   CONNECT — Tag links
+   ============================================ */
+.sa-connect {
+  padding: 4rem 2rem 6rem;
+  text-align: center;
+  position: relative;
+  z-index: 3;
+}
+
+.sa-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   justify-content: center;
-  padding: 3rem 0;
-  position: relative;
-  z-index: 1;
 }
 
-.cz-connect-link {
-  font-family: var(--cz-typewriter);
-  font-size: 0.9rem;
-  color: var(--cz-ink);
+.sa-tag {
+  font-family: var(--sa-marker);
+  font-size: 1rem;
+  color: var(--sa-ink);
   text-decoration: none;
-  padding: 0.5rem 1rem;
-  background: white;
-  border: 1px dashed var(--cz-ink);
-  transform: rotate(var(--rot, 0deg));
-  transition: all 0.2s;
-}
-
-.cz-connect-link:hover {
-  background: var(--cz-yellow);
-  transform: rotate(0deg) scale(1.05);
-}
-
-/* --- Footer --- */
-.cz-footer {
-  text-align: center;
-  padding: 4rem 2rem 6rem;
-  font-family: var(--cz-typewriter);
-  font-size: 0.75rem;
-  color: #888;
+  padding: 0.6rem 1.4rem;
+  border: 2px solid var(--sa-concrete);
   position: relative;
-  z-index: 1;
+  transition: all 0.35s var(--sa-ease);
+  opacity: 0;
 }
 
-/* --- Responsive --- */
+.sa-connect.on .sa-tag {
+  animation: tagIn 0.45s var(--sa-ease) backwards;
+  animation-delay: calc(var(--i) * 0.07s + 0.1s);
+}
+
+@keyframes tagIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sa-tag:hover {
+  color: var(--sa-wall);
+  background: var(--sa-blue);
+  border-color: var(--sa-blue);
+  box-shadow: 0 0 24px rgba(126, 184, 255, 0.25);
+  transform: translateY(-3px);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.sa-footer {
+  text-align: center;
+  padding: 2rem 2rem 3rem;
+  font-family: var(--sa-hand);
+  font-size: 0.9rem;
+  color: var(--sa-dim);
+  position: relative;
+  z-index: 3;
+  transform: rotate(-0.8deg);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 @media (max-width: 768px) {
-  .cz-hero { min-height: 50vh; padding: 2rem 1rem; }
-  .cz-hero-complete { width: 92vw; }
-  .cz-projects { flex-direction: column; align-items: center; }
-  .cz-project { width: 85%; }
-  .cz-philosophy { font-size: 2rem; transform: rotate(-1deg); }
-  .cz-frag--1 { width: 65%; height: 45%; }
-  .cz-frag--2 { width: 50%; height: 40%; }
-  .cz-frag--3 { width: 40%; }
-  .cz-frag--4 { width: 42%; }
-  .cz-frag--5 { display: none; }
-  .cz-wash-piece { display: none; }
-  .cz-mid-frag { width: 160px !important; height: 90px !important; }
+  .sa-art {
+    width: 88vw;
+  }
+
+  .sa-word {
+    font-size: clamp(1.3rem, 7vw, 2rem);
+  }
+
+  .sa-poster {
+    padding: 2.5rem 1.8rem 2rem;
+    transform: rotate(-0.8deg) translateY(30px);
+  }
+
+  .sa-about.on .sa-poster {
+    transform: rotate(-0.8deg) translateY(0);
+  }
+
+  .sa-spray {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+
+  .sa-stickers {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+
+  .sa-sticker {
+    transform: none !important;
+  }
+
+  .sa-builds.on .sa-sticker {
+    animation-name: stickerPopMobile;
+  }
+
+  .sa-glow {
+    width: 350px;
+    height: 220px;
+  }
+
+  .sa-drip {
+    display: none;
+  }
+
+  .sa-hero {
+    min-height: 90vh;
+    min-height: 90dvh;
+  }
+}
+
+@keyframes stickerPopMobile {
+  from { opacity: 0; transform: translateY(25px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 480px) {
+  .sa-poster {
+    padding: 2rem 1.3rem 1.5rem;
+  }
+
+  .sa-poster-body {
+    font-size: 0.9rem;
+  }
+
+  .sa-sticker {
+    padding: 1.4rem;
+  }
+
+  .sa-tag {
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .sa-cue {
+    display: none;
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.15s !important;
+    transition-delay: 0s !important;
+  }
+
+  .sa-glow.on { opacity: 1; animation: none; }
+  .sa-art.on  { opacity: 1; transform: scale(1) rotate(-2deg); filter: drop-shadow(0 0 40px rgba(126, 184, 255, 0.2)); }
+  .sa-tagline.on .sa-word { opacity: 1; transform: none; }
+  .sa-cue.on { opacity: 1; }
+  .sa-about.on .sa-poster { opacity: 1; }
+  .sa-phil.on .sa-spray { opacity: 1; transform: none; }
+  .sa-builds.on .sa-sticker { opacity: 1; }
+  .sa-connect.on .sa-tag { opacity: 1; }
+  .sa-drips.on .sa-drip { transform: scaleY(1); }
+}
+
+/* ============================================
+   SELECTION
+   ============================================ */
+::selection {
+  background: var(--sa-blue);
+  color: var(--sa-wall);
 }
