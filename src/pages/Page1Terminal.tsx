@@ -31,11 +31,14 @@ export default function Page1Brutalist() {
           color: #f5f2ed !important;
         }
         .brut-card:hover .brut-lang {
-          border-color: #f5f2ed !important;
-          color: #f5f2ed !important;
+          border-color: #a8c8e8 !important;
+          color: #a8c8e8 !important;
         }
         .brut-card:hover .brut-desc {
           color: #a09d96 !important;
+        }
+        .brut-card:hover .brut-idx {
+          color: #a8c8e8 !important;
         }
         .brut-nav a {
           transition: all 0.1s;
@@ -50,7 +53,7 @@ export default function Page1Brutalist() {
       <div style={{
         position: 'fixed', top: 0, left: 0, height: '3px',
         width: `${scrollPct * 100}%`,
-        background: '#2a2825', zIndex: 100,
+        background: '#a8c8e8', zIndex: 100,
         transition: 'width 0.1s',
       }} />
 
@@ -68,7 +71,7 @@ export default function Page1Brutalist() {
           textTransform: 'uppercase',
           color: '#2a2825',
         }}>
-          KO<br/>NA
+          KO<br/><span style={{ color: '#a8c8e8' }}>NA</span>
         </h1>
         <div style={{
           display: 'flex',
@@ -136,12 +139,13 @@ export default function Page1Brutalist() {
                 color: '#2a2825',
               }}
             >
-              <span style={{
+              <span className="brut-idx" style={{
                 fontSize: '0.7rem',
                 fontWeight: 400,
                 color: '#a09d96',
                 minWidth: '2rem',
                 fontVariantNumeric: 'tabular-nums',
+                transition: 'color 0.15s',
               }}>
                 {String(i + 1).padStart(2, '0')}
               </span>
@@ -194,7 +198,7 @@ export default function Page1Brutalist() {
           &copy; {new Date().getFullYear()} KONA
         </span>
         <span style={{ fontSize: '5rem', fontWeight: 900, lineHeight: 1, letterSpacing: '-0.05em' }}>
-          K.
+          K<span style={{ color: '#a8c8e8' }}>.</span>
         </span>
       </footer>
 
