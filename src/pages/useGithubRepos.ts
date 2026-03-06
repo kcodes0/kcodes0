@@ -17,7 +17,7 @@ export function useGithubRepos() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('https://api.github.com/users/konacodes/repos?sort=updated&per_page=30')
+    fetch('https://api.github.com/users/konacodes/repos?sort=pushed&per_page=30')
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch repos');
         return res.json();
