@@ -1,236 +1,240 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useGithubRepos } from './useGithubRepos';
 
-export default function Page6Depth() {
+// Ink & Brush — east-meets-west calligraphy, brush stroke energy,
+// paper texture, balanced zen + raw expression
+export default function Page6Ink() {
   const { repos, loading } = useGithubRepos();
-  const [mouse, setMouse] = useState({ x: 0.5, y: 0.5 });
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const handle = (e: MouseEvent) => {
-      setMouse({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
-    };
-    window.addEventListener('mousemove', handle);
-    return () => window.removeEventListener('mousemove', handle);
+    const t = setTimeout(() => setVisible(true), 200);
+    return () => clearTimeout(t);
   }, []);
 
-  const rotX = (mouse.y - 0.5) * 8;
-  const rotY = (mouse.x - 0.5) * -8;
-
   return (
-    <div ref={containerRef} style={{
+    <div style={{
       minHeight: '100vh',
-      background: '#0c0c14',
-      color: '#e0e0e8',
-      fontFamily: '"Space Grotesk", system-ui, sans-serif',
-      perspective: '1200px',
-      overflow: 'hidden',
+      background: '#f7f3ec',
+      color: '#1c1b18',
+      fontFamily: '"Noto Serif", Georgia, serif',
+      position: 'relative',
     }}>
-      <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet" />
 
       <style>{`
-        @keyframes orbitSlow {
-          from { transform: rotate(0deg) translateX(200px) rotate(0deg); }
-          to { transform: rotate(360deg) translateX(200px) rotate(-360deg); }
+        .ink-page::before {
+          content: '';
+          position: fixed; inset: 0;
+          pointer-events: none; z-index: 1;
+          opacity: 0.025;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
-        @keyframes shimmer {
-          0%, 100% { opacity: 0.03; }
-          50% { opacity: 0.08; }
+        @keyframes brushStroke {
+          from { clip-path: inset(0 100% 0 0); }
+          to { clip-path: inset(0 0 0 0); }
         }
-        .depth-card {
-          transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-          transform-style: preserve-3d;
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
-        .depth-card:hover {
-          transform: translateZ(40px) scale(1.05) !important;
-          box-shadow: 0 25px 80px rgba(80,120,255,0.15), 0 0 0 1px rgba(80,120,255,0.2) !important;
-          z-index: 10 !important;
+        .ink-item {
+          transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .depth-card:hover .dc-name { color: #7090ff; }
-        .depth-nav a:hover { color: #7090ff !important; }
+        .ink-item:hover {
+          padding-left: 1.8rem !important;
+        }
+        .ink-item:hover .ink-name { color: #8a2c1a; }
+        .ink-item:hover .ink-stroke {
+          width: 100% !important;
+          opacity: 0.06 !important;
+        }
+        .ink-nav a:hover { color: #8a2c1a !important; }
       `}</style>
 
-      {/* Orbiting particles */}
-      <div style={{ position: 'fixed', top: '50%', left: '50%', zIndex: 0 }}>
-        {[0, 1, 2].map(i => (
-          <div key={i} style={{
-            position: 'absolute',
-            width: '6px', height: '6px',
-            borderRadius: '50%',
-            background: ['#7090ff', '#ff7090', '#70ff90'][i],
-            opacity: 0.4,
-            animation: `orbitSlow ${20 + i * 8}s linear infinite`,
-            animationDelay: `${i * -7}s`,
-          }} />
-        ))}
-      </div>
+      <div className="ink-page" style={{ position: 'relative', zIndex: 2 }}>
+        <div style={{ maxWidth: '750px', margin: '0 auto', padding: '0 2rem' }}>
 
-      {/* Ambient light plane */}
-      <div style={{
-        position: 'fixed',
-        top: `${mouse.y * 100}%`, left: `${mouse.x * 100}%`,
-        width: '600px', height: '600px',
-        transform: 'translate(-50%, -50%)',
-        background: 'radial-gradient(ellipse, rgba(80,120,255,0.06) 0%, transparent 60%)',
-        pointerEvents: 'none', zIndex: 0,
-        transition: 'top 2s ease, left 2s ease',
-      }} />
-
-      {/* Content with 3D tilt */}
-      <div style={{
-        position: 'relative', zIndex: 1,
-        maxWidth: '1100px', margin: '0 auto', padding: '0 2rem',
-        transformStyle: 'preserve-3d',
-      }}>
-        {/* Hero */}
-        <section style={{
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          textAlign: 'center',
-          transformStyle: 'preserve-3d',
-        }}>
-          <div style={{
-            transform: `rotateX(${rotX * 0.5}deg) rotateY(${rotY * 0.5}deg) translateZ(30px)`,
-            transition: 'transform 0.8s ease',
-            transformStyle: 'preserve-3d',
+          {/* Hero — brush stroke reveal */}
+          <section style={{
+            padding: '10rem 0 6rem',
+            textAlign: 'center',
+            opacity: visible ? 1 : 0,
+            transition: 'opacity 1.5s ease',
           }}>
-            <img
-              src="/images/kona.png"
-              alt="Kona"
-              style={{
-                width: 'min(45vw, 260px)',
-                filter: 'drop-shadow(0 20px 40px rgba(80,120,255,0.15))',
-                transform: 'translateZ(60px)',
-                marginBottom: '1rem',
-              }}
-            />
-          </div>
-          <h1 style={{
-            fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
-            fontWeight: 300,
-            letterSpacing: '0.2em',
-            color: '#a0a8c0',
-            transform: `rotateX(${rotX * 0.3}deg) rotateY(${rotY * 0.3}deg) translateZ(10px)`,
-            transition: 'transform 1s ease',
-          }}>
-            KONA
-          </h1>
-          <p style={{
-            fontSize: '0.85rem',
-            color: '#606880',
-            marginTop: '0.5rem',
-            fontWeight: 300,
-            transform: `rotateX(${rotX * 0.2}deg) rotateY(${rotY * 0.2}deg)`,
-            transition: 'transform 1.2s ease',
-          }}>
-            building in depth
-          </p>
-
-          {/* Scroll indicator */}
-          <div style={{
-            position: 'absolute',
-            bottom: '3rem',
-            width: '1px', height: '40px',
-            background: 'linear-gradient(transparent, #7090ff44)',
-            animation: 'shimmer 2s ease-in-out infinite',
-          }} />
-        </section>
-
-        {/* 3D Card Grid */}
-        <section style={{
-          paddingBottom: '10rem',
-          transformStyle: 'preserve-3d',
-        }}>
-          {loading ? (
-            <div style={{ textAlign: 'center', color: '#606880' }}>loading...</div>
-          ) : (
+            {/* Brush stroke accent line */}
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-              gap: '1.5rem',
-              transformStyle: 'preserve-3d',
-            }}>
-              {repos.map((repo, i) => {
-                const row = Math.floor(i / 3);
-                const col = i % 3;
-                const z = (Math.sin(i * 0.8) * 15);
-                const cardRotX = rotX * (0.1 + col * 0.05);
-                const cardRotY = rotY * (0.1 + row * 0.05);
+              width: '120px',
+              height: '3px',
+              background: '#1c1b18',
+              margin: '0 auto 2rem',
+              borderRadius: '2px',
+              animation: visible ? 'brushStroke 0.8s ease 0.3s backwards' : 'none',
+            }} />
 
-                return (
+            <h1 style={{
+              fontSize: 'clamp(3rem, 10vw, 6rem)',
+              fontWeight: 300,
+              lineHeight: 0.95,
+              letterSpacing: '-0.04em',
+              margin: '0 0 1rem',
+            }}>
+              Kona
+            </h1>
+
+            <p style={{
+              fontSize: '0.9rem',
+              fontStyle: 'italic',
+              color: '#8a8580',
+              fontWeight: 300,
+              animation: visible ? 'fadeIn 1s ease 0.8s backwards' : 'none',
+            }}>
+              building with intention
+            </p>
+
+            {/* Bottom stroke */}
+            <div style={{
+              width: '60px',
+              height: '2px',
+              background: '#8a2c1a',
+              margin: '2rem auto 0',
+              opacity: 0.4,
+              borderRadius: '2px',
+              animation: visible ? 'brushStroke 0.6s ease 1.2s backwards' : 'none',
+            }} />
+          </section>
+
+          {/* Works */}
+          <section style={{ paddingBottom: '6rem' }}>
+            <div style={{
+              fontFamily: '"Space Grotesk", sans-serif',
+              fontSize: '0.6rem',
+              letterSpacing: '0.25em',
+              textTransform: 'uppercase',
+              color: '#b0aaa0',
+              marginBottom: '2.5rem',
+              textAlign: 'center',
+            }}>
+              Works
+            </div>
+
+            {loading ? (
+              <div style={{
+                textAlign: 'center',
+                fontStyle: 'italic',
+                color: '#b0aaa0',
+              }}>
+                ...
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {repos.map((repo, i) => (
                   <a
                     key={repo.name}
                     href={repo.html_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="depth-card"
+                    className="ink-item"
                     style={{
                       display: 'block',
                       textDecoration: 'none',
                       color: 'inherit',
-                      padding: '2rem',
-                      background: 'rgba(16,16,28,0.8)',
-                      border: '1px solid rgba(255,255,255,0.04)',
-                      borderRadius: '12px',
-                      transform: `rotateX(${cardRotX}deg) rotateY(${cardRotY}deg) translateZ(${z}px)`,
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                      padding: '1.3rem 0 1.3rem 1rem',
+                      borderBottom: '1px solid rgba(28,27,24,0.06)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      animation: `fadeIn 0.4s ease ${0.2 + i * 0.05}s backwards`,
                     }}
                   >
-                    <div className="dc-name" style={{
-                      fontSize: '1.2rem',
-                      fontWeight: 600,
-                      marginBottom: '0.5rem',
-                      transition: 'color 0.3s',
-                    }}>
-                      {repo.name}
-                    </div>
-                    {repo.description && (
-                      <p style={{ fontSize: '0.8rem', color: '#606880', lineHeight: 1.6, marginBottom: '0.8rem' }}>
-                        {repo.description}
-                      </p>
-                    )}
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                      {repo.language && (
-                        <span style={{
-                          fontSize: '0.65rem',
-                          padding: '0.2rem 0.5rem',
-                          background: 'rgba(80,120,255,0.08)',
-                          borderRadius: '4px',
-                          color: '#7090ff',
+                    {/* Brush stroke hover bg */}
+                    <div className="ink-stroke" style={{
+                      position: 'absolute',
+                      left: 0, top: '50%',
+                      transform: 'translateY(-50%)',
+                      width: '0%',
+                      height: '70%',
+                      background: '#8a2c1a',
+                      opacity: 0,
+                      transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
+                      borderRadius: '2px',
+                      zIndex: 0,
+                    }} />
+
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'baseline',
+                        gap: '1rem',
+                      }}>
+                        <h3 className="ink-name" style={{
+                          fontSize: '1.15rem',
+                          fontWeight: 400,
+                          margin: 0,
+                          transition: 'color 0.3s',
                         }}>
-                          {repo.language}
-                        </span>
-                      )}
-                      {repo.stargazers_count > 0 && (
-                        <span style={{ fontSize: '0.65rem', color: '#404860' }}>
-                          {repo.stargazers_count} stars
-                        </span>
+                          {repo.name}
+                        </h3>
+                        {repo.language && (
+                          <span style={{
+                            fontFamily: '"Space Grotesk", sans-serif',
+                            fontSize: '0.6rem',
+                            color: '#b0aaa0',
+                            flexShrink: 0,
+                          }}>
+                            {repo.language}
+                          </span>
+                        )}
+                      </div>
+                      {repo.description && (
+                        <p style={{
+                          fontSize: '0.8rem',
+                          fontStyle: 'italic',
+                          color: '#8a8580',
+                          fontWeight: 300,
+                          marginTop: '0.3rem',
+                          lineHeight: 1.6,
+                        }}>
+                          {repo.description}
+                        </p>
                       )}
                     </div>
                   </a>
-                );
-              })}
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Footer */}
+          <footer style={{
+            padding: '3rem 0',
+            textAlign: 'center',
+            borderTop: '1px solid rgba(28,27,24,0.06)',
+          }}>
+            <div style={{
+              fontSize: '0.65rem',
+              fontFamily: '"Space Grotesk", sans-serif',
+              color: '#b0aaa0',
+              letterSpacing: '0.15em',
+            }}>
+              &copy; {new Date().getFullYear()} &mdash; KONA
             </div>
-          )}
-        </section>
+          </footer>
+        </div>
       </div>
 
       {/* Nav */}
-      <nav className="depth-nav" style={{
+      <nav className="ink-nav" style={{
         position: 'fixed', bottom: '1.5rem', left: '50%', transform: 'translateX(-50%)',
-        display: 'flex', gap: '0.8rem', zIndex: 20,
-        background: 'rgba(12,12,20,0.9)', backdropFilter: 'blur(20px)',
-        padding: '0.5rem 1.2rem', borderRadius: '8px',
-        border: '1px solid rgba(255,255,255,0.05)',
+        display: 'flex', gap: '1rem', zIndex: 20,
+        background: '#f7f3ecee', padding: '0.5rem 1rem',
+        fontFamily: '"Space Grotesk", sans-serif',
       }}>
-        <a href="/" style={{ color: '#606880', textDecoration: 'none', fontSize: '0.75rem', transition: 'color 0.2s' }}>home</a>
+        <a href="/" style={{ color: '#b0aaa0', textDecoration: 'none', fontSize: '0.7rem', transition: 'color 0.2s' }}>home</a>
         {[1,2,3,4,5,6,7].map(n => (
           <a key={n} href={`/${n}`} style={{
-            color: n === 6 ? '#7090ff' : '#606880',
-            textDecoration: 'none', fontSize: '0.75rem', transition: 'color 0.2s',
+            color: n === 6 ? '#8a2c1a' : '#b0aaa0',
+            textDecoration: 'none', fontSize: '0.7rem', transition: 'color 0.2s',
           }}>{n}</a>
         ))}
       </nav>

@@ -1,312 +1,277 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGithubRepos } from './useGithubRepos';
 
-const COLORS = ['#ff3366', '#ffcc00', '#00ccff', '#ff6600', '#66ff33', '#cc33ff', '#ff3366'];
-const POWS = ['BAM!', 'POW!', 'ZAP!', 'WHAM!', 'BOOM!', 'CRACK!', 'SNAP!'];
-
-export default function Page7Comic() {
+// Exhibition Poster — Swiss design meets street poster,
+// bold geometric, large type hierarchy, asymmetric grid,
+// like a gallery exhibition announcement
+export default function Page7Exhibition() {
   const { repos, loading } = useGithubRepos();
-  const [activePanel, setActivePanel] = useState<string | null>(null);
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const [time, setTime] = useState('');
+
+  useEffect(() => {
+    const update = () => setTime(new Date().toLocaleTimeString('en-US', { hour12: false }));
+    update();
+    const i = setInterval(update, 1000);
+    return () => clearInterval(i);
+  }, []);
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#fffde8',
-      color: '#1a1a1a',
-      fontFamily: '"Bangers", "Comic Sans MS", cursive, sans-serif',
+      background: '#111110',
+      color: '#e8e4dc',
+      fontFamily: '"Space Grotesk", system-ui, sans-serif',
       position: 'relative',
     }}>
-      <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
       <style>{`
-        .comic-panel {
-          transition: all 0.2s ease;
-          position: relative;
-          overflow: hidden;
+        .exh-card {
+          transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .comic-panel::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background-image: radial-gradient(circle, #00000012 1px, transparent 1px);
-          background-size: 4px 4px;
-          pointer-events: none;
-          z-index: 1;
+        .exh-card:hover {
+          background: #1a1918 !important;
         }
-        .comic-panel:hover {
-          transform: scale(1.03) rotate(-0.5deg) !important;
-          z-index: 10 !important;
-          box-shadow: 8px 8px 0 #000 !important;
+        .exh-card:hover .exh-accent {
+          width: 100% !important;
         }
-        .comic-pow {
-          opacity: 0;
-          transform: scale(0);
-          transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-          pointer-events: none;
+        .exh-card:hover .exh-name {
+          transform: translateX(4px);
         }
-        .comic-panel:hover .comic-pow {
-          opacity: 1;
-          transform: scale(1) rotate(-12deg);
+        .exh-nav a:hover { color: #e8e4dc !important; }
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(-20px); }
+          to { opacity: 1; transform: translateX(0); }
         }
-        .comic-nav a:hover {
-          background: #000 !important;
-          color: #ffcc00 !important;
+        @keyframes expandLine {
+          from { width: 0; }
+          to { width: 100%; }
         }
-        @keyframes shake {
-          0%, 100% { transform: translate(0); }
-          25% { transform: translate(-2px, 1px); }
-          50% { transform: translate(2px, -1px); }
-          75% { transform: translate(-1px, -1px); }
-        }
-        .comic-hero:hover { animation: shake 0.3s ease; }
       `}</style>
 
-      {/* Halftone overlay */}
-      <div style={{
-        position: 'fixed', inset: 0,
-        backgroundImage: 'radial-gradient(circle, #00000008 1px, transparent 1px)',
-        backgroundSize: '3px 3px',
-        pointerEvents: 'none', zIndex: 50,
-      }} />
-
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1.5rem' }}>
-        {/* Hero Panel */}
-        <section className="comic-hero" style={{
-          margin: '2rem 0',
-          border: '4px solid #000',
-          borderRadius: '4px',
-          background: 'linear-gradient(135deg, #ffcc00 0%, #ff6600 100%)',
-          padding: '4rem 2rem',
-          textAlign: 'center',
-          position: 'relative',
-          boxShadow: '6px 6px 0 #000',
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 2rem' }}>
+        {/* Header — exhibition poster style */}
+        <header style={{
+          padding: '4rem 0 0',
+          display: 'grid',
+          gridTemplateColumns: '1fr auto',
+          gap: '2rem',
+          alignItems: 'start',
         }}>
-          {/* Speed lines */}
-          <div style={{
-            position: 'absolute', inset: 0, overflow: 'hidden',
-            background: `repeating-conic-gradient(transparent 0deg, transparent 8deg, rgba(0,0,0,0.03) 8deg, rgba(0,0,0,0.03) 10deg)`,
-          }} />
-
-          <img
-            src="/images/kona.png"
-            alt="Kona"
-            style={{
-              width: 'min(40vw, 220px)',
-              position: 'relative',
-              zIndex: 2,
-              filter: 'drop-shadow(4px 4px 0 #000)',
-            }}
-          />
-
-          <div style={{
-            position: 'relative', zIndex: 2,
-            marginTop: '1rem',
-          }}>
-            <p style={{
-              fontFamily: '"Permanent Marker", cursive',
-              fontSize: '1.2rem',
-              color: '#1a1a1a',
-              background: '#fff',
-              display: 'inline-block',
-              padding: '0.5rem 1.5rem',
-              border: '3px solid #000',
-              borderRadius: '20px',
-              position: 'relative',
+          <div>
+            {/* Giant type */}
+            <h1 style={{
+              fontSize: 'clamp(4rem, 12vw, 9rem)',
+              fontWeight: 700,
+              lineHeight: 0.88,
+              letterSpacing: '-0.05em',
+              margin: 0,
             }}>
-              creative developer &amp; code shipper!
-              {/* Speech bubble tail */}
-              <span style={{
-                position: 'absolute',
-                top: '-12px', left: '50%', transform: 'translateX(-50%)',
-                width: 0, height: 0,
-                borderLeft: '10px solid transparent',
-                borderRight: '10px solid transparent',
-                borderBottom: '12px solid #000',
-              }} />
-              <span style={{
-                position: 'absolute',
-                top: '-8px', left: '50%', transform: 'translateX(-50%)',
-                width: 0, height: 0,
-                borderLeft: '8px solid transparent',
-                borderRight: '8px solid transparent',
-                borderBottom: '10px solid #fff',
-              }} />
-            </p>
+              KO
+              <br />
+              <span style={{ color: '#c8503c' }}>NA</span>
+            </h1>
           </div>
-        </section>
+          <div style={{
+            textAlign: 'right',
+            paddingTop: '0.5rem',
+          }}>
+            <div style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: '#555', marginBottom: '0.3rem' }}>
+              {time}
+            </div>
+            <div style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: '#555' }}>
+              {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }).toUpperCase()}
+            </div>
+          </div>
+        </header>
 
-        {/* Issue header */}
+        {/* Subtitle bar */}
         <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '0.5rem 0 1rem',
-          borderBottom: '3px solid #000',
-          marginBottom: '1.5rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '1.5rem 0',
+          borderTop: '1px solid #222',
+          borderBottom: '1px solid #222',
+          margin: '2rem 0 3rem',
         }}>
-          <span style={{ fontSize: '0.8rem', letterSpacing: '0.1em' }}>ISSUE #{repos.length}</span>
-          <span style={{ fontSize: '1.5rem' }}>PROJECTS</span>
-          <span style={{ fontSize: '0.8rem', letterSpacing: '0.1em' }}>{new Date().getFullYear()}</span>
+          <span style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: '#666', textTransform: 'uppercase' }}>
+            Developer &bull; Creative &bull; Builder
+          </span>
+          <span style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: '#444' }}>
+            {repos.length} WORKS
+          </span>
         </div>
 
-        {/* Comic Grid */}
+        {/* Two-column layout: feature left, list right */}
         {loading ? (
-          <div style={{
-            textAlign: 'center', padding: '4rem',
-            fontSize: '2rem', fontFamily: '"Bangers", cursive',
-          }}>
-            LOADING...
-            <div style={{ fontSize: '4rem', animation: 'shake 0.5s infinite' }}>!</div>
-          </div>
+          <div style={{ padding: '4rem 0', color: '#444' }}>Loading...</div>
         ) : (
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '1rem',
-            paddingBottom: '6rem',
+            gridTemplateColumns: '1.2fr 1fr',
+            gap: '3rem',
+            paddingBottom: '4rem',
           }}>
-            {repos.map((repo, i) => {
-              const color = COLORS[i % COLORS.length];
-              const pow = POWS[i % POWS.length];
-
-              return (
+            {/* Left — featured projects */}
+            <div>
+              {repos.slice(0, 4).map((repo, i) => (
                 <a
                   key={repo.name}
                   href={repo.html_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="comic-panel"
+                  className="exh-card"
                   style={{
                     display: 'block',
                     textDecoration: 'none',
-                    color: '#1a1a1a',
-                    border: '3px solid #000',
-                    borderRadius: '2px',
-                    padding: '1.5rem',
-                    background: '#fff',
-                    boxShadow: '4px 4px 0 #000',
-                    transform: `rotate(${(i % 2 === 0 ? -1 : 1) * (0.5 + (i % 3) * 0.3)}deg)`,
+                    color: 'inherit',
+                    padding: '2rem 1.5rem',
+                    borderBottom: '1px solid #1a1918',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    animation: `slideIn 0.4s ease ${i * 0.1}s backwards`,
                   }}
-                  onMouseEnter={() => setActivePanel(repo.name)}
-                  onMouseLeave={() => setActivePanel(null)}
+                  onMouseEnter={() => setHoverIdx(i)}
+                  onMouseLeave={() => setHoverIdx(null)}
                 >
-                  {/* POW badge */}
-                  <div className="comic-pow" style={{
+                  {/* Accent bar */}
+                  <div className="exh-accent" style={{
                     position: 'absolute',
-                    top: '-10px', right: '-5px',
-                    background: color,
-                    color: '#fff',
-                    fontFamily: '"Bangers", cursive',
-                    fontSize: '1.1rem',
-                    padding: '0.3rem 0.8rem',
-                    border: '2px solid #000',
-                    zIndex: 5,
-                    textShadow: '1px 1px 0 #000',
-                  }}>
-                    {pow}
-                  </div>
+                    bottom: 0, left: 0,
+                    height: '2px',
+                    width: hoverIdx === i ? '100%' : '0%',
+                    background: '#c8503c',
+                    transition: 'width 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
+                  }} />
 
                   <div style={{
-                    fontFamily: '"Bangers", cursive',
-                    fontSize: '1.5rem',
-                    letterSpacing: '0.05em',
-                    marginBottom: '0.3rem',
-                    position: 'relative',
-                    zIndex: 2,
-                    textTransform: 'uppercase',
+                    fontSize: '0.55rem',
+                    letterSpacing: '0.2em',
+                    color: '#444',
+                    marginBottom: '0.6rem',
+                  }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </div>
+
+                  <h3 className="exh-name" style={{
+                    fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
+                    fontWeight: 600,
+                    margin: '0 0 0.5rem',
+                    transition: 'transform 0.3s ease',
                   }}>
                     {repo.name}
-                  </div>
+                  </h3>
 
                   {repo.description && (
                     <p style={{
-                      fontFamily: '"Permanent Marker", cursive',
                       fontSize: '0.8rem',
-                      color: '#555',
-                      lineHeight: 1.5,
-                      marginBottom: '0.6rem',
-                      position: 'relative',
-                      zIndex: 2,
+                      color: '#777',
+                      lineHeight: 1.6,
+                      maxWidth: '400px',
                     }}>
                       {repo.description}
                     </p>
                   )}
 
-                  <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', position: 'relative', zIndex: 2 }}>
+                  <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.8rem' }}>
                     {repo.language && (
                       <span style={{
-                        fontSize: '0.65rem',
-                        fontFamily: '"Bangers", cursive',
-                        padding: '0.15rem 0.5rem',
-                        background: color,
-                        color: '#fff',
-                        border: '2px solid #000',
-                        letterSpacing: '0.05em',
+                        fontSize: '0.55rem',
+                        letterSpacing: '0.15em',
+                        color: '#555',
+                        textTransform: 'uppercase',
                       }}>
                         {repo.language}
                       </span>
                     )}
                     {repo.stargazers_count > 0 && (
-                      <span style={{
-                        fontSize: '0.65rem',
-                        fontFamily: '"Bangers", cursive',
-                        padding: '0.15rem 0.5rem',
-                        border: '2px solid #000',
-                        letterSpacing: '0.05em',
-                      }}>
-                        {repo.stargazers_count} STARS
+                      <span style={{ fontSize: '0.55rem', color: '#444' }}>
+                        {repo.stargazers_count} stars
                       </span>
                     )}
                   </div>
-
-                  {/* Diagonal color stripe */}
-                  <div style={{
-                    position: 'absolute',
-                    bottom: 0, right: 0,
-                    width: '60px', height: '60px',
-                    background: `linear-gradient(225deg, ${color}33 50%, transparent 50%)`,
-                    zIndex: 0,
-                  }} />
                 </a>
-              );
-            })}
+              ))}
+            </div>
+
+            {/* Right — compact list */}
+            <div style={{ paddingTop: '0.5rem' }}>
+              <div style={{
+                fontSize: '0.55rem',
+                letterSpacing: '0.25em',
+                color: '#555',
+                textTransform: 'uppercase',
+                marginBottom: '1.5rem',
+                paddingBottom: '0.5rem',
+                borderBottom: '1px solid #222',
+              }}>
+                Archive
+              </div>
+              {repos.slice(4).map((repo, i) => (
+                <a
+                  key={repo.name}
+                  href={repo.html_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'baseline',
+                    textDecoration: 'none',
+                    color: '#888',
+                    padding: '0.7rem 0',
+                    borderBottom: '1px solid #1a1918',
+                    fontSize: '0.8rem',
+                    transition: 'color 0.2s',
+                    animation: `slideIn 0.3s ease ${0.3 + i * 0.04}s backwards`,
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#e8e4dc')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#888')}
+                >
+                  <span style={{ fontWeight: 500 }}>{repo.name}</span>
+                  <span style={{ fontSize: '0.6rem', color: '#444' }}>
+                    {repo.language || ''}
+                  </span>
+                </a>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Footer */}
+        {/* Footer — geometric accent */}
         <footer style={{
-          borderTop: '3px solid #000',
-          padding: '1.5rem 0',
-          textAlign: 'center',
-          fontFamily: '"Permanent Marker", cursive',
-          fontSize: '0.9rem',
-          color: '#666',
+          padding: '3rem 0',
+          borderTop: '1px solid #222',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}>
-          &copy; {new Date().getFullYear()} KONA &mdash; TO BE CONTINUED...
+          <span style={{ fontSize: '0.6rem', letterSpacing: '0.15em', color: '#444' }}>
+            &copy; {new Date().getFullYear()} KONA
+          </span>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <div style={{ width: '8px', height: '8px', background: '#c8503c' }} />
+            <div style={{ width: '8px', height: '8px', background: '#e8e4dc', opacity: 0.1 }} />
+            <div style={{ width: '8px', height: '8px', background: '#e8e4dc', opacity: 0.05 }} />
+          </div>
         </footer>
       </div>
 
       {/* Nav */}
-      <nav className="comic-nav" style={{
-        position: 'fixed', bottom: '1rem', left: '50%', transform: 'translateX(-50%)',
-        display: 'flex', gap: 0, zIndex: 60,
-        border: '3px solid #000',
-        background: '#ffcc00',
-        boxShadow: '3px 3px 0 #000',
+      <nav className="exh-nav" style={{
+        position: 'fixed', bottom: '1.5rem', left: '50%', transform: 'translateX(-50%)',
+        display: 'flex', gap: '0.8rem', zIndex: 20,
+        background: 'rgba(17,17,16,0.95)', backdropFilter: 'blur(12px)',
+        padding: '0.5rem 1rem',
+        border: '1px solid #222',
       }}>
-        <a href="/" style={{
-          color: '#000', textDecoration: 'none', fontSize: '0.7rem',
-          fontFamily: '"Bangers", cursive',
-          padding: '0.4rem 0.7rem', borderRight: '2px solid #000',
-          transition: 'all 0.1s',
-        }}>HOME</a>
+        <a href="/" style={{ color: '#555', textDecoration: 'none', fontSize: '0.7rem', transition: 'color 0.2s' }}>home</a>
         {[1,2,3,4,5,6,7].map(n => (
           <a key={n} href={`/${n}`} style={{
-            color: '#000', textDecoration: 'none', fontSize: '0.7rem',
-            fontFamily: '"Bangers", cursive',
-            padding: '0.4rem 0.7rem',
-            borderRight: n < 7 ? '2px solid #000' : 'none',
-            background: n === 7 ? '#000' : 'transparent',
-            color: n === 7 ? '#ffcc00' : '#000',
-            transition: 'all 0.1s',
+            color: n === 7 ? '#c8503c' : '#555',
+            textDecoration: 'none', fontSize: '0.7rem', transition: 'color 0.2s',
           }}>{n}</a>
         ))}
       </nav>

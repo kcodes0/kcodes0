@@ -1,233 +1,224 @@
+import { useState, useEffect, useRef } from 'react';
 import { useGithubRepos } from './useGithubRepos';
 
-export default function Page3Newspaper() {
+// Concrete & Stencil — raw concrete texture, spray paint marks,
+// stencil-cut type, urban photography aesthetic
+export default function Page3Stencil() {
   const { repos, loading } = useGithubRepos();
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const [revealed, setRevealed] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (repos.length === 0) return;
+    // Stagger reveals
+    repos.forEach((repo, i) => {
+      setTimeout(() => {
+        setRevealed(prev => new Set([...prev, repo.name]));
+      }, 200 + i * 80);
+    });
+  }, [repos]);
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#f4f0e8',
-      color: '#1a1a18',
-      fontFamily: '"Playfair Display", Georgia, serif',
+      background: '#2c2a27',
+      color: '#d8d4cc',
+      fontFamily: '"Space Grotesk", system-ui, sans-serif',
+      position: 'relative',
     }}>
-      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=UnifrakturMaguntia&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
       <style>{`
-        .np-card { transition: all 0.3s ease; }
-        .np-card:hover { background: #eae5d8 !important; }
-        .np-card:hover .np-headline { text-decoration: underline; text-decoration-thickness: 2px; }
-        .np-nav a:hover { color: #8b0000 !important; }
-        @media (max-width: 768px) {
-          .np-columns { column-count: 1 !important; }
-          .np-masthead-title { font-size: 3rem !important; }
-          .np-hero-grid { grid-template-columns: 1fr !important; }
+        .sten-page::before {
+          content: '';
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 1;
+          opacity: 0.04;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
+        .sten-card {
+          transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .sten-card:hover {
+          transform: translateX(8px);
+          border-left-color: #e85d3a !important;
+        }
+        .sten-card:hover .sten-name { color: #e85d3a; }
+        .sten-nav a:hover { color: #e85d3a !important; }
+        @keyframes sprayIn {
+          from { opacity: 0; transform: translateY(12px) scale(0.97); filter: blur(4px); }
+          to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+        .sten-visible { animation: sprayIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
       `}</style>
 
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 1.5rem' }}>
-        {/* Masthead */}
-        <header style={{
-          textAlign: 'center',
-          padding: '2rem 0 0.5rem',
-          borderBottom: '3px double #1a1a18',
-        }}>
-          <div style={{ fontSize: '0.65rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: '#666', marginBottom: '0.5rem' }}>
-            Est. 2024 &bull; Free &bull; {today}
-          </div>
-          <h1 className="np-masthead-title" style={{
-            fontFamily: '"UnifrakturMaguntia", "Playfair Display", serif',
-            fontSize: 'clamp(3rem, 8vw, 5.5rem)',
-            fontWeight: 400,
-            lineHeight: 1,
-            margin: '0.3rem 0',
-            letterSpacing: '0.02em',
+      <div className="sten-page" style={{ position: 'relative', zIndex: 2 }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 2rem' }}>
+          {/* Hero */}
+          <section style={{
+            padding: '8rem 0 6rem',
+            position: 'relative',
           }}>
-            The Kona Dispatch
-          </h1>
-          <div style={{ fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#888', paddingBottom: '0.5rem' }}>
-            All the code that's fit to ship
-          </div>
-        </header>
+            {/* Spray paint drip accent */}
+            <div style={{
+              position: 'absolute',
+              top: '4rem', left: '-1rem',
+              width: '3px',
+              height: '120px',
+              background: 'linear-gradient(to bottom, #e85d3a, transparent)',
+              opacity: 0.6,
+            }} />
 
-        {/* Sub-header bar */}
-        <div style={{
-          display: 'flex', justifyContent: 'center', gap: '2rem',
-          padding: '0.6rem 0', borderBottom: '1px solid #ccc',
-          fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase',
-        }}>
-          {['Open Source', 'Experiments', 'Tools', 'Archives'].map(s => (
-            <span key={s} style={{ color: '#555' }}>{s}</span>
-          ))}
-        </div>
+            <img
+              src="/images/kona.png"
+              alt="Kona"
+              style={{
+                width: 'min(50vw, 280px)',
+                filter: 'grayscale(0.3) contrast(1.1) drop-shadow(0 0 40px rgba(232,93,58,0.08))',
+                marginBottom: '2rem',
+              }}
+            />
 
-        {loading ? (
-          <div style={{ padding: '4rem', textAlign: 'center', fontStyle: 'italic', color: '#888' }}>
-            Fetching the latest edition...
-          </div>
-        ) : (
-          <>
-            {/* Lead Story */}
-            {repos[0] && (
-              <a
-                href={repos[0].html_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
-              >
-                <section style={{
-                  padding: '2.5rem 0',
-                  borderBottom: '1px solid #ccc',
-                  textAlign: 'center',
+            <div style={{
+              display: 'flex',
+              gap: '1.5rem',
+              alignItems: 'baseline',
+              flexWrap: 'wrap',
+            }}>
+              {['developer', 'builder', 'creative'].map((word, i) => (
+                <span key={word} style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 500,
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase',
+                  color: i === 2 ? '#e85d3a' : '#6a665e',
                 }}>
-                  <div style={{ fontSize: '0.6rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: '#8b0000', marginBottom: '0.5rem' }}>
-                    Breaking
-                  </div>
-                  <h2 style={{
-                    fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-                    fontWeight: 900,
-                    lineHeight: 1.1,
-                    maxWidth: '700px',
-                    margin: '0 auto 1rem',
-                  }}>
-                    {repos[0].name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-                  </h2>
-                  <p style={{
-                    fontFamily: '"Libre Baskerville", serif',
-                    fontSize: '1.1rem',
-                    fontStyle: 'italic',
-                    color: '#555',
-                    maxWidth: '500px',
-                    margin: '0 auto',
-                    lineHeight: 1.6,
-                  }}>
-                    {repos[0].description || 'A project by Kona, freshly shipped.'}
-                  </p>
-                  {repos[0].language && (
-                    <div style={{ marginTop: '0.8rem', fontSize: '0.7rem', color: '#999', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                      Written in {repos[0].language}
+                  {word}
+                </span>
+              ))}
+            </div>
+          </section>
+
+          {/* Divider with spray effect */}
+          <div style={{
+            height: '1px',
+            background: 'linear-gradient(90deg, #e85d3a33, #d8d4cc15, transparent)',
+            marginBottom: '3rem',
+          }} />
+
+          {/* Work list */}
+          <section style={{ paddingBottom: '6rem' }}>
+            <div style={{
+              fontSize: '0.6rem',
+              letterSpacing: '0.25em',
+              textTransform: 'uppercase',
+              color: '#6a665e',
+              marginBottom: '2rem',
+            }}>
+              Projects &mdash; {repos.length}
+            </div>
+
+            {loading ? (
+              <div style={{ color: '#6a665e', fontStyle: 'italic' }}>loading...</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                {repos.map((repo, i) => (
+                  <a
+                    key={repo.name}
+                    href={repo.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`sten-card ${revealed.has(repo.name) ? 'sten-visible' : ''}`}
+                    style={{
+                      display: 'block',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      padding: '1.2rem 0 1.2rem 1.2rem',
+                      borderLeft: '3px solid transparent',
+                      borderBottom: '1px solid rgba(216,212,204,0.06)',
+                      opacity: revealed.has(repo.name) ? undefined : 0,
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '1rem' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.8rem' }}>
+                          <span style={{
+                            fontSize: '0.65rem',
+                            color: '#4a4840',
+                            fontVariantNumeric: 'tabular-nums',
+                          }}>
+                            {String(i + 1).padStart(2, '0')}
+                          </span>
+                          <h3 className="sten-name" style={{
+                            fontSize: '1.3rem',
+                            fontWeight: 600,
+                            margin: 0,
+                            transition: 'color 0.25s',
+                          }}>
+                            {repo.name}
+                          </h3>
+                        </div>
+                        {repo.description && (
+                          <p style={{
+                            fontSize: '0.8rem',
+                            color: '#6a665e',
+                            marginTop: '0.3rem',
+                            lineHeight: 1.5,
+                            marginLeft: '2.4rem',
+                          }}>
+                            {repo.description}
+                          </p>
+                        )}
+                      </div>
+                      {repo.language && (
+                        <span style={{
+                          fontSize: '0.6rem',
+                          letterSpacing: '0.1em',
+                          color: '#4a4840',
+                          textTransform: 'uppercase',
+                          flexShrink: 0,
+                        }}>
+                          {repo.language}
+                        </span>
+                      )}
                     </div>
-                  )}
-                </section>
-              </a>
+                  </a>
+                ))}
+              </div>
             )}
+          </section>
 
-            {/* Two-column hero */}
-            <div className="np-hero-grid" style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              borderBottom: '1px solid #ccc',
-            }}>
-              {repos.slice(1, 3).map((repo, i) => (
-                <a
-                  key={repo.name}
-                  href={repo.html_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="np-card"
-                  style={{
-                    textDecoration: 'none', color: 'inherit',
-                    padding: '2rem',
-                    borderRight: i === 0 ? '1px solid #ccc' : 'none',
-                  }}
-                >
-                  <h3 className="np-headline" style={{
-                    fontSize: '1.4rem',
-                    fontWeight: 700,
-                    lineHeight: 1.2,
-                    marginBottom: '0.5rem',
-                  }}>
-                    {repo.name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-                  </h3>
-                  <p style={{
-                    fontFamily: '"Libre Baskerville", serif',
-                    fontSize: '0.85rem',
-                    color: '#666',
-                    lineHeight: 1.7,
-                  }}>
-                    {repo.description || 'Another fine addition to the archive.'}
-                  </p>
-                  <div style={{ marginTop: '0.5rem', fontSize: '0.65rem', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                    {repo.language || 'Unknown'} &bull; Updated {new Date(repo.updated_at).toLocaleDateString()}
-                  </div>
-                </a>
-              ))}
-            </div>
-
-            {/* Multi-column body */}
-            <div className="np-columns" style={{
-              columnCount: 3,
-              columnGap: '2rem',
-              columnRule: '1px solid #ddd',
-              padding: '2rem 0 4rem',
-            }}>
-              {repos.slice(3).map((repo) => (
-                <a
-                  key={repo.name}
-                  href={repo.html_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="np-card"
-                  style={{
-                    display: 'block',
-                    textDecoration: 'none',
-                    color: 'inherit',
-                    breakInside: 'avoid',
-                    marginBottom: '1.5rem',
-                    padding: '0.8rem 0',
-                    borderBottom: '1px solid #e0ddd5',
-                  }}
-                >
-                  <h4 className="np-headline" style={{
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    lineHeight: 1.3,
-                    marginBottom: '0.3rem',
-                  }}>
-                    {repo.name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-                  </h4>
-                  <p style={{
-                    fontFamily: '"Libre Baskerville", serif',
-                    fontSize: '0.8rem',
-                    color: '#666',
-                    lineHeight: 1.6,
-                  }}>
-                    {repo.description || 'No description provided.'}
-                  </p>
-                  {repo.language && (
-                    <span style={{ fontSize: '0.6rem', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                      {repo.language}
-                    </span>
-                  )}
-                </a>
-              ))}
-            </div>
-
-            {/* Classifieds footer */}
-            <footer style={{
-              borderTop: '3px double #1a1a18',
-              padding: '1.5rem 0',
-              textAlign: 'center',
-            }}>
-              <p style={{ fontSize: '0.7rem', color: '#888', fontStyle: 'italic' }}>
-                &copy; {new Date().getFullYear()} The Kona Dispatch &mdash; Printed with caffeine and bad decisions
-              </p>
-            </footer>
-          </>
-        )}
+          {/* Footer */}
+          <footer style={{
+            padding: '2rem 0',
+            borderTop: '1px solid rgba(216,212,204,0.08)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
+            <span style={{ fontSize: '0.6rem', color: '#4a4840', letterSpacing: '0.15em' }}>
+              &copy; {new Date().getFullYear()}
+            </span>
+            <span style={{ fontSize: '0.6rem', color: '#4a4840' }}>
+              KONA
+            </span>
+          </footer>
+        </div>
       </div>
 
       {/* Nav */}
-      <nav className="np-nav" style={{
-        position: 'fixed', bottom: '1rem', left: '50%', transform: 'translateX(-50%)',
+      <nav className="sten-nav" style={{
+        position: 'fixed', bottom: '1.5rem', left: '50%', transform: 'translateX(-50%)',
         display: 'flex', gap: '0.8rem', zIndex: 20,
-        background: '#f4f0e8ee', padding: '0.5rem 1rem',
-        border: '1px solid #ccc', fontFamily: 'system-ui, sans-serif',
+        background: 'rgba(44,42,39,0.95)', backdropFilter: 'blur(12px)',
+        padding: '0.5rem 1rem',
+        border: '1px solid rgba(216,212,204,0.06)',
       }}>
-        <a href="/" style={{ color: '#888', textDecoration: 'none', fontSize: '0.7rem', transition: 'color 0.2s' }}>home</a>
+        <a href="/" style={{ color: '#6a665e', textDecoration: 'none', fontSize: '0.7rem', transition: 'color 0.2s' }}>home</a>
         {[1,2,3,4,5,6,7].map(n => (
           <a key={n} href={`/${n}`} style={{
-            color: n === 3 ? '#8b0000' : '#888',
+            color: n === 3 ? '#e85d3a' : '#6a665e',
             textDecoration: 'none', fontSize: '0.7rem', transition: 'color 0.2s',
           }}>{n}</a>
         ))}
