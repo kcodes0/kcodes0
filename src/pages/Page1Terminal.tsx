@@ -42,13 +42,6 @@ export default function Page1Brutalist() {
         .brut-card:hover .brut-name {
           color: #f0ece4 !important;
         }
-        .brut-nav a {
-          transition: all 0.1s;
-        }
-        .brut-nav a:hover {
-          background: #d5d0c8 !important;
-          color: #141312 !important;
-        }
       `}</style>
 
       {/* Progress bar */}
@@ -206,27 +199,6 @@ export default function Page1Brutalist() {
         </span>
       </footer>
 
-      {/* Nav */}
-      <nav className="brut-nav" style={{
-        position: 'fixed', bottom: '1rem', left: '50%', transform: 'translateX(-50%)',
-        display: 'flex', gap: 0, zIndex: 20,
-        border: '2px solid #2a2825',
-        background: '#141312',
-      }}>
-        <a href="/" style={{
-          color: '#d5d0c8', textDecoration: 'none', fontSize: '0.7rem', fontWeight: 700,
-          padding: '0.4rem 0.7rem', borderRight: '1px solid #2a2825',
-        }}>HOME</a>
-        {[1,2,3,4,5,6,7].map(n => (
-          <a key={n} href={`/${n}`} style={{
-            color: n === 1 ? '#141312' : '#d5d0c8',
-            textDecoration: 'none', fontSize: '0.7rem', fontWeight: 700,
-            padding: '0.4rem 0.7rem',
-            borderRight: n < 7 ? '1px solid #2a2825' : 'none',
-            background: n === 1 ? '#d5d0c8' : 'transparent',
-          }}>{n}</a>
-        ))}
-      </nav>
     </div>
   );
 }

@@ -1,14 +1,6 @@
-import { useEffect, useState, createContext, useContext, useCallback, lazy, Suspense } from "react";
+import { useEffect, useState, createContext, useContext, useCallback } from "react";
 import "./index.css";
-import { HomePage } from "./HomePage";
-
-const Page1Terminal = lazy(() => import('./pages/Page1Terminal'));
-const Page2Liquid = lazy(() => import('./pages/Page2Liquid'));
-const Page3Newspaper = lazy(() => import('./pages/Page3Newspaper'));
-const Page4Vaporwave = lazy(() => import('./pages/Page4Vaporwave'));
-const Page5Brutalist = lazy(() => import('./pages/Page5Brutalist'));
-const Page6Depth = lazy(() => import('./pages/Page6Depth'));
-const Page7Comic = lazy(() => import('./pages/Page7Comic'));
+import BrutalistHome from "./pages/Page1Terminal";
 
 // ============================================
 // Theme Context
@@ -406,7 +398,7 @@ function useRoute() {
 
       if (anchor && anchor.href.startsWith(window.location.origin)) {
         const url = new URL(anchor.href);
-        const internalRoutes = ['/', '/labs', '/now', '/uses', '/1', '/2', '/3', '/4', '/5', '/6', '/7'];
+        const internalRoutes = ['/', '/labs', '/now', '/uses'];
         if (internalRoutes.includes(url.pathname)) {
           e.preventDefault();
           window.history.pushState({}, '', url.pathname);
@@ -426,32 +418,12 @@ function useRoute() {
 // ============================================
 // Main App
 // ============================================
-const radicalPages: Record<string, React.LazyExoticComponent<() => JSX.Element>> = {
-  '/1': Page1Terminal,
-  '/2': Page2Liquid,
-  '/3': Page3Newspaper,
-  '/4': Page4Vaporwave,
-  '/5': Page5Brutalist,
-  '/6': Page6Depth,
-  '/7': Page7Comic,
-};
-
 export function App() {
   const path = useRoute();
 
-  // Radical frontend pages
-  const RadicalPage = radicalPages[path];
-  if (RadicalPage) {
-    return (
-      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0a0a0a' }} />}>
-        <RadicalPage />
-      </Suspense>
-    );
-  }
-
-  // Homepage has its own styling, bypasses ThemeProvider
+  // Homepage
   if (path !== '/labs' && path !== '/now' && path !== '/uses') {
-    return <HomePage />;
+    return <BrutalistHome />;
   }
 
   return (
