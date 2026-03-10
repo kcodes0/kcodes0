@@ -76,11 +76,7 @@ export default function Page1Brutalist() {
           fontWeight: 400,
           color: '#5a5650',
         }}>
-          <span>Developer</span>
-          <span>/</span>
-          <span>Builder</span>
-          <span>/</span>
-          <span>Shipper</span>
+          <a href="https://blog.kcodes.me" target="_blank" rel="noopener noreferrer" style={{ color: '#a8c8e8', textDecoration: 'none', transition: 'opacity 0.15s' }}>Blog</a>
         </div>
       </section>
 

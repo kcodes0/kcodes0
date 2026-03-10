@@ -27,7 +27,7 @@ const adminStyles = `
     justify-content: space-between;
     align-items: center;
     padding: 2rem 0;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid #2a2825;
     margin-bottom: 2rem;
   }
 
@@ -37,8 +37,7 @@ const adminStyles = `
   }
 
   .admin-header h1 span {
-    color: var(--color-accent-light);
-    font-family: var(--font-mono);
+    color: #a8c8e8;
   }
 
   .posts-list {
@@ -76,19 +75,19 @@ const adminStyles = `
   }
 
   .post-info h3 a {
-    color: var(--color-text);
+    color: #d5d0c8;
   }
 
   .post-info h3 a:hover {
-    color: var(--color-accent-light);
+    color: #a8c8e8;
   }
 
   .post-meta {
     display: flex;
     gap: 1rem;
     font-size: 0.8rem;
-    color: var(--color-text-muted);
-    font-family: var(--font-mono);
+    color: #5a5650;
+    font-family: 'SF Mono', 'Fira Code', monospace;
   }
 
   .post-meta .status {
@@ -122,7 +121,7 @@ const adminStyles = `
   .empty-state {
     text-align: center;
     padding: 4rem 2rem;
-    color: var(--color-text-muted);
+    color: #5a5650;
   }
 
   .empty-state p {
@@ -173,12 +172,12 @@ const adminStyles = `
 
   .checkbox-group input[type="checkbox"] {
     width: auto;
-    accent-color: var(--color-accent);
+    accent-color: #a8c8e8;
   }
 
   .checkbox-group label {
     margin: 0;
-    color: var(--color-text);
+    color: #d5d0c8;
     cursor: pointer;
   }
 
@@ -192,7 +191,7 @@ const adminStyles = `
   .editor-pane h3 {
     font-size: 0.85rem;
     font-weight: 500;
-    color: var(--color-text-muted);
+    color: #5a5650;
     margin-bottom: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -204,7 +203,7 @@ const adminStyles = `
 
   .preview-pane {
     background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--color-border);
+    border: 1px solid #2a2825;
     border-radius: 8px;
     padding: 1.5rem;
     min-height: 500px;
@@ -215,7 +214,7 @@ const adminStyles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-text-muted);
+    color: #5a5650;
     font-style: italic;
   }
 
@@ -338,7 +337,7 @@ function renderEditorPage(post: Post, isNew: boolean): string {
             </div>
 
             <div class="form-group">
-              <label for="excerpt">excerpt <span style="color: var(--color-text-muted); font-weight: 400;">(optional)</span></label>
+              <label for="excerpt">excerpt <span style="color: #5a5650; font-weight: 400;">(optional)</span></label>
               <input type="text" id="excerpt" name="excerpt" value="${escapeHtml(post.excerpt || '')}" placeholder="brief description for previews">
             </div>
 

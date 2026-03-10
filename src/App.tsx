@@ -315,14 +315,6 @@ function LabsPage() {
       status: 'active'
     },
     {
-      id: 'films-cms',
-      title: 'Films CMS',
-      description: 'A catalog system for tracking everything I\'ve watched. Same stack as the blog.',
-      tech: ['Cloudflare Workers', 'D1'],
-      href: 'https://films.kcodes.me',
-      status: 'active'
-    },
-    {
       id: 'this-site',
       title: 'This Site',
       description: 'The portfolio site you\'re looking at right now. Warm collage layout.',
