@@ -68,16 +68,17 @@ export default function Page1Brutalist() {
         }}>
           KO<br/><span style={{ color: '#a8c8e8' }}>NA</span>
         </h1>
-        <div style={{
-          display: 'flex',
-          gap: '2rem',
+        <a href="https://blog.kcodes.me" target="_blank" rel="noopener noreferrer" style={{
+          display: 'inline-block',
           marginTop: '2rem',
-          fontSize: '0.8rem',
-          fontWeight: 400,
-          color: '#5a5650',
-        }}>
-          <a href="https://blog.kcodes.me" target="_blank" rel="noopener noreferrer" style={{ color: '#a8c8e8', textDecoration: 'none', transition: 'opacity 0.15s' }}>Blog</a>
-        </div>
+          fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+          fontWeight: 900,
+          letterSpacing: '-0.02em',
+          textTransform: 'uppercase',
+          color: '#a8c8e8',
+          textDecoration: 'none',
+          transition: 'color 0.15s',
+        }}>Blog</a>
       </section>
 
       {/* Stats bar */}
