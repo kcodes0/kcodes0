@@ -74,6 +74,7 @@ export function renderHome(posts: Post[]): string {
           position: absolute;
           top: 2rem;
           left: 2rem;
+          z-index: 10;
           font-size: 0.7rem;
           letter-spacing: 0.15em;
           text-transform: uppercase;
