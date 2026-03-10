@@ -128,21 +128,29 @@ const adminStyles = `
     margin-bottom: 1.5rem;
   }
 
-  /* Editor styles */
+  /* Editor styles — full-screen layout */
   .editor-container {
-    padding: 2rem 0;
+    padding: 0;
+    max-width: none;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   .editor-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    padding: 1rem 2rem;
+    border-bottom: 2px solid #2a2825;
+    flex-shrink: 0;
   }
 
   .editor-header h1 {
-    font-size: 1.5rem;
-    font-weight: 400;
+    font-size: 1.2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
   }
 
   .editor-actions {
@@ -150,13 +158,30 @@ const adminStyles = `
     gap: 0.75rem;
   }
 
+  .editor-meta {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #1e1d1b;
+    flex-shrink: 0;
+    align-items: end;
+  }
+
   .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0;
+    flex: 1;
+  }
+
+  .form-group.slug-group {
+    max-width: 280px;
+  }
+
+  .form-group.excerpt-group {
+    flex: 2;
   }
 
   .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
     gap: 1rem;
   }
 
@@ -168,6 +193,7 @@ const adminStyles = `
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    padding-bottom: 0.3rem;
   }
 
   .checkbox-group input[type="checkbox"] {
@@ -179,43 +205,125 @@ const adminStyles = `
     margin: 0;
     color: #d5d0c8;
     cursor: pointer;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
   }
 
   .editor-main {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
+    gap: 0;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .editor-pane {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .editor-pane:first-child {
+    border-right: 1px solid #2a2825;
   }
 
   .editor-pane h3 {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #5a5650;
-    margin-bottom: 0.75rem;
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: #4a4640;
+    padding: 0.6rem 1.5rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.2em;
+    border-bottom: 1px solid #1e1d1b;
+    flex-shrink: 0;
   }
 
   .editor-pane textarea {
-    min-height: 500px;
+    flex: 1;
+    min-height: 0;
+    resize: none;
+    border: none;
+    border-radius: 0;
+    padding: 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    background: #141312;
+    tab-size: 2;
+  }
+
+  .editor-pane textarea:focus {
+    outline: none;
+    border: none;
   }
 
   .preview-pane {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid #2a2825;
-    border-radius: 8px;
+    background: #141312;
+    border: none;
+    border-radius: 0;
     padding: 1.5rem;
-    min-height: 500px;
     overflow-y: auto;
+    flex: 1;
+    min-height: 0;
   }
 
   .preview-pane.empty {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #5a5650;
+    color: #2a2825;
     font-style: italic;
+    font-size: 0.9rem;
+  }
+
+  /* Markdown toolbar */
+  .md-toolbar {
+    display: flex;
+    gap: 2px;
+    padding: 0.4rem 1.5rem;
+    border-bottom: 1px solid #1e1d1b;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  .md-toolbar button {
+    background: none;
+    border: 1px solid transparent;
+    color: #5a5650;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    border-radius: 3px;
+  }
+
+  .md-toolbar button:hover {
+    color: #a8c8e8;
+    border-color: #2a2825;
+    background: #1e1d1b;
+  }
+
+  .md-toolbar .sep {
+    width: 1px;
+    background: #1e1d1b;
+    margin: 0.2rem 0.4rem;
+  }
+
+  /* Word count bar */
+  .editor-status {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 2rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: #4a4640;
+    border-top: 1px solid #1e1d1b;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
   }
 
   @media (max-width: 768px) {
@@ -223,12 +331,18 @@ const adminStyles = `
       grid-template-columns: 1fr;
     }
 
-    .form-row {
-      grid-template-columns: 1fr;
+    .editor-pane:first-child {
+      border-right: none;
+      border-bottom: 1px solid #2a2825;
     }
 
-    .preview-pane {
-      min-height: 300px;
+    .editor-meta {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .form-group.slug-group {
+      max-width: none;
     }
   }
 `;
@@ -310,68 +424,137 @@ function renderEditorPage(post: Post, isNew: boolean): string {
       <style>${diagramStyles}</style>
       ${diagramScripts}
     </head>
-    <body>
-      <div class="container">
-        <div class="editor-container">
-          <header class="editor-header animate-in">
-            <h1>${isNew ? 'new post' : 'edit post'}</h1>
-            <div class="editor-actions">
-              <a href="/admin" class="btn btn-ghost">cancel</a>
-              ${!isNew ? `<button type="button" class="btn btn-danger" onclick="deletePost()">delete</button>` : ''}
-              <button type="button" class="btn btn-primary" onclick="savePost()">
-                ${isNew ? 'publish' : 'save'}
-              </button>
+    <body style="overflow: hidden;">
+      <div class="editor-container">
+        <header class="editor-header">
+          <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <a href="/admin" style="color: #4a4640; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;">← BACK</a>
+            <h1>${isNew ? 'NEW POST' : 'EDIT POST'}</h1>
+          </div>
+          <div class="editor-actions">
+            ${!isNew ? `<button type="button" class="btn btn-danger" onclick="deletePost()">DELETE</button>` : ''}
+            <div class="checkbox-group">
+              <input type="checkbox" id="published" name="published" ${post.published ? 'checked' : ''}>
+              <label for="published">PUBLISH</label>
             </div>
-          </header>
+            <button type="button" class="btn btn-primary" onclick="savePost()">
+              ${isNew ? 'SAVE' : 'SAVE'}
+            </button>
+          </div>
+        </header>
 
-          <form id="post-form" class="animate-in delay-1">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="title">title</label>
-                <input type="text" id="title" name="title" value="${escapeHtml(post.title)}" placeholder="post title" required>
-              </div>
-              <div class="form-group">
-                <label for="slug">slug</label>
-                <input type="text" id="slug" name="slug" value="${escapeHtml(post.slug)}" placeholder="url-friendly-slug" required>
-              </div>
-            </div>
-
+        <form id="post-form" style="display: contents;">
+          <div class="editor-meta">
             <div class="form-group">
-              <label for="excerpt">excerpt <span style="color: #5a5650; font-weight: 400;">(optional)</span></label>
-              <input type="text" id="excerpt" name="excerpt" value="${escapeHtml(post.excerpt || '')}" placeholder="brief description for previews">
+              <label for="title">TITLE</label>
+              <input type="text" id="title" name="title" value="${escapeHtml(post.title)}" placeholder="Post title" required style="font-size: 1.1rem; font-weight: 700;">
             </div>
+            <div class="form-group slug-group">
+              <label for="slug">SLUG</label>
+              <input type="text" id="slug" name="slug" value="${escapeHtml(post.slug)}" placeholder="url-slug" required style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.85rem;">
+            </div>
+            <div class="form-group excerpt-group">
+              <label for="excerpt">EXCERPT</label>
+              <input type="text" id="excerpt" name="excerpt" value="${escapeHtml(post.excerpt || '')}" placeholder="Brief description for previews">
+            </div>
+          </div>
 
-            <div class="form-group">
-              <div class="checkbox-group">
-                <input type="checkbox" id="published" name="published" ${post.published ? 'checked' : ''}>
-                <label for="published">publish (make visible to everyone)</label>
+          <div class="editor-main">
+            <div class="editor-pane">
+              <h3>MARKDOWN</h3>
+              <div class="md-toolbar">
+                <button type="button" onclick="insertMd('**','**')" title="Bold">B</button>
+                <button type="button" onclick="insertMd('*','*')" title="Italic"><em>I</em></button>
+                <button type="button" onclick="insertMd('~~','~~')" title="Strikethrough"><s>S</s></button>
+                <div class="sep"></div>
+                <button type="button" onclick="insertMd('# ','')" title="Heading 1">H1</button>
+                <button type="button" onclick="insertMd('## ','')" title="Heading 2">H2</button>
+                <button type="button" onclick="insertMd('### ','')" title="Heading 3">H3</button>
+                <div class="sep"></div>
+                <button type="button" onclick="insertMd('[','](url)')" title="Link">[]</button>
+                <button type="button" onclick="insertMd('![','](url)')" title="Image">img</button>
+                <button type="button" onclick="insertMd('\`','\`')" title="Inline code">\`\`</button>
+                <button type="button" onclick="insertBlock('\`\`\`\\n','\\n\`\`\`')" title="Code block">\`\`\`</button>
+                <div class="sep"></div>
+                <button type="button" onclick="insertMd('> ','')" title="Quote">&gt;</button>
+                <button type="button" onclick="insertMd('- ','')" title="List">—</button>
+                <button type="button" onclick="insertMd('---\\n','')" title="Horizontal rule">hr</button>
+              </div>
+              <textarea id="content" name="content" placeholder="Write your post in markdown..." spellcheck="false">${escapeHtml(post.content)}</textarea>
+            </div>
+            <div class="editor-pane">
+              <h3>PREVIEW</h3>
+              <div id="preview" class="preview-pane prose ${post.content ? '' : 'empty'}">
+                ${post.content ? '' : 'preview will appear here...'}
               </div>
             </div>
+          </div>
+        </form>
 
-            <div class="editor-main">
-              <div class="editor-pane">
-                <h3>markdown</h3>
-                <textarea id="content" name="content" placeholder="write your post in markdown...">${escapeHtml(post.content)}</textarea>
-              </div>
-              <div class="editor-pane">
-                <h3>preview</h3>
-                <div id="preview" class="preview-pane prose ${post.content ? '' : 'empty'}">
-                  ${post.content ? '' : 'preview will appear here...'}
-                </div>
-              </div>
-            </div>
-          </form>
+        <div class="editor-status">
+          <span id="word-count">0 words</span>
+          <span id="char-count">0 chars</span>
+          <span>Ctrl+S to save</span>
         </div>
       </div>
 
       <script>
         const isNew = ${isNew};
         const postId = '${post.id}';
+        const textarea = document.getElementById('content');
         let previewTimeout;
 
-        // Auto-generate slug from title
+        // --- Word / char count ---
+        function updateCounts() {
+          const text = textarea.value;
+          const words = text.trim() ? text.trim().split(/\\s+/).length : 0;
+          document.getElementById('word-count').textContent = words + ' word' + (words !== 1 ? 's' : '');
+          document.getElementById('char-count').textContent = text.length + ' chars';
+        }
+        updateCounts();
+
+        // --- Markdown toolbar helpers ---
+        function insertMd(before, after) {
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          const selected = textarea.value.substring(start, end);
+          const replacement = before + (selected || 'text') + after;
+          textarea.setRangeText(replacement, start, end, 'select');
+          textarea.focus();
+          triggerPreview();
+        }
+
+        function insertBlock(before, after) {
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          const selected = textarea.value.substring(start, end);
+          const replacement = before.replace(/\\\\n/g, '\\n') + (selected || '') + after.replace(/\\\\n/g, '\\n');
+          textarea.setRangeText(replacement, start, end, 'select');
+          textarea.focus();
+          triggerPreview();
+        }
+
+        // --- Tab key support ---
+        textarea.addEventListener('keydown', (e) => {
+          if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = textarea.selectionStart;
+            textarea.setRangeText('  ', start, start, 'end');
+            triggerPreview();
+          }
+        });
+
+        // --- Ctrl+S / Cmd+S to save ---
+        document.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            savePost();
+          }
+        });
+
+        // --- Auto-generate slug from title ---
         document.getElementById('title').addEventListener('input', (e) => {
-          if (isNew || !document.getElementById('slug').value) {
+          if (isNew || !document.getElementById('slug').dataset.manual) {
             const slug = e.target.value
               .toLowerCase()
               .replace(/[^a-z0-9]+/g, '-')
@@ -380,11 +563,19 @@ function renderEditorPage(post: Post, isNew: boolean): string {
           }
         });
 
-        // Live preview with debounce
-        document.getElementById('content').addEventListener('input', (e) => {
-          clearTimeout(previewTimeout);
-          previewTimeout = setTimeout(() => updatePreview(e.target.value), 300);
+        // Mark slug as manually edited
+        document.getElementById('slug').addEventListener('input', () => {
+          document.getElementById('slug').dataset.manual = '1';
         });
+
+        // --- Live preview ---
+        function triggerPreview() {
+          clearTimeout(previewTimeout);
+          updateCounts();
+          previewTimeout = setTimeout(() => updatePreview(textarea.value), 300);
+        }
+
+        textarea.addEventListener('input', triggerPreview);
 
         async function updatePreview(content) {
           const preview = document.getElementById('preview');
@@ -403,7 +594,6 @@ function renderEditorPage(post: Post, isNew: boolean): string {
             const data = await res.json();
             preview.innerHTML = data.html;
             preview.classList.remove('empty');
-            // Render any diagrams in the preview
             if (typeof window.renderDiagrams === 'function') {
               await window.renderDiagrams();
             }
@@ -412,18 +602,17 @@ function renderEditorPage(post: Post, isNew: boolean): string {
           }
         }
 
+        // --- Save ---
         async function savePost() {
-          const form = document.getElementById('post-form');
           const data = {
             title: document.getElementById('title').value,
             slug: document.getElementById('slug').value,
-            content: document.getElementById('content').value,
+            content: textarea.value,
             excerpt: document.getElementById('excerpt').value || null,
             published: document.getElementById('published').checked
           };
 
           if (!data.title || !data.slug || !data.content) {
-            alert('title, slug, and content are required');
             return;
           }
 
@@ -440,34 +629,30 @@ function renderEditorPage(post: Post, isNew: boolean): string {
             const result = await res.json();
             if (result.success) {
               window.location.href = '/admin';
-            } else {
-              alert('error: ' + (result.error || 'unknown error'));
             }
           } catch (err) {
-            alert('error saving post: ' + err.message);
+            console.error('Save error:', err);
           }
         }
 
+        // --- Delete ---
         async function deletePost() {
-          if (!confirm('are you sure you want to delete this post?')) return;
+          if (!confirm('Delete this post?')) return;
 
           try {
             const res = await fetch('/api/posts/' + postId, { method: 'DELETE' });
             const result = await res.json();
             if (result.success) {
               window.location.href = '/admin';
-            } else {
-              alert('error: ' + (result.error || 'unknown error'));
             }
           } catch (err) {
-            alert('error deleting post: ' + err.message);
+            console.error('Delete error:', err);
           }
         }
 
-        // Initial preview if content exists
-        const initialContent = document.getElementById('content').value;
-        if (initialContent) {
-          updatePreview(initialContent);
+        // --- Initial preview ---
+        if (textarea.value) {
+          updatePreview(textarea.value);
         }
       </script>
       ${diagramInitScript}
