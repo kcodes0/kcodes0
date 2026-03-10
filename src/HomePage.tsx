@@ -2,17 +2,17 @@ import { useEffect, useState, useRef } from 'react';
 import './homepage.css';
 
 const works = [
-  { name: 'DUCK LANG', desc: 'Quack or the goose gets you.', href: 'https://github.com/konacodes/duck-lang', rot: '-2.5deg' },
+  { name: 'DUCK LANG', desc: 'Quack or the goose gets you.', href: 'https://github.com/kcodes0/duck-lang', rot: '-2.5deg' },
   { name: 'BLOG', desc: 'Where the words go.', href: 'https://blog.kcodes.me', rot: '1.8deg' },
   { name: 'FILMS', desc: 'Everything watched.', href: 'https://films.kcodes.me', rot: '-1.2deg' },
-  { name: 'LIKWID', desc: 'Fluid as ASCII art.', href: 'https://github.com/konacodes/likwid', rot: '2.3deg' },
-  { name: 'NULL', desc: 'AI built it. Then it broke.', href: 'https://github.com/konacodes/null', rot: '-1.8deg' },
+  { name: 'LIKWID', desc: 'Fluid as ASCII art.', href: 'https://github.com/kcodes0/likwid', rot: '2.3deg' },
+  { name: 'NULL', desc: 'AI built it. Then it broke.', href: 'https://github.com/kcodes0/null', rot: '-1.8deg' },
 ];
 
 const links = [
   { name: 'BLOG', href: 'https://blog.kcodes.me' },
   { name: 'FILMS', href: 'https://films.kcodes.me' },
-  { name: 'GITHUB', href: 'https://github.com/konacodes' },
+  { name: 'GITHUB', href: 'https://github.com/kcodes0' },
   { name: 'DISCORD', href: 'https://discord.com/users/1151230208783945818' },
   { name: 'EMAIL', href: 'mailto:hello@kcodes.me' },
 ];

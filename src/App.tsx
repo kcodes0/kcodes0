@@ -295,7 +295,7 @@ function LabsPage() {
       title: 'Duck Lang',
       description: 'A programming language where you have to say "quack" or the goose won\'t run your code. The goose has opinions and rates your code from 1-10.',
       tech: ['Rust'],
-      href: 'https://github.com/konacodes/duck-lang',
+      href: 'https://github.com/kcodes0/duck-lang',
       status: 'active'
     },
     {
@@ -303,7 +303,7 @@ function LabsPage() {
       title: 'null',
       description: 'An experiment built entirely by Claude. It worked until it didn\'t. We don\'t talk about what happened at the very end.',
       tech: ['TypeScript', 'Claude'],
-      href: 'https://github.com/konacodes/null',
+      href: 'https://github.com/kcodes0/null',
       status: 'archived'
     },
     {
@@ -327,7 +327,7 @@ function LabsPage() {
       title: 'This Site',
       description: 'The portfolio site you\'re looking at right now. Warm collage layout.',
       tech: ['React', 'Vite', 'Vibes'],
-      href: 'https://github.com/konacodes/konacodes',
+      href: 'https://github.com/kcodes0/konacodes',
       status: 'active'
     },
   ];

@@ -31,6 +31,6 @@ when i'm not coding: probably redesigning something that didn't need it, or up t
 
 ---
 
-[kcodes.me](https://kcodes.me) · [github](https://github.com/konacodes) · [discord](https://discord.com/users/1151230208783945818)
+[kcodes.me](https://kcodes.me) · [github](https://github.com/kcodes0) · [discord](https://discord.com/users/1151230208783945818)
 
 <sub>*built between mass and midnight*</sub>
