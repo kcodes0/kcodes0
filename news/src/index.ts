@@ -331,6 +331,41 @@ export default {
     // ADMIN API
     // ============================================
 
+    // List articles (filter with ?published=0 for drafts)
+    if (path === '/api/articles' && request.method === 'GET') {
+      const publishedParam = url.searchParams.get('published');
+      let articles;
+      if (publishedParam !== null) {
+        articles = await env.DB.prepare(
+          'SELECT id, title, slug, excerpt, published, featured, created_at, updated_at FROM articles WHERE published = ? ORDER BY created_at DESC'
+        ).bind(parseInt(publishedParam)).all<Article>();
+      } else {
+        articles = await env.DB.prepare(
+          'SELECT id, title, slug, excerpt, published, featured, created_at, updated_at FROM articles ORDER BY created_at DESC'
+        ).all<Article>();
+      }
+      const articleIds = (articles.results || []).map(a => a.id);
+      const articleTags = await getArticleTags(env.DB, articleIds);
+      return json({ articles: articles.results || [], tags: articleTags });
+    }
+
+    // Get single article
+    if (path.startsWith('/api/articles/') && request.method === 'GET') {
+      const id = path.slice(14);
+      const article = await env.DB.prepare('SELECT * FROM articles WHERE id = ?').bind(id).first<Article>();
+      if (!article) return json({ error: 'Not found' }, 404);
+      const tagsResult = await env.DB.prepare(
+        'SELECT t.id, t.name, t.slug FROM tags t JOIN article_tags at ON t.id = at.tag_id WHERE at.article_id = ?'
+      ).bind(id).all<Tag>();
+      return json({ article, tags: tagsResult.results || [] });
+    }
+
+    // List tags
+    if (path === '/api/tags' && request.method === 'GET') {
+      const tags = await env.DB.prepare('SELECT id, name, slug FROM tags ORDER BY name').all<Tag>();
+      return json({ tags: tags.results || [] });
+    }
+
     // Create article
     if (path === '/api/articles' && request.method === 'POST') {
       try {
