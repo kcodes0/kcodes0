@@ -401,75 +401,6 @@ const publicStyles = `
     padding-bottom: 4rem;
   }
 
-  /* Follow section */
-  .follow-section {
-    padding: 2rem 0;
-    border-top: 2px solid #2a2825;
-    border-bottom: 2px solid #2a2825;
-    margin-bottom: 3rem;
-  }
-
-  .follow-section h3 {
-    font-size: 0.8rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #d5d0c8;
-    margin-bottom: 0.5rem;
-  }
-
-  .follow-section .follow-count {
-    font-size: 0.7rem;
-    color: #5a5650;
-    margin-bottom: 1rem;
-  }
-
-  .follow-form {
-    display: flex;
-    gap: 0;
-  }
-
-  .follow-form input {
-    flex: 1;
-    padding: 0.6rem 1rem;
-    background: #1e1d1b;
-    border: 1px solid #2a2825;
-    border-right: none;
-    color: #d5d0c8;
-    font-size: 0.85rem;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
-
-  .follow-form input:focus {
-    outline: none;
-    border-color: #a8c8e8;
-  }
-
-  .follow-form button {
-    padding: 0.6rem 1.5rem;
-    background: #a8c8e8;
-    color: #141312;
-    border: 1px solid #a8c8e8;
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    transition: background 0.15s ease;
-  }
-
-  .follow-form button:hover {
-    background: #d5d0c8;
-    border-color: #d5d0c8;
-  }
-
-  .follow-success {
-    font-size: 0.8rem;
-    color: #4ade80;
-    display: none;
-  }
-
   /* Related articles */
   .related-section {
     padding: 2rem 0;
@@ -757,7 +688,7 @@ export function renderHome(articles: Article[], tags: Tag[], featured: Article |
   `;
 }
 
-export function renderArticle(article: Article, htmlContent: string, tags: Tag[], followerCount: number, relatedArticles: Article[]): string {
+export function renderArticle(article: Article, htmlContent: string, tags: Tag[], relatedArticles: Article[]): string {
   return `
     <!DOCTYPE html>
     <html lang="en">
@@ -792,18 +723,6 @@ export function renderArticle(article: Article, htmlContent: string, tags: Tag[]
           </div>
         </article>
 
-        <div class="follow-section animate-in delay-2">
-          <h3>FOLLOW THIS STORY</h3>
-          <p class="follow-count">${followerCount} following</p>
-          <div id="follow-form-wrapper">
-            <form class="follow-form" id="follow-form" onsubmit="return followStory(event)">
-              <input type="email" id="follow-email" placeholder="your email" required>
-              <button type="submit">FOLLOW</button>
-            </form>
-          </div>
-          <p class="follow-success" id="follow-success">You're now following this story.</p>
-        </div>
-
         ${relatedArticles.length > 0 ? `
           <div class="related-section animate-in delay-3">
             <h3>RELATED ARTICLES</h3>
@@ -823,27 +742,6 @@ export function renderArticle(article: Article, htmlContent: string, tags: Tag[]
         </footer>
       </div>
 
-      <script>
-        async function followStory(e) {
-          e.preventDefault();
-          const email = document.getElementById('follow-email').value;
-          try {
-            const res = await fetch('/api/follow', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email, article_id: '${article.id}' })
-            });
-            const data = await res.json();
-            if (data.success) {
-              document.getElementById('follow-form-wrapper').style.display = 'none';
-              document.getElementById('follow-success').style.display = 'block';
-            }
-          } catch (err) {
-            console.error('Follow error:', err);
-          }
-          return false;
-        }
-      </script>
       ${diagramInitScript}
     </body>
     </html>

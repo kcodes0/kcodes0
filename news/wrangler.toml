@@ -6,7 +6,7 @@ compatibility_date = "2024-01-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "kona-news-db"
-database_id = "PLACEHOLDER_RUN_npm_run_db:create"
+database_id = "448f501d-8a7a-4209-ad38-d1bdff5c5b5f"
 
 # Custom domain: news.kcodes.me
 # Configure in Cloudflare dashboard after deployment

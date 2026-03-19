@@ -158,12 +158,6 @@ export default {
       ).bind(article.id).all<Tag>();
       const tags = tagsResult.results || [];
 
-      // Follower count
-      const countResult = await env.DB.prepare(
-        'SELECT COUNT(*) as count FROM followers WHERE article_id = ?'
-      ).bind(article.id).first<{ count: number }>();
-      const followerCount = countResult?.count || 0;
-
       // Related articles (share at least one tag)
       let relatedArticles: Article[] = [];
       if (tags.length > 0) {
@@ -182,7 +176,7 @@ export default {
         relatedArticles = relatedResult.results || [];
       }
 
-      return html(renderArticle(article, htmlContent, tags, followerCount, relatedArticles));
+      return html(renderArticle(article, htmlContent, tags, relatedArticles));
     }
 
     // Tag page - /tag/:slug
@@ -238,24 +232,6 @@ export default {
     // ============================================
     // PUBLIC API
     // ============================================
-
-    // Follow a story
-    if (path === '/api/follow' && request.method === 'POST') {
-      try {
-        const body = await request.json() as { email: string; article_id: string };
-        const { email, article_id } = body;
-        if (!email || !article_id) return json({ success: false, error: 'Missing fields' }, 400);
-
-        const id = generateId();
-        await env.DB.prepare(
-          'INSERT OR IGNORE INTO followers (id, email, article_id) VALUES (?, ?, ?)'
-        ).bind(id, email, article_id).run();
-
-        return json({ success: true });
-      } catch (error) {
-        return json({ success: false, error: String(error) }, 400);
-      }
-    }
 
     // Contact form submission
     if (path === '/api/contact' && request.method === 'POST') {
