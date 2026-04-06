@@ -304,19 +304,35 @@ export default function Page1Brutalist() {
                       minWidth: '1.5rem',
                       fontVariantNumeric: 'tabular-nums',
                       transition: 'color 0.15s',
+                      alignSelf: 'flex-start',
+                      paddingTop: '0.15rem',
                     }}>
                       {String(i + 1).padStart(2, '0')}
                     </span>
-                    <span className="neo-repo-name" style={{
-                      fontSize: '0.95rem',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      letterSpacing: '-0.01em',
-                      flex: 1,
-                      transition: 'color 0.15s',
-                    }}>
-                      {repo.name}
-                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span className="neo-repo-name" style={{
+                        fontSize: '0.95rem',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '-0.01em',
+                        transition: 'color 0.15s',
+                        display: 'block',
+                      }}>
+                        {repo.name}
+                      </span>
+                      {repo.description && (
+                        <span className="neo-repo-desc" style={{
+                          fontSize: '0.75rem',
+                          color: '#5a5650',
+                          display: 'block',
+                          marginTop: '0.2rem',
+                          lineHeight: 1.4,
+                          transition: 'color 0.15s',
+                        }}>
+                          {repo.description}
+                        </span>
+                      )}
+                    </div>
                     {repo.language && (
                       <span className="neo-repo-lang" style={{
                         fontSize: '0.55rem',
@@ -326,6 +342,8 @@ export default function Page1Brutalist() {
                         textTransform: 'uppercase',
                         color: '#6a6660',
                         transition: 'all 0.15s',
+                        alignSelf: 'flex-start',
+                        marginTop: '0.15rem',
                       }}>
                         {repo.language}
                       </span>
