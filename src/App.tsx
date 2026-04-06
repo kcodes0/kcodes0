@@ -128,66 +128,129 @@ function ThemeToggle() {
 // ============================================
 // Now Page
 // ============================================
+const NOW_SECTIONS = [
+  {
+    title: 'Working on',
+    items: [
+      'Building out this portfolio site',
+      'Duck Lang — a programming language where you say "quack"',
+      'Various Cloudflare Workers experiments',
+    ],
+  },
+  {
+    title: 'Watching',
+    items: [
+      'Rewatching old films for the catalog',
+      'Whatever catches my eye on Letterboxd',
+    ],
+  },
+  {
+    title: 'Listening to',
+    items: [
+      'A lot of ambient and electronic stuff',
+      'Podcast backlog that never shrinks',
+    ],
+  },
+  {
+    title: 'Reading',
+    items: [
+      'Technical docs, always',
+      'History books when I get the chance',
+    ],
+  },
+];
+
 function NowPage() {
-  const { theme } = useTheme();
   return (
-    <div className="page">
-      <ThemeToggle />
+    <div style={{
+      minHeight: '100vh',
+      background: '#141312',
+      color: '#d5d0c8',
+      fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+    }}>
+      <style>{`
+        .now-back:hover { color: #a8c8e8 !important; }
+        .now-link:hover { color: #d5d0c8 !important; }
+      `}</style>
 
-      <header className="subpage-header">
-        <a href="/" className="back-link">← Back</a>
-        <h1 className="subpage-title">Now</h1>
-        <p className="subpage-subtitle">What I'm up to these days</p>
-        <time className="last-updated">Last updated: January 2025</time>
-      </header>
+      <div style={{ maxWidth: '700px', margin: '0 auto', padding: '4rem 2rem' }}>
+        <a href="/" className="now-back" style={{
+          display: 'inline-block', fontSize: '0.75rem', color: '#6a6660',
+          textDecoration: 'none', marginBottom: '2rem', letterSpacing: '0.1em',
+          textTransform: 'uppercase', transition: 'color 0.15s',
+        }}>← Back</a>
 
-      <main className="now-content">
-        <section className="now-section">
-          <h2 className="now-heading">Working on</h2>
-          <ul className="now-list">
-            <li>Building out this portfolio site</li>
-            <li>Duck Lang — a programming language where you say "quack"</li>
-            <li>Various Cloudflare Workers experiments</li>
-          </ul>
-        </section>
-
-        <section className="now-section">
-          <h2 className="now-heading">Watching</h2>
-          <ul className="now-list">
-            <li>Rewatching old films for the catalog</li>
-            <li>Whatever catches my eye on Letterboxd</li>
-          </ul>
-        </section>
-
-        <section className="now-section">
-          <h2 className="now-heading">Listening to</h2>
-          <ul className="now-list">
-            <li>A lot of ambient and electronic stuff</li>
-            <li>Podcast backlog that never shrinks</li>
-          </ul>
-        </section>
-
-        <section className="now-section">
-          <h2 className="now-heading">Reading</h2>
-          <ul className="now-list">
-            <li>Technical docs, always</li>
-            <li>History books when I get the chance</li>
-          </ul>
-        </section>
-
-        <p className="now-note">
-          This is a <a href="https://nownownow.com/about" target="_blank" rel="noopener noreferrer">/now page</a>.
-          You should make one too.
+        <h1 style={{
+          fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 900, lineHeight: 0.9,
+          letterSpacing: '-0.04em', textTransform: 'uppercase', marginBottom: '0.5rem',
+        }}>
+          N<span style={{ color: '#a8c8e8' }}>OW</span>
+        </h1>
+        <p style={{
+          fontSize: '0.75rem', color: '#6a6660', letterSpacing: '0.15em',
+          textTransform: 'uppercase', marginBottom: '0.5rem',
+        }}>
+          What I'm up to these days
         </p>
-      </main>
+        <time style={{
+          fontSize: '0.65rem', color: '#4a4640', letterSpacing: '0.1em',
+          textTransform: 'uppercase', fontStyle: 'italic',
+        }}>
+          Last updated: January 2025
+        </time>
 
-      <footer className="footer">
-        <div className="footer-rule" />
-        <p className="footer-text">
-          <span className="footer-year">{new Date().getFullYear()}</span>
-          <span className="footer-divider">·</span>
-          <span>Made with questionable sleep habits</span>
+        <div style={{ marginTop: '3rem' }}>
+          {NOW_SECTIONS.map((section) => (
+            <div key={section.title} style={{
+              border: '1px solid #2a2825', padding: '1.25rem 1.5rem',
+              marginBottom: '1rem',
+            }}>
+              <h2 style={{
+                fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase',
+                color: '#a8c8e8', fontWeight: 700, marginBottom: '1rem',
+                paddingBottom: '0.5rem', borderBottom: '1px solid #2a2825',
+              }}>
+                {section.title}
+              </h2>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {section.items.map((item) => (
+                  <li key={item} style={{
+                    fontSize: '0.9rem', color: '#b5b0a8', lineHeight: 1.8,
+                    paddingLeft: '0.75rem', position: 'relative',
+                  }}>
+                    <span style={{ position: 'absolute', left: 0, color: '#4a4640' }}>—</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <p style={{
+          fontSize: '0.75rem', color: '#4a4640', textAlign: 'center',
+          marginTop: '3rem', fontStyle: 'italic',
+        }}>
+          This is a{' '}
+          <a href="https://nownownow.com/about" target="_blank" rel="noopener noreferrer"
+            className="now-link" style={{ color: '#a8c8e8', textDecoration: 'underline',
+            textUnderlineOffset: '2px', transition: 'color 0.15s' }}>
+            /now page
+          </a>. You should make one too.
         </p>
+      </div>
+
+      <footer style={{
+        maxWidth: '700px', margin: '0 auto', padding: '3rem 2rem',
+        borderTop: '2px solid #2a2825', display: 'flex',
+        justifyContent: 'space-between', alignItems: 'center',
+      }}>
+        <span style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: '#4a4640' }}>
+          &copy; {new Date().getFullYear()} KONA
+        </span>
+        <span style={{ fontSize: '3rem', fontWeight: 900, lineHeight: 1, letterSpacing: '-0.05em' }}>
+          K<span style={{ color: '#a8c8e8' }}>.</span>
+        </span>
       </footer>
     </div>
   );
@@ -288,85 +351,157 @@ function UsesPage() {
 // ============================================
 // Labs Page
 // ============================================
+const LABS_PROJECTS = [
+  {
+    id: 'duck',
+    title: 'Duck Lang',
+    description: 'A programming language where you have to say "quack" or the goose won\'t run your code. The goose has opinions and rates your code from 1-10.',
+    tech: ['Rust'],
+    href: 'https://github.com/kcodes0/duck-lang',
+    status: 'active' as const,
+  },
+  {
+    id: 'null',
+    title: 'null',
+    description: 'An experiment built entirely by Claude. It worked until it didn\'t. We don\'t talk about what happened at the very end.',
+    tech: ['TypeScript', 'Claude'],
+    href: 'https://github.com/kcodes0/null',
+    status: 'archived' as const,
+  },
+  {
+    id: 'blog-cms',
+    title: 'Blog CMS',
+    description: 'Markdown-first content management running on Cloudflare Workers + D1. Fast, minimal, no bloat.',
+    tech: ['Cloudflare Workers', 'D1'],
+    href: 'https://blog.kcodes.me',
+    status: 'active' as const,
+  },
+  {
+    id: 'this-site',
+    title: 'This Site',
+    description: 'The portfolio site you\'re looking at right now. Brutalist meets neocities.',
+    tech: ['React', 'Vite', 'Vibes'],
+    href: 'https://github.com/kcodes0/konacodes',
+    status: 'active' as const,
+  },
+];
+
 function LabsPage() {
-  const { theme } = useTheme();
-  const projects = [
-    {
-      id: 'duck',
-      title: 'Duck Lang',
-      description: 'A programming language where you have to say "quack" or the goose won\'t run your code. The goose has opinions and rates your code from 1-10.',
-      tech: ['Rust'],
-      href: 'https://github.com/kcodes0/duck-lang',
-      status: 'active'
-    },
-    {
-      id: 'null',
-      title: 'null',
-      description: 'An experiment built entirely by Claude. It worked until it didn\'t. We don\'t talk about what happened at the very end.',
-      tech: ['TypeScript', 'Claude'],
-      href: 'https://github.com/kcodes0/null',
-      status: 'archived'
-    },
-    {
-      id: 'blog-cms',
-      title: 'Blog CMS',
-      description: 'Markdown-first content management running on Cloudflare Workers + D1. Fast, minimal, no bloat.',
-      tech: ['Cloudflare Workers', 'D1'],
-      href: 'https://blog.kcodes.me',
-      status: 'active'
-    },
-    {
-      id: 'this-site',
-      title: 'This Site',
-      description: 'The portfolio site you\'re looking at right now. Warm collage layout.',
-      tech: ['React', 'Vite', 'Vibes'],
-      href: 'https://github.com/kcodes0/konacodes',
-      status: 'active'
-    },
-  ];
-
   return (
-    <div className="page">
-      <ThemeToggle />
+    <div style={{
+      minHeight: '100vh',
+      background: '#141312',
+      color: '#d5d0c8',
+      fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+    }}>
+      <style>{`
+        .labs-back:hover { color: #a8c8e8 !important; }
+        .labs-card {
+          display: block;
+          border: 1px solid #2a2825;
+          padding: 1.5rem;
+          text-decoration: none;
+          color: #d5d0c8;
+          transition: all 0.2s ease;
+        }
+        .labs-card:hover {
+          border-color: #3a3835;
+          background: #1a1917;
+        }
+        .labs-card:hover .labs-card-title {
+          color: #a8c8e8;
+        }
+        @media (max-width: 768px) {
+          .labs-grid-inner {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
 
-      <header className="labs-header">
-        <a href="/" className="back-link">← Back</a>
-        <h1 className="labs-title">Labs</h1>
-        <p className="labs-subtitle">Projects, experiments, and happy accidents</p>
-      </header>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '4rem 2rem' }}>
+        <a href="/" className="labs-back" style={{
+          display: 'inline-block', fontSize: '0.75rem', color: '#6a6660',
+          textDecoration: 'none', marginBottom: '2rem', letterSpacing: '0.1em',
+          textTransform: 'uppercase', transition: 'color 0.15s',
+        }}>← Back</a>
 
-      <main className="labs-grid">
-        {projects.map((project) => (
-          <a
-            key={project.id}
-            href={project.href}
-            target={project.href.startsWith('http') ? '_blank' : undefined}
-            rel={project.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-            className="project-card"
-          >
-            <div className="project-header">
-              <h2 className="project-title">{project.title}</h2>
-              {project.status === 'archived' && (
-                <span className="project-status">archived</span>
-              )}
-            </div>
-            <p className="project-description">{project.description}</p>
-            <div className="project-tech">
-              {project.tech.map((t) => (
-                <span key={t} className="tech-tag">{t}</span>
-              ))}
-            </div>
-          </a>
-        ))}
-      </main>
-
-      <footer className="footer">
-        <div className="footer-rule" />
-        <p className="footer-text">
-          <span className="footer-year">{new Date().getFullYear()}</span>
-          <span className="footer-divider">·</span>
-          <span>Made with questionable sleep habits</span>
+        <h1 style={{
+          fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 900, lineHeight: 0.9,
+          letterSpacing: '-0.04em', textTransform: 'uppercase', marginBottom: '0.5rem',
+        }}>
+          LA<span style={{ color: '#a8c8e8' }}>BS</span>
+        </h1>
+        <p style={{
+          fontSize: '0.75rem', color: '#6a6660', letterSpacing: '0.15em',
+          textTransform: 'uppercase', marginBottom: '3rem',
+        }}>
+          Projects, experiments, and happy accidents
         </p>
+
+        <div className="labs-grid-inner" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+          gap: '1rem',
+        }}>
+          {LABS_PROJECTS.map((project) => (
+            <a
+              key={project.id}
+              href={project.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="labs-card"
+            >
+              <div style={{
+                display: 'flex', alignItems: 'baseline', gap: '0.75rem',
+                marginBottom: '0.5rem',
+              }}>
+                <h2 className="labs-card-title" style={{
+                  fontSize: '1.1rem', fontWeight: 700, textTransform: 'uppercase',
+                  letterSpacing: '-0.01em', transition: 'color 0.15s',
+                }}>
+                  {project.title}
+                </h2>
+                {project.status === 'archived' && (
+                  <span style={{
+                    fontSize: '0.55rem', letterSpacing: '0.12em', textTransform: 'uppercase',
+                    color: '#6a6660', border: '1px solid #3a3835', padding: '0.1rem 0.4rem',
+                  }}>
+                    Archived
+                  </span>
+                )}
+              </div>
+              <p style={{
+                fontSize: '0.85rem', color: '#8a8680', lineHeight: 1.6,
+                marginBottom: '1rem',
+              }}>
+                {project.description}
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {project.tech.map((t) => (
+                  <span key={t} style={{
+                    fontSize: '0.55rem', letterSpacing: '0.12em', textTransform: 'uppercase',
+                    color: '#6a6660', border: '1px solid #3a3835', padding: '0.15rem 0.4rem',
+                  }}>
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <footer style={{
+        maxWidth: '900px', margin: '0 auto', padding: '3rem 2rem',
+        borderTop: '2px solid #2a2825', display: 'flex',
+        justifyContent: 'space-between', alignItems: 'center',
+      }}>
+        <span style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: '#4a4640' }}>
+          &copy; {new Date().getFullYear()} KONA
+        </span>
+        <span style={{ fontSize: '3rem', fontWeight: 900, lineHeight: 1, letterSpacing: '-0.05em' }}>
+          K<span style={{ color: '#a8c8e8' }}>.</span>
+        </span>
       </footer>
     </div>
   );
@@ -414,21 +549,19 @@ function useRoute() {
 export function App() {
   const path = useRoute();
 
-  // Photos page (dark brutalist style, no theme provider needed)
   if (path === '/photos') return <PhotosPage />;
+  if (path === '/labs') return <LabsPage />;
+  if (path === '/now') return <NowPage />;
 
-  // Homepage
-  if (path !== '/labs' && path !== '/now' && path !== '/uses') {
-    return <BrutalistHome />;
+  if (path === '/uses') {
+    return (
+      <ThemeProvider>
+        <UsesPage />
+      </ThemeProvider>
+    );
   }
 
-  return (
-    <ThemeProvider>
-      {path === '/labs' ? <LabsPage /> :
-       path === '/now' ? <NowPage /> :
-       <UsesPage />}
-    </ThemeProvider>
-  );
+  return <BrutalistHome />;
 }
 
 export default App;

@@ -8,13 +8,13 @@ updated_at = 2026-04-06T07:04:46.022795Z
 id = 'master'
 region = 'us_west'
 api_base_url = 'https://api.kcodes.me/decent'
-site_base_url = 'codes.me'
+site_base_url = 'https://kcodes.me'
 
 [[nodes]]
 id = 'master'
 role = 'master'
 region = 'us_west'
-public_url = 'codes.me'
+public_url = 'https://kcodes.me'
 admin_url = ''
 max_bandwidth_mbps = 0
 max_storage_mb = 0
