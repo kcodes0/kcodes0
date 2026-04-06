@@ -1,6 +1,7 @@
 import { useEffect, useState, createContext, useContext, useCallback } from "react";
 import "./index.css";
 import BrutalistHome from "./pages/Page1Terminal";
+import PhotosPage from "./pages/PhotosPage";
 
 // ============================================
 // Theme Context
@@ -390,7 +391,7 @@ function useRoute() {
 
       if (anchor && anchor.href.startsWith(window.location.origin)) {
         const url = new URL(anchor.href);
-        const internalRoutes = ['/', '/labs', '/now', '/uses'];
+        const internalRoutes = ['/', '/labs', '/now', '/uses', '/photos'];
         if (internalRoutes.includes(url.pathname)) {
           e.preventDefault();
           window.history.pushState({}, '', url.pathname);
@@ -412,6 +413,9 @@ function useRoute() {
 // ============================================
 export function App() {
   const path = useRoute();
+
+  // Photos page (dark brutalist style, no theme provider needed)
+  if (path === '/photos') return <PhotosPage />;
 
   // Homepage
   if (path !== '/labs' && path !== '/now' && path !== '/uses') {
