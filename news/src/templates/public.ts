@@ -603,12 +603,6 @@ const publicStyles = `
 `;
 
 export function renderHome(articles: Article[], tags: Tag[], featured: Article | null, articleTags: Record<string, Tag[]>): string {
-  const tagBar = tags.length > 0
-    ? `<div class="tag-bar animate-in delay-1">${tags.map(t =>
-        `<a href="/tag/${t.slug}" class="tag-badge">${escapeHtml(t.name)}</a>`
-      ).join('')}</div>`
-    : '';
-
   const featuredHero = featured
     ? `<a href="/a/${featured.slug}" class="featured-hero animate-in delay-1">
         <div class="featured-label">HOT TAKE</div>
@@ -616,9 +610,6 @@ export function renderHome(articles: Article[], tags: Tag[], featured: Article |
         ${featured.excerpt ? `<p class="featured-excerpt">${escapeHtml(featured.excerpt)}</p>` : ''}
         <div class="featured-meta">
           <span class="article-date">${formatDate(featured.created_at)}</span>
-          ${(articleTags[featured.id] || []).map(t =>
-            `<a href="/tag/${t.slug}" class="tag-badge-sm">${escapeHtml(t.name)}</a>`
-          ).join('')}
         </div>
       </a>`
     : '';
@@ -630,13 +621,6 @@ export function renderHome(articles: Article[], tags: Tag[], featured: Article |
           <span class="article-idx">${String(i + 1).padStart(2, '0')}</span>
           <div class="article-body">
             <div class="article-title">${escapeHtml(article.title)}</div>
-            ${(articleTags[article.id] || []).length > 0 ? `
-              <div class="article-tags">
-                ${(articleTags[article.id] || []).map(t =>
-                  `<span class="tag-badge-sm">${escapeHtml(t.name)}</span>`
-                ).join('')}
-              </div>
-            ` : ''}
           </div>
           <span class="article-date">${formatDate(article.created_at)}</span>
         </a>
@@ -672,7 +656,6 @@ export function renderHome(articles: Article[], tags: Tag[], featured: Article |
         </form>
       </div>
 
-      ${tagBar}
       ${featuredHero}
 
       <main class="articles">
@@ -709,13 +692,6 @@ export function renderArticle(article: Article, htmlContent: string, tags: Tag[]
             <time>${formatDate(article.created_at)}</time>
             <h1>${escapeHtml(article.title)}</h1>
             ${article.excerpt ? `<p class="excerpt">${escapeHtml(article.excerpt)}</p>` : ''}
-            ${tags.length > 0 ? `
-              <div class="article-header-tags">
-                ${tags.map(t =>
-                  `<a href="/tag/${t.slug}" class="tag-badge">${escapeHtml(t.name)}</a>`
-                ).join('')}
-              </div>
-            ` : ''}
           </header>
 
           <div class="article-content prose animate-in delay-2">
@@ -810,13 +786,6 @@ export function renderSearch(query: string, articles: Article[], articleTags: Re
           <div class="article-body">
             <div class="article-title">${escapeHtml(article.title)}</div>
             ${article.excerpt ? `<p style="font-size: 0.8rem; color: #5a5650; margin-top: 0.3rem;">${escapeHtml(article.excerpt)}</p>` : ''}
-            ${(articleTags[article.id] || []).length > 0 ? `
-              <div class="article-tags">
-                ${(articleTags[article.id] || []).map(t =>
-                  `<span class="tag-badge-sm">${escapeHtml(t.name)}</span>`
-                ).join('')}
-              </div>
-            ` : ''}
           </div>
           <span class="article-date">${formatDate(article.created_at)}</span>
         </a>
