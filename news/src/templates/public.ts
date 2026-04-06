@@ -611,7 +611,7 @@ export function renderHome(articles: Article[], tags: Tag[], featured: Article |
 
   const featuredHero = featured
     ? `<a href="/a/${featured.slug}" class="featured-hero animate-in delay-1">
-        <div class="featured-label">FEATURED</div>
+        <div class="featured-label">HOT TAKE</div>
         <h2>${escapeHtml(featured.title)}</h2>
         ${featured.excerpt ? `<p class="featured-excerpt">${escapeHtml(featured.excerpt)}</p>` : ''}
         <div class="featured-meta">
@@ -643,8 +643,8 @@ export function renderHome(articles: Article[], tags: Tag[], featured: Article |
       `).join('')
     : (!featured ? `
         <div class="empty-state animate-in delay-1">
-          <p>NOTHING HERE YET</p>
-          <span>check back soon</span>
+          <p>SLOW NEWS DAY</p>
+          <span>the presses are quiet. check back later.</span>
         </div>
       ` : '');
 
@@ -653,8 +653,8 @@ export function renderHome(articles: Article[], tags: Tag[], featured: Article |
     <html lang="en">
     <head>
       ${baseHead}
-      <title>NEWS — KONA</title>
-      <meta name="description" content="opinionated takes on what's happening">
+      <title>THE KONA TIMES</title>
+      <meta name="description" content="all the news that's fit to rant about">
       <style>${publicStyles}</style>
     </head>
     <body>
@@ -662,12 +662,12 @@ export function renderHome(articles: Article[], tags: Tag[], featured: Article |
 
       <header class="header animate-in">
         <h1>NE<br/><span>WS</span></h1>
-        <p>opinionated takes on what's happening</p>
+        <p>all the news that's fit to rant about</p>
       </header>
 
       <div class="search-bar animate-in delay-1">
         <form action="/search" method="GET">
-          <input type="text" name="q" placeholder="search articles..." autocomplete="off">
+          <input type="text" name="q" placeholder="dig through the archives..." autocomplete="off">
           <button type="submit">SEARCH</button>
         </form>
       </div>
@@ -694,7 +694,7 @@ export function renderArticle(article: Article, htmlContent: string, tags: Tag[]
     <html lang="en">
     <head>
       ${baseHead}
-      <title>${escapeHtml(article.title)} — KONA NEWS</title>
+      <title>${escapeHtml(article.title)} — THE KONA TIMES</title>
       <meta name="description" content="${escapeHtml(article.excerpt || article.title)}">
       ${diagramScripts}
       <style>${diagramStyles}</style>
@@ -702,7 +702,7 @@ export function renderArticle(article: Article, htmlContent: string, tags: Tag[]
     </head>
     <body>
       <div class="container">
-        <a href="/" class="article-back-link animate-in">&larr; BACK TO NEWS</a>
+        <a href="/" class="article-back-link animate-in">&larr; BACK TO THE NEWSROOM</a>
 
         <article>
           <header class="article-header animate-in delay-1">
@@ -738,7 +738,7 @@ export function renderArticle(article: Article, htmlContent: string, tags: Tag[]
         ` : ''}
 
         <footer class="article-footer animate-in delay-3">
-          <a href="/">&larr; MORE ARTICLES</a>
+          <a href="/">&larr; MORE FROM THE NEWSROOM</a>
         </footer>
       </div>
 
@@ -768,8 +768,8 @@ export function renderTagPage(tag: Tag, articles: Article[], articleTags: Record
       `).join('')
     : `
         <div class="empty-state animate-in delay-1">
-          <p>NO ARTICLES</p>
-          <span>nothing tagged with "${escapeHtml(tag.name)}" yet</span>
+          <p>NO COVERAGE</p>
+          <span>our reporters haven't filed anything under "${escapeHtml(tag.name)}" yet</span>
         </div>
       `;
 
@@ -778,11 +778,11 @@ export function renderTagPage(tag: Tag, articles: Article[], articleTags: Record
     <html lang="en">
     <head>
       ${baseHead}
-      <title>${escapeHtml(tag.name)} — KONA NEWS</title>
+      <title>${escapeHtml(tag.name)} — THE KONA TIMES</title>
       <style>${publicStyles}</style>
     </head>
     <body>
-      <a href="/" class="back-link animate-in">&larr; ALL NEWS</a>
+      <a href="/" class="back-link animate-in">&larr; THE NEWSROOM</a>
 
       <header class="tag-page-header animate-in">
         <h1><span>#</span>${escapeHtml(tag.name)}</h1>
@@ -823,8 +823,8 @@ export function renderSearch(query: string, articles: Article[], articleTags: Re
       `).join('')
     : `
         <div class="empty-state animate-in delay-1">
-          <p>NO RESULTS</p>
-          <span>nothing matched "${escapeHtml(query)}"</span>
+          <p>NO MATCHES</p>
+          <span>our investigative team found nothing for "${escapeHtml(query)}"</span>
         </div>
       `;
 
@@ -833,15 +833,15 @@ export function renderSearch(query: string, articles: Article[], articleTags: Re
     <html lang="en">
     <head>
       ${baseHead}
-      <title>Search: ${escapeHtml(query)} — KONA NEWS</title>
+      <title>Search: ${escapeHtml(query)} — THE KONA TIMES</title>
       <style>${publicStyles}</style>
     </head>
     <body>
-      <a href="/" class="back-link animate-in">&larr; ALL NEWS</a>
+      <a href="/" class="back-link animate-in">&larr; THE NEWSROOM</a>
 
       <div class="search-bar animate-in">
         <form action="/search" method="GET">
-          <input type="text" name="q" placeholder="search articles..." value="${escapeHtml(query)}" autocomplete="off">
+          <input type="text" name="q" placeholder="dig through the archives..." value="${escapeHtml(query)}" autocomplete="off">
           <button type="submit">SEARCH</button>
         </form>
       </div>
@@ -870,23 +870,23 @@ export function renderContact(success: boolean = false): string {
     <html lang="en">
     <head>
       ${baseHead}
-      <title>CONTACT — KONA NEWS</title>
+      <title>TIP LINE — THE KONA TIMES</title>
       <style>${publicStyles}</style>
     </head>
     <body>
       <div class="contact-container">
-        <a href="/" class="article-back-link animate-in">&larr; BACK TO NEWS</a>
+        <a href="/" class="article-back-link animate-in">&larr; BACK TO THE NEWSROOM</a>
 
         <header class="contact-header animate-in">
-          <h1>CONTACT</h1>
-          <p>got a tip or want to reach out? drop a message.</p>
+          <h1>TIP LINE</h1>
+          <p>got a hot tip? a complaint? an angry letter? we accept all forms of outrage.</p>
         </header>
 
         ${success ? `
           <div class="contact-success animate-in delay-1">
-            <h2>SENT</h2>
-            <p>your message has been received. thanks for reaching out.</p>
-            <a href="/" class="btn btn-ghost" style="margin-top: 2rem;">BACK TO NEWS</a>
+            <h2>RECEIVED</h2>
+            <p>your message has been filed. our team of unpaid interns will review it shortly.</p>
+            <a href="/" class="btn btn-ghost" style="margin-top: 2rem;">BACK TO THE NEWSROOM</a>
           </div>
         ` : `
           <form class="contact-form animate-in delay-1" id="contact-form" onsubmit="return submitContact(event)">
@@ -900,13 +900,13 @@ export function renderContact(success: boolean = false): string {
             </div>
             <div>
               <label for="contact-subject">SUBJECT</label>
-              <input type="text" id="contact-subject" name="subject" placeholder="what's this about?" required>
+              <input type="text" id="contact-subject" name="subject" placeholder="what's the scoop?" required>
             </div>
             <div>
               <label for="contact-message">MESSAGE</label>
               <textarea id="contact-message" name="message" placeholder="your message..." required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary" style="align-self: flex-start;">SEND MESSAGE</button>
+            <button type="submit" class="btn btn-primary" style="align-self: flex-start;">SUBMIT TIP</button>
           </form>
         `}
       </div>
@@ -947,7 +947,7 @@ export function render404(): string {
     <html lang="en">
     <head>
       ${baseHead}
-      <title>404 — KONA NEWS</title>
+      <title>404 — THE KONA TIMES</title>
       <style>
         .container {
           display: flex;
@@ -978,8 +978,8 @@ export function render404(): string {
     <body>
       <div class="container">
         <h1 class="animate-in">404</h1>
-        <p class="animate-in delay-1">couldn't find that one</p>
-        <a href="/" class="btn btn-ghost animate-in delay-2">BACK TO NEWS</a>
+        <p class="animate-in delay-1">this story has been redacted. or it never existed.</p>
+        <a href="/" class="btn btn-ghost animate-in delay-2">BACK TO THE NEWSROOM</a>
       </div>
     </body>
     </html>
