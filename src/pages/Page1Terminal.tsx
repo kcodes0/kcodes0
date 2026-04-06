@@ -1,5 +1,44 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useGithubRepos } from './useGithubRepos';
+
+interface Ad {
+  text: string;
+  sub?: string;
+  cta?: string;
+  link?: string;
+}
+
+const ADS: Ad[] = [
+  { text: 'TIRED OF WORKING?', sub: 'Try being a congressman.', link: 'https://news.kcodes.me' },
+  { text: 'YOUR REPRESENTATIVE HATES THIS ONE TRICK', sub: '(voting)', link: 'https://news.kcodes.me' },
+  { text: 'HOT SINGLES IN YOUR AREA', sub: "They're all running for office.", link: 'https://news.kcodes.me' },
+  { text: 'DOWNLOAD MORE RAM', sub: "It won't help with Congress." },
+  { text: 'FILIBUSTER-PROOF YOUR CODE.', sub: 'Use TypeScript.' },
+  { text: 'IS YOUR CODE AS BLOATED AS THE FEDERAL BUDGET?', sub: 'Try Bun.', cta: 'OPTIMIZE NOW' },
+  { text: 'LOBBYIST SPECIAL:', sub: 'Buy one politician, get one free.', link: 'https://news.kcodes.me' },
+  { text: 'BREAKING:', sub: 'Local developer ships code. World unchanged.' },
+  { text: 'CONGRESS:', sub: "535 people who can't merge a PR.", link: 'https://news.kcodes.me' },
+  { text: 'PREMIUM AIR\u2122', sub: 'Now with 20% more oxygen. Subscribe for $9.99/mo.' },
+  { text: 'THIS AD WAS HANDCRAFTED.', sub: 'Not by AI. Okay, maybe a little.' },
+  { text: 'VOTE FOR NOBODY.', sub: "They've never let you down.", link: 'https://news.kcodes.me' },
+  { text: 'YOUR DATA IS SAFE WITH US.', sub: "We're too lazy to steal it." },
+  { text: 'BROUGHT TO YOU BY:', sub: 'Your tax dollars (probably).', link: 'https://news.kcodes.me' },
+  { text: 'BREAKING NEWS:', sub: 'Politician keeps promise. Experts baffled.', link: 'https://news.kcodes.me' },
+  { text: 'GIT BLAME:', sub: 'The only accountability tool that works in government.' },
+  { text: 'HAVE YOU TRIED TURNING CONGRESS OFF AND ON AGAIN?', link: 'https://news.kcodes.me' },
+  { text: 'FREE HEALTHCARE*', sub: '*for members of Congress only.', link: 'https://news.kcodes.me' },
+  { text: 'NEW STUDY:', sub: 'Reading terms of service is longer than most bills Congress passes.', link: 'https://news.kcodes.me' },
+  { text: '404: GOVERNMENT ACCOUNTABILITY NOT FOUND', link: 'https://news.kcodes.me' },
+  { text: 'npm install good-governance', sub: 'ERR! package not found.' },
+  { text: 'RUST:', sub: 'Making you feel dumb since 2015.' },
+  { text: 'ALERT:', sub: "You've been randomly selected to pay taxes. Oh wait, that's everyone.", link: 'https://news.kcodes.me' },
+  { text: 'BIPARTISAN AGREEMENT:', sub: 'Both sides agree they deserve a raise.', link: 'https://news.kcodes.me' },
+];
+
+function pickRandom<T>(arr: T[], count: number): T[] {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
 
 const NAV_LINKS = [
   { name: 'Home', href: '/' },
@@ -47,6 +86,9 @@ export default function Page1Brutalist() {
 
   const totalStars = repos.reduce((a, r) => a + r.stargazers_count, 0);
   const langCount = [...new Set(repos.map(r => r.language).filter(Boolean))].length;
+
+  const sidebarAds = useMemo(() => pickRandom(ADS, 3), []);
+  const bannerAd = useMemo(() => pickRandom(ADS.filter(a => a.sub), 1)[0], []);
 
   return (
     <div style={{
@@ -147,9 +189,6 @@ export default function Page1Brutalist() {
         .neo-sidebar {
           width: 260px;
           flex-shrink: 0;
-          position: sticky;
-          top: 1rem;
-          align-self: flex-start;
         }
         .neo-viewall {
           display: inline-block;
@@ -163,6 +202,68 @@ export default function Page1Brutalist() {
         }
         .neo-viewall:hover {
           color: #d5d0c8;
+        }
+        .neo-ad {
+          border: 1px dashed #2a2825;
+          padding: 1rem 1.25rem;
+          margin-bottom: 1rem;
+          position: relative;
+          transition: border-color 0.2s ease;
+        }
+        .neo-ad:hover {
+          border-color: #3a3835;
+        }
+        .neo-ad-label {
+          position: absolute;
+          top: 0.4rem;
+          right: 0.5rem;
+          font-size: 0.45rem;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: #3a3835;
+        }
+        .neo-ad-text {
+          font-size: 0.75rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: #8a8680;
+          line-height: 1.4;
+        }
+        .neo-ad-sub {
+          font-size: 0.7rem;
+          color: #5a5650;
+          margin-top: 0.2rem;
+          font-weight: 400;
+          text-transform: none;
+          letter-spacing: 0;
+        }
+        .neo-ad-cta {
+          display: inline-block;
+          margin-top: 0.5rem;
+          font-size: 0.55rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #a8c8e8;
+          text-decoration: none;
+          transition: color 0.15s;
+        }
+        a.neo-ad:hover .neo-ad-text {
+          color: #b5b0a8;
+        }
+        a.neo-ad:hover .neo-ad-cta {
+          color: #d5d0c8;
+        }
+        .neo-ad-banner {
+          border: 1px dashed #2a2825;
+          padding: 1rem 1.5rem;
+          margin-bottom: 1rem;
+          text-align: center;
+          position: relative;
+          transition: border-color 0.2s ease;
+        }
+        .neo-ad-banner:hover {
+          border-color: #3a3835;
         }
         @media (max-width: 768px) {
           .neo-layout {
@@ -236,6 +337,23 @@ export default function Page1Brutalist() {
               Ship it raw. Done {'>'} perfect.
             </p>
           </div>
+
+          {/* Banner ad */}
+          {bannerAd && (
+            bannerAd.link ? (
+              <a href={bannerAd.link} target="_blank" rel="noopener noreferrer" className="neo-ad-banner" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
+                <span className="neo-ad-label">AD</span>
+                <span className="neo-ad-text">{bannerAd.text}</span>
+                {bannerAd.sub && <p className="neo-ad-sub">{bannerAd.sub}</p>}
+              </a>
+            ) : (
+              <div className="neo-ad-banner">
+                <span className="neo-ad-label">AD</span>
+                <span className="neo-ad-text">{bannerAd.text}</span>
+                {bannerAd.sub && <p className="neo-ad-sub">{bannerAd.sub}</p>}
+              </div>
+            )
+          )}
 
           {/* Projects */}
           <div className="neo-panel">
@@ -410,6 +528,21 @@ export default function Page1Brutalist() {
             </div>
           </div>
 
+          {/* Ad 1 */}
+          {sidebarAds[0] && (sidebarAds[0].link ? (
+            <a href={sidebarAds[0].link} target="_blank" rel="noopener noreferrer" className="neo-ad" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
+              <span className="neo-ad-label">AD</span>
+              <div className="neo-ad-text">{sidebarAds[0].text}</div>
+              {sidebarAds[0].sub && <p className="neo-ad-sub">{sidebarAds[0].sub}</p>}
+            </a>
+          ) : (
+            <div className="neo-ad">
+              <span className="neo-ad-label">AD</span>
+              <div className="neo-ad-text">{sidebarAds[0].text}</div>
+              {sidebarAds[0].sub && <p className="neo-ad-sub">{sidebarAds[0].sub}</p>}
+            </div>
+          ))}
+
           {/* Currently working on */}
           <div className="neo-panel">
             <h3 className="neo-header">Now</h3>
@@ -440,6 +573,23 @@ export default function Page1Brutalist() {
             </a>
           </div>
 
+          {/* Ad 2 */}
+          {sidebarAds[1] && (sidebarAds[1].link ? (
+            <a href={sidebarAds[1].link} target="_blank" rel="noopener noreferrer" className="neo-ad" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
+              <span className="neo-ad-label">AD</span>
+              <div className="neo-ad-text">{sidebarAds[1].text}</div>
+              {sidebarAds[1].sub && <p className="neo-ad-sub">{sidebarAds[1].sub}</p>}
+              {sidebarAds[1].cta && <span className="neo-ad-cta">{sidebarAds[1].cta} →</span>}
+            </a>
+          ) : (
+            <div className="neo-ad">
+              <span className="neo-ad-label">AD</span>
+              <div className="neo-ad-text">{sidebarAds[1].text}</div>
+              {sidebarAds[1].sub && <p className="neo-ad-sub">{sidebarAds[1].sub}</p>}
+              {sidebarAds[1].cta && <span className="neo-ad-cta">{sidebarAds[1].cta} →</span>}
+            </div>
+          ))}
+
           {/* Connect */}
           <div className="neo-panel">
             <h3 className="neo-header">Connect</h3>
@@ -464,6 +614,23 @@ export default function Page1Brutalist() {
               Blog
             </a>
           </div>
+
+          {/* Ad 3 */}
+          {sidebarAds[2] && (sidebarAds[2].link ? (
+            <a href={sidebarAds[2].link} target="_blank" rel="noopener noreferrer" className="neo-ad" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
+              <span className="neo-ad-label">AD</span>
+              <div className="neo-ad-text">{sidebarAds[2].text}</div>
+              {sidebarAds[2].sub && <p className="neo-ad-sub">{sidebarAds[2].sub}</p>}
+              {sidebarAds[2].cta && <span className="neo-ad-cta">{sidebarAds[2].cta} →</span>}
+            </a>
+          ) : (
+            <div className="neo-ad">
+              <span className="neo-ad-label">AD</span>
+              <div className="neo-ad-text">{sidebarAds[2].text}</div>
+              {sidebarAds[2].sub && <p className="neo-ad-sub">{sidebarAds[2].sub}</p>}
+              {sidebarAds[2].cta && <span className="neo-ad-cta">{sidebarAds[2].cta} →</span>}
+            </div>
+          ))}
         </aside>
       </div>
 
