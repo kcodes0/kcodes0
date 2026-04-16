@@ -2,6 +2,13 @@ import { useEffect, useState, createContext, useContext, useCallback } from "rea
 import "./index.css";
 import BrutalistHome from "./pages/Page1Terminal";
 import PhotosPage from "./pages/PhotosPage";
+import E1Wikipedia from "./pages/experimental/E1Wikipedia";
+import E2Vending from "./pages/experimental/E2Vending";
+import E3Journal from "./pages/experimental/E3Journal";
+import E4Subway from "./pages/experimental/E4Subway";
+import E5Museum from "./pages/experimental/E5Museum";
+import E6TwoCursor from "./pages/experimental/E6TwoCursor";
+import E7Vernacular from "./pages/experimental/E7Vernacular";
 
 // ============================================
 // Theme Context
@@ -526,7 +533,7 @@ function useRoute() {
 
       if (anchor && anchor.href.startsWith(window.location.origin)) {
         const url = new URL(anchor.href);
-        const internalRoutes = ['/', '/labs', '/now', '/uses', '/photos'];
+        const internalRoutes = ['/', '/labs', '/now', '/uses', '/photos', '/1', '/2', '/3', '/4', '/5', '/6', '/7'];
         if (internalRoutes.includes(url.pathname)) {
           e.preventDefault();
           window.history.pushState({}, '', url.pathname);
@@ -552,6 +559,14 @@ export function App() {
   if (path === '/photos') return <PhotosPage />;
   if (path === '/labs') return <LabsPage />;
   if (path === '/now') return <NowPage />;
+
+  if (path === '/1') return <E1Wikipedia />;
+  if (path === '/2') return <E2Vending />;
+  if (path === '/3') return <E3Journal />;
+  if (path === '/4') return <E4Subway />;
+  if (path === '/5') return <E5Museum />;
+  if (path === '/6') return <E6TwoCursor />;
+  if (path === '/7') return <E7Vernacular />;
 
   if (path === '/uses') {
     return (
