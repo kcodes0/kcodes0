@@ -1,450 +1,419 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import {
+  SONA_BLACK,
+  SONA_WHITE,
+  Bat,
+  OrnateDivider,
+  SHARED_KEYFRAMES,
+  RouteCrossNav,
+  useReveal,
+} from './_shared';
 
-type Panel = {
-  id: string;
-  title: string;
-  content: string;
-  x: number;
-  y: number;
-  unlocked: boolean;
-};
+/**
+ * /6 — Sanguine
+ * The blood moon eclipse. Cinematic full-bleed. The wolf silhouette
+ * beneath a red moon that finishes eclipsing on load. Bats drift past.
+ * Stacked: starfield → moon corona → eclipsing disc → wolf silhouette →
+ * dripping title → verses that reveal as you descend.
+ */
 
-const INITIAL_PANELS: Panel[] = [
-  { id: 'p1', title: 'THE FIRST SEAL', content: 'I built this site, but I only finish it if someone else reads it at the same time as me. Most pages you visit are alone. This one is not.', x: 20, y: 18, unlocked: false },
-  { id: 'p2', title: 'ABOUT', content: 'Jason, creative developer. Self-taught. Builds small things. Ships rough. Prefers things you can hold: film, books, records, printed zines.', x: 62, y: 18, unlocked: false },
-  { id: 'p3', title: 'CURRENT WORK', content: 'Duck Lang v0.4 (Rust). A satirical newsroom. A content management system on CF Workers. This site, which is somehow also a small art project.', x: 20, y: 52, unlocked: false },
-  { id: 'p4', title: 'ELSEWHERE', content: 'kcodes.me — the main site. blog.kcodes.me — longer pieces. github.com/kcodes0 — code. This is the only version of me that asks for a witness.', x: 62, y: 52, unlocked: false },
+const VERSES = [
+  { num: 'I', text: 'A red moon climbs and the code holds its breath.' },
+  { num: 'II', text: 'The fan spins. The cursor blinks. Outside, nothing.' },
+  { num: 'III', text: 'I am slow and the work is slow, and this is how it survives.' },
+  { num: 'IV', text: 'What I make for strangers I first make for myself.' },
+  { num: 'V', text: 'Every bug is a teacher I did not ask for.' },
+  { num: 'VI', text: 'When the moon passes, the day will come and the day will want its things — but not yet.' },
 ];
 
-const MESSAGES_TO_OTHER = [
-  'hi. thanks for being here.',
-  'no — the other one is me. you are the one on the left.',
-  'we only have to agree once. one click, together.',
-  'i can see your cursor. i think you can see mine.',
-];
-
-const FAKE_VISITOR_NAMES = ['visitor 1a14', 'k.m.', 'anon-0042', 'someone', 'guest-7730'];
-
-export default function E6TwoCursor() {
-  const [phase, setPhase] = useState<'waiting' | 'connected' | 'revealed' | 'ended'>('waiting');
-  const [panels, setPanels] = useState<Panel[]>(INITIAL_PANELS);
-  const [waitSeconds, setWaitSeconds] = useState(0);
-  const [myPos, setMyPos] = useState({ x: 50, y: 50 });
-  const [otherPos, setOtherPos] = useState({ x: 30, y: 30 });
-  const [otherTarget, setOtherTarget] = useState({ x: 30, y: 30 });
-  const [visitorName] = useState(() => FAKE_VISITOR_NAMES[Math.floor(Math.random() * FAKE_VISITOR_NAMES.length)] ?? 'visitor');
-  const [message, setMessage] = useState('');
-  const [hoveringPanel, setHoveringPanel] = useState<string | null>(null);
-  const [otherHoveringPanel, setOtherHoveringPanel] = useState<string | null>(null);
-  const [pendingUnlock, setPendingUnlock] = useState<{ id: string; t: number } | null>(null);
-  const areaRef = useRef<HTMLDivElement>(null);
-
-  // Wait timer
+export default function E6Sanguine() {
+  const [eclipse, setEclipse] = useState(0); // 0 = off-center, 1 = fully eclipsed
   useEffect(() => {
-    if (phase !== 'waiting') return;
-    const id = setInterval(() => setWaitSeconds(s => s + 1), 1000);
-    return () => clearInterval(id);
-  }, [phase]);
-
-  useEffect(() => {
-    if (phase === 'waiting' && waitSeconds >= 7) {
-      setPhase('connected');
-      setMessage(MESSAGES_TO_OTHER[0] ?? '');
-      setTimeout(() => setMessage(MESSAGES_TO_OTHER[1] ?? ''), 4800);
-      setTimeout(() => setMessage(MESSAGES_TO_OTHER[2] ?? ''), 9200);
-      setTimeout(() => setMessage(MESSAGES_TO_OTHER[3] ?? ''), 14000);
-      setTimeout(() => setMessage(''), 19000);
-    }
-  }, [waitSeconds, phase]);
-
-  // Track mouse in percent
-  useEffect(() => {
-    const handle = (e: MouseEvent) => {
-      if (!areaRef.current) return;
-      const rect = areaRef.current.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      setMyPos({ x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) });
-    };
-    window.addEventListener('mousemove', handle);
-    return () => window.removeEventListener('mousemove', handle);
-  }, []);
-
-  // Simulated other cursor: moves toward targets, occasionally hovers a panel
-  useEffect(() => {
-    if (phase === 'waiting') return;
     let raf = 0;
-    const tick = () => {
-      setOtherPos(p => {
-        const dx = otherTarget.x - p.x;
-        const dy = otherTarget.y - p.y;
-        const d = Math.hypot(dx, dy);
-        if (d < 0.5) return p;
-        const step = Math.min(0.9, d * 0.04);
-        return { x: p.x + (dx / d) * step, y: p.y + (dy / d) * step };
-      });
-      raf = requestAnimationFrame(tick);
+    let t0 = performance.now();
+    const tick = (t: number) => {
+      const dt = Math.min(1, (t - t0) / 3200);
+      setEclipse(easeOutQuart(dt));
+      if (dt < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [phase, otherTarget]);
-
-  // Pick new target for the other cursor at intervals
-  useEffect(() => {
-    if (phase === 'waiting') return;
-    const pick = () => {
-      // 60% of the time, target a panel (prefer same as mine 40% of those)
-      const lockedPanels = panels.filter(p => !p.unlocked);
-      if (lockedPanels.length === 0) {
-        setOtherTarget({ x: 10 + Math.random() * 80, y: 10 + Math.random() * 80 });
-        return;
-      }
-      if (Math.random() < 0.6) {
-        let target: Panel | undefined = lockedPanels[Math.floor(Math.random() * lockedPanels.length)];
-        if (hoveringPanel && Math.random() < 0.45) {
-          target = panels.find(p => p.id === hoveringPanel) || target;
-        }
-        if (target) setOtherTarget({ x: target.x + 12, y: target.y + 10 });
-      } else {
-        setOtherTarget({ x: 10 + Math.random() * 80, y: 10 + Math.random() * 80 });
-      }
-    };
-    pick();
-    const id = setInterval(pick, 2400 + Math.random() * 1800);
-    return () => clearInterval(id);
-  }, [phase, hoveringPanel, panels]);
-
-  // Detect what the other cursor is "hovering"
-  useEffect(() => {
-    if (phase === 'waiting') { setOtherHoveringPanel(null); return; }
-    const inside = panels.find(p =>
-      otherPos.x >= p.x && otherPos.x <= p.x + 30 &&
-      otherPos.y >= p.y && otherPos.y <= p.y + 24 &&
-      !p.unlocked
-    );
-    setOtherHoveringPanel(inside?.id || null);
-  }, [otherPos, panels, phase]);
-
-  // When both cursors are on the same panel, arm it; after ~1.2s together, unlock
-  useEffect(() => {
-    if (phase !== 'connected') return;
-    if (hoveringPanel && hoveringPanel === otherHoveringPanel) {
-      if (!pendingUnlock || pendingUnlock.id !== hoveringPanel) {
-        setPendingUnlock({ id: hoveringPanel, t: Date.now() });
-      } else if (Date.now() - pendingUnlock.t > 1200) {
-        setPanels(ps => ps.map(p => p.id === hoveringPanel ? { ...p, unlocked: true } : p));
-        setPendingUnlock(null);
-      }
-    } else if (pendingUnlock) {
-      setPendingUnlock(null);
-    }
-  }, [hoveringPanel, otherHoveringPanel, phase, pendingUnlock]);
-
-  // Detect when all panels unlocked
-  useEffect(() => {
-    if (phase === 'connected' && panels.every(p => p.unlocked)) {
-      setTimeout(() => setPhase('revealed'), 800);
-    }
-  }, [panels, phase]);
-
-  const enterPanel = useCallback((id: string) => setHoveringPanel(id), []);
-  const leavePanel = useCallback(() => setHoveringPanel(null), []);
-
-  return (
-    <div ref={areaRef} style={{
-      position: 'relative',
-      width: '100vw',
-      height: '100vh',
-      overflow: 'hidden',
-      background: '#0a0a0c',
-      color: '#c8c8d0',
-      fontFamily: 'ui-monospace, "SF Mono", Menlo, Consolas, monospace',
-      cursor: 'none',
-    }}>
-      {/* Breathing dot matrix background */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        backgroundImage: 'radial-gradient(circle, rgba(200,200,220,0.06) 1px, transparent 1px)',
-        backgroundSize: '24px 24px',
-        opacity: phase === 'waiting' ? 0.4 : 0.7,
-        transition: 'opacity 1.5s',
-      }} />
-
-      {phase === 'waiting' && (
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexDirection: 'column',
-          textAlign: 'center',
-        }}>
-          <div style={{
-            fontSize: '0.7rem',
-            letterSpacing: '0.4em',
-            color: '#5a5a68',
-            marginBottom: '2rem',
-          }}>
-            THIS SITE REQUIRES TWO VISITORS
-          </div>
-          <div style={{
-            fontSize: '2.1rem',
-            fontWeight: 200,
-            color: '#a8a8c0',
-            letterSpacing: '0.02em',
-            marginBottom: '1.5rem',
-          }}>
-            waiting for someone else<DotPulse />
-          </div>
-          <div style={{
-            fontSize: '0.75rem',
-            color: '#5a5a68',
-            letterSpacing: '0.1em',
-            lineHeight: 1.7,
-            maxWidth: '420px',
-          }}>
-            the content is sealed until a second visitor joins. you can keep this tab open. or you can come back later. or you can send someone the link.
-          </div>
-          <div style={{
-            marginTop: '3rem',
-            fontSize: '0.65rem',
-            color: '#3a3a48',
-            letterSpacing: '0.25em',
-            fontVariantNumeric: 'tabular-nums',
-          }}>
-            1 PRESENT · {waitSeconds.toString().padStart(2, '0')}s ELAPSED
-          </div>
-          <div style={{
-            marginTop: '2.5rem',
-            display: 'flex',
-            gap: '0.4rem',
-            alignItems: 'center',
-          }}>
-            <Signal filled={true} />
-            <Signal filled={false} />
-          </div>
-        </div>
-      )}
-
-      {phase !== 'waiting' && (
-        <>
-          {/* Status bar */}
-          <div style={{
-            position: 'absolute', top: '1rem', left: 0, right: 0,
-            textAlign: 'center',
-            fontSize: '0.65rem', letterSpacing: '0.3em',
-            color: '#6a8aa0',
-            zIndex: 4,
-          }}>
-            · CONNECTED · 2 PRESENT · {visitorName} JOINED ·
-          </div>
-
-          {/* Floating message */}
-          {message && (
-            <div style={{
-              position: 'absolute',
-              top: '3rem', left: '50%',
-              transform: 'translateX(-50%)',
-              fontSize: '0.9rem',
-              color: '#c0d0e0',
-              letterSpacing: '0.04em',
-              background: 'rgba(10,12,18,0.85)',
-              padding: '0.5rem 1.2rem',
-              border: '1px solid rgba(120,140,180,0.2)',
-              borderRadius: '2px',
-              zIndex: 4,
-              fontStyle: 'italic',
-            }}>
-              {message}
-            </div>
-          )}
-
-          {/* Panels */}
-          {panels.map(panel => {
-            const activeTogether = hoveringPanel === panel.id && otherHoveringPanel === panel.id && !panel.unlocked;
-            const pendingProgress = pendingUnlock?.id === panel.id ? Math.min(1, (Date.now() - pendingUnlock.t) / 1200) : 0;
-            return (
-              <div
-                key={panel.id}
-                onMouseEnter={() => enterPanel(panel.id)}
-                onMouseLeave={leavePanel}
-                style={{
-                  position: 'absolute',
-                  left: `${panel.x}%`, top: `${panel.y}%`,
-                  width: '30%', minHeight: '24%',
-                  padding: '1.25rem 1.4rem',
-                  background: panel.unlocked ? 'rgba(24,32,44,0.85)' : 'rgba(18,18,24,0.6)',
-                  border: `1px solid ${panel.unlocked ? 'rgba(160,200,240,0.45)' : activeTogether ? 'rgba(200,220,255,0.8)' : 'rgba(100,110,140,0.2)'}`,
-                  transition: 'background 0.4s, border-color 0.3s',
-                  zIndex: 2,
-                  overflow: 'hidden',
-                }}
-              >
-                <div style={{
-                  fontSize: '0.55rem',
-                  letterSpacing: '0.3em',
-                  color: panel.unlocked ? '#8aa8c8' : '#4a4a58',
-                  marginBottom: '0.6rem',
-                }}>
-                  {panel.unlocked ? '● UNSEALED' : activeTogether ? '◐ AGREEING...' : '○ SEALED'}
-                </div>
-                <div style={{
-                  fontSize: panel.unlocked ? '0.85rem' : '1.1rem',
-                  fontWeight: panel.unlocked ? 400 : 200,
-                  lineHeight: 1.55,
-                  color: panel.unlocked ? '#d8dce4' : '#4a4a58',
-                  letterSpacing: panel.unlocked ? '0.01em' : '0.15em',
-                  transition: 'all 0.4s',
-                }}>
-                  {panel.unlocked ? (
-                    <>
-                      <div style={{ fontSize: '0.7rem', color: '#8aa8c8', letterSpacing: '0.2em', marginBottom: '0.6rem' }}>{panel.title}</div>
-                      {panel.content}
-                    </>
-                  ) : (
-                    <>
-                      {panel.title}
-                      <div style={{ fontSize: '0.65rem', color: '#3a3a48', marginTop: '0.75rem', letterSpacing: '0.15em', fontWeight: 400 }}>
-                        REQUIRES TWO CURSORS
-                      </div>
-                    </>
-                  )}
-                </div>
-                {activeTogether && (
-                  <div style={{
-                    position: 'absolute', bottom: 0, left: 0,
-                    height: '2px',
-                    background: 'linear-gradient(90deg, #6aa8ff, #c8d8ff)',
-                    width: `${pendingProgress * 100}%`,
-                    transition: 'width 0.1s linear',
-                  }} />
-                )}
-              </div>
-            );
-          })}
-
-          {/* Connection line between cursors */}
-          <svg style={{ position: 'absolute', inset: 0, pointerEvents: 'none', width: '100%', height: '100%', zIndex: 3 }}>
-            <line
-              x1={`${myPos.x}%`} y1={`${myPos.y}%`}
-              x2={`${otherPos.x}%`} y2={`${otherPos.y}%`}
-              stroke={pendingUnlock ? '#c8d8ff' : 'rgba(120,140,180,0.25)'}
-              strokeWidth={pendingUnlock ? 1 : 0.5}
-              strokeDasharray="3 5"
-              opacity={pendingUnlock ? 0.8 : 0.4}
-            />
-          </svg>
-        </>
-      )}
-
-      {phase === 'revealed' && (
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'rgba(8,10,14,0.92)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 5,
-          flexDirection: 'column',
-        }}>
-          <div style={{ fontSize: '0.65rem', letterSpacing: '0.4em', color: '#6a8aa0', marginBottom: '2rem' }}>
-            EVERY SEAL BROKEN
-          </div>
-          <div style={{
-            fontSize: '1.6rem',
-            color: '#d8dce4',
-            letterSpacing: '0.04em',
-            maxWidth: '520px',
-            textAlign: 'center',
-            lineHeight: 1.55,
-            fontFamily: 'Georgia, serif',
-            fontStyle: 'italic',
-          }}>
-            "thank you. whoever you were, whenever this was."
-          </div>
-          <div style={{ fontSize: '0.65rem', color: '#4a4a58', letterSpacing: '0.2em', marginTop: '2rem' }}>
-            — j.
-          </div>
-          <a href="/" style={{
-            marginTop: '3rem',
-            fontSize: '0.7rem',
-            letterSpacing: '0.25em',
-            color: '#8aa8c8',
-            textDecoration: 'none',
-            border: '1px solid #3a3a48',
-            padding: '0.5rem 1.25rem',
-          }}>
-            ← CLOSE
-          </a>
-        </div>
-      )}
-
-      {/* My cursor */}
-      <CursorGlyph x={myPos.x} y={myPos.y} color="#e8ecf4" label="you" pending={!!pendingUnlock && hoveringPanel === pendingUnlock.id} />
-
-      {/* Other cursor */}
-      {phase !== 'waiting' && (
-        <CursorGlyph x={otherPos.x} y={otherPos.y} color="#6aa8ff" label={visitorName} pending={!!pendingUnlock && otherHoveringPanel === pendingUnlock.id} />
-      )}
-
-      <div style={{
-        position: 'absolute', bottom: '1rem', left: '1rem',
-        fontSize: '0.6rem', color: '#3a3a48', letterSpacing: '0.2em',
-      }}>
-        <a href="/" style={{ color: '#5a5a68', textDecoration: 'none' }}>← LEAVE</a>
-      </div>
-    </div>
-  );
-}
-
-function DotPulse() {
-  const [d, setD] = useState('.');
-  useEffect(() => {
-    const id = setInterval(() => setD(s => s.length >= 3 ? '.' : s + '.'), 500);
-    return () => clearInterval(id);
   }, []);
-  return <span style={{ display: 'inline-block', width: '3ch', textAlign: 'left' }}>{d}</span>;
-}
 
-function Signal({ filled }: { filled: boolean }) {
-  return (
-    <div style={{
-      width: '10px', height: '10px',
-      borderRadius: '50%',
-      background: filled ? '#a8a8c0' : 'transparent',
-      border: '1px solid ' + (filled ? '#a8a8c0' : '#3a3a48'),
-      animation: filled ? 'none' : 'pulse 1.8s ease-in-out infinite',
-    }} />
-  );
-}
+  const batsCount = 9;
+  const bats = Array.from({ length: batsCount }).map((_, i) => ({
+    top: 5 + ((i * 11) % 70),
+    delay: (i * 1.4) % 10,
+    dur: 22 + (i % 4) * 4,
+    scale: 0.5 + (i % 3) * 0.2,
+  }));
 
-function CursorGlyph({ x, y, color, label, pending }: { x: number; y: number; color: string; label: string; pending: boolean }) {
+  // offset for eclipse disc — starts right of moon, ends centered
+  const offsetX = (1 - eclipse) * 420;
+
   return (
-    <div style={{
-      position: 'absolute',
-      left: `${x}%`, top: `${y}%`,
-      pointerEvents: 'none',
-      zIndex: 10,
-      transform: 'translate(-1px, -1px)',
-    }}>
-      <svg width="16" height="20" viewBox="0 0 16 20">
-        <path d="M1 1 L1 15 L5 11 L7 16 L10 14 L7 9 L13 8 Z"
-          fill={color}
-          stroke="#0a0a0c"
-          strokeWidth="1"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <div style={{
-        position: 'absolute',
-        top: '20px',
-        left: '14px',
-        fontSize: '0.55rem',
-        color: color,
-        background: 'rgba(10,12,18,0.7)',
-        padding: '1px 6px',
-        letterSpacing: '0.12em',
-        whiteSpace: 'nowrap',
-        border: `1px solid ${color}33`,
-      }}>
-        {label}{pending ? ' ◐' : ''}
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'radial-gradient(ellipse at 50% 40%, #1a0506 0%, #0a0102 60%, #000 100%)',
+        color: '#f0e4d6',
+        fontFamily: '"Cormorant Garamond", Georgia, serif',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Cinzel:wght@400;600;900&family=IM+Fell+English:ital@0;1&display=swap"
+      />
+      <style>{`
+        ${SHARED_KEYFRAMES}
+        html, body { background: #000; }
+        ::selection { background: #a01020; color: #0a0102; }
+
+        .bat {
+          position: absolute;
+          animation: batDrift var(--dur, 26s) var(--delay, 0s) linear infinite;
+          color: #0a0102;
+          filter: drop-shadow(0 0 2px #5a0a10);
+        }
+        .bat > div { animation: batFlap 0.35s ease-in-out infinite; transform-origin: 50% 50%; }
+        @keyframes batDrift {
+          0%   { transform: translateX(-20vw) translateY(0) rotate(-3deg); }
+          50%  { transform: translateX(60vw) translateY(-40px) rotate(4deg); }
+          100% { transform: translateX(120vw) translateY(10px) rotate(-2deg); }
+        }
+
+        .drip {
+          filter: drop-shadow(0 0 12px rgba(160,16,32,0.8)) drop-shadow(0 0 30px rgba(160,16,32,0.4));
+        }
+
+        .reveal-verse {
+          opacity: 0;
+          transform: translateY(24px);
+          transition: opacity 1.6s cubic-bezier(0.16,1,0.3,1), transform 1.6s cubic-bezier(0.16,1,0.3,1);
+        }
+        .reveal-verse.on { opacity: 1; transform: translateY(0); }
+
+        .corona {
+          animation: coronaPulse 6s ease-in-out infinite;
+          mix-blend-mode: screen;
+        }
+        @keyframes coronaPulse {
+          0%, 100% { opacity: 0.6; transform: scale(1); }
+          50%      { opacity: 0.95; transform: scale(1.04); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .bat, .bat > div, .corona { animation: none !important; }
+        }
+      `}</style>
+
+      {/* star backdrop */}
+      <div aria-hidden style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        {Array.from({ length: 120 }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              left: `${(i * 37) % 100}%`,
+              top: `${(i * 59) % 100}%`,
+              width: 1 + (i % 3),
+              height: 1 + (i % 3),
+              background: i % 6 === 0 ? '#a01020' : '#f0e4d6',
+              opacity: 0.15 + (i % 5) * 0.08,
+              borderRadius: '50%',
+            }}
+          />
+        ))}
       </div>
+
+      {/* bats */}
+      {bats.map((b, i) => (
+        <div
+          key={i}
+          className="bat"
+          style={{
+            top: `${b.top}%`,
+            transform: `scale(${b.scale})`,
+            ['--delay' as any]: `${b.delay}s`,
+            ['--dur' as any]: `${b.dur}s`,
+            zIndex: 2,
+          }}
+        >
+          <div>
+            <Bat size={36} color="#1a0506" />
+          </div>
+        </div>
+      ))}
+
+      {/* Masthead */}
+      <header style={{ position: 'relative', zIndex: 10, padding: '1.5rem 2.5rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '2rem', flexWrap: 'wrap' }}>
+        <div>
+          <div style={{ fontFamily: '"Cinzel", serif', fontSize: '0.7rem', letterSpacing: '0.6em', color: '#a01020', fontWeight: 600 }}>ACT · VI</div>
+          <div style={{ fontSize: '0.7rem', letterSpacing: '0.3em', color: '#78665a', textTransform: 'uppercase', marginTop: 4 }}>
+            Sanguine — the eclipse
+          </div>
+        </div>
+        <div style={{ maxWidth: 460, width: '100%' }}>
+          <RouteCrossNav active={6} color="#78665a" accent="#a01020" />
+        </div>
+      </header>
+
+      {/* Eclipse hero */}
+      <section
+        style={{
+          position: 'relative',
+          zIndex: 3,
+          height: 'min(100vh, 900px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem',
+        }}
+      >
+        {/* Corona glow */}
+        <div
+          className="corona"
+          aria-hidden
+          style={{
+            position: 'absolute',
+            width: 'min(120vmin, 1000px)',
+            height: 'min(120vmin, 1000px)',
+            borderRadius: '50%',
+            background:
+              'radial-gradient(circle at 50% 50%, rgba(240,90,80,0.55) 0%, rgba(160,16,32,0.35) 25%, rgba(80,6,12,0.15) 45%, rgba(0,0,0,0) 60%)',
+            filter: 'blur(8px)',
+          }}
+        />
+
+        {/* Red moon (back layer) */}
+        <svg
+          aria-hidden
+          viewBox="0 0 600 600"
+          style={{
+            position: 'absolute',
+            width: 'min(90vmin, 720px)',
+            height: 'min(90vmin, 720px)',
+            filter: 'drop-shadow(0 0 40px rgba(200,30,40,0.6))',
+          }}
+        >
+          <defs>
+            <radialGradient id="bloodMoon" cx="0.38" cy="0.35" r="0.7">
+              <stop offset="0%" stopColor="#ffb088" />
+              <stop offset="25%" stopColor="#e84030" />
+              <stop offset="60%" stopColor="#a01020" />
+              <stop offset="100%" stopColor="#4a0610" />
+            </radialGradient>
+            <pattern id="craters" patternUnits="userSpaceOnUse" width="24" height="24">
+              <circle cx="5" cy="7" r="1.3" fill="#4a0610" opacity="0.5" />
+              <circle cx="18" cy="14" r="0.9" fill="#4a0610" opacity="0.4" />
+              <circle cx="11" cy="19" r="2" fill="#4a0610" opacity="0.35" />
+            </pattern>
+          </defs>
+          <circle cx="300" cy="300" r="260" fill="url(#bloodMoon)" />
+          <circle cx="300" cy="300" r="260" fill="url(#craters)" />
+          {/* outer ring */}
+          <circle cx="300" cy="300" r="265" fill="none" stroke="#f0e4d6" strokeWidth="0.6" strokeOpacity="0.35" />
+        </svg>
+
+        {/* Eclipsing black disc */}
+        <svg
+          aria-hidden
+          viewBox="0 0 600 600"
+          style={{
+            position: 'absolute',
+            width: 'min(90vmin, 720px)',
+            height: 'min(90vmin, 720px)',
+          }}
+        >
+          <defs>
+            <radialGradient id="eclipseG" cx="0.5" cy="0.5" r="0.5">
+              <stop offset="0%" stopColor="#050102" />
+              <stop offset="86%" stopColor="#050102" />
+              <stop offset="100%" stopColor="#050102" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <circle cx={300 + offsetX * 0.3} cy="300" r="258" fill="url(#eclipseG)" />
+        </svg>
+
+        {/* Wolf silhouette foreground (big, cropped at bottom) */}
+        <img
+          src={SONA_BLACK}
+          alt="Kona silhouette beneath the eclipse"
+          style={{
+            position: 'absolute',
+            bottom: '-4%',
+            left: '50%',
+            width: 'min(70vmin, 560px)',
+            transform: 'translateX(-50%)',
+            filter:
+              'brightness(0) drop-shadow(0 0 20px rgba(160,16,32,0.5)) drop-shadow(0 0 40px rgba(160,16,32,0.3))',
+            opacity: 0.95,
+            zIndex: 2,
+          }}
+        />
+
+        {/* Title */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '18%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            textAlign: 'center',
+            zIndex: 5,
+            pointerEvents: 'none',
+          }}
+        >
+          <h1
+            className="drip"
+            style={{
+              fontFamily: '"Cinzel", serif',
+              fontSize: 'clamp(3rem, 9vw, 7rem)',
+              letterSpacing: '0.22em',
+              fontWeight: 900,
+              color: '#f0e4d6',
+              margin: 0,
+              lineHeight: 1,
+              textShadow:
+                '0 0 30px rgba(200,30,40,0.9), 0 2px 0 #1a0506, 0 4px 0 rgba(160,16,32,0.7)',
+            }}
+          >
+            SANGUINE
+          </h1>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.4rem' }}>
+            <OrnateDivider width={300} color="#a01020" />
+          </div>
+          <p
+            style={{
+              fontFamily: '"IM Fell English", "Cormorant Garamond", serif',
+              fontStyle: 'italic',
+              fontSize: '1rem',
+              color: '#b8a89a',
+              margin: '0.4rem 0 0',
+              letterSpacing: '0.1em',
+            }}
+          >
+            the moon forgets its color; the wolf remembers.
+          </p>
+        </div>
+
+        {/* Dripping blood SVG under title */}
+        <svg
+          aria-hidden
+          viewBox="0 0 400 120"
+          style={{ position: 'absolute', top: '32%', left: '50%', width: 360, transform: 'translateX(-50%)', zIndex: 5, pointerEvents: 'none' }}
+        >
+          {[60, 120, 200, 280, 340].map((x, i) => (
+            <path
+              key={i}
+              d={`M${x} 0 L${x} ${30 + (i * 17) % 40} Q ${x} ${60 + (i * 13) % 40} ${x + 4} ${70 + (i * 11) % 30} Q ${x - 4} ${60 + (i * 13) % 40} ${x} ${80}`}
+              fill="#a01020"
+              opacity="0.85"
+              className="drip"
+            />
+          ))}
+        </svg>
+      </section>
+
+      {/* Verses section */}
+      <section style={{ position: 'relative', zIndex: 3, maxWidth: 820, margin: '0 auto', padding: '5rem 2rem 6rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <div style={{ fontFamily: '"Cinzel", serif', fontSize: '0.7rem', letterSpacing: '0.5em', color: '#a01020' }}>
+            ✞ VERSES UNDER A RED MOON ✞
+          </div>
+          <OrnateDivider width={260} color="#4a2020" style={{ margin: '0.4rem auto 0' }} />
+        </div>
+
+        {VERSES.map((v, i) => (
+          <Verse key={i} verse={v} index={i} />
+        ))}
+
+        <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+          <img src={SONA_WHITE} alt="" aria-hidden style={{ width: 60, opacity: 0.18, filter: 'invert(0.4) sepia(1) hue-rotate(-20deg) saturate(3)' }} />
+          <p
+            style={{
+              fontFamily: '"IM Fell English", serif',
+              fontStyle: 'italic',
+              color: '#78665a',
+              fontSize: '0.85rem',
+              letterSpacing: '0.15em',
+              margin: '0.6rem 0 0',
+            }}
+          >
+            — and still the cursor blinks —
+          </p>
+        </div>
+      </section>
+
+      <footer style={{ position: 'relative', zIndex: 3, textAlign: 'center', padding: '1rem 2rem 3.5rem', color: '#5a2020', fontFamily: '"IM Fell English", serif', fontStyle: 'italic', fontSize: '0.85rem', letterSpacing: '0.2em' }}>
+        sanguis et lux · kcodes mmxxvi
+      </footer>
     </div>
   );
+}
+
+function Verse({ verse, index }: { verse: { num: string; text: string }; index: number }) {
+  const { ref, visible } = useReveal<HTMLDivElement>(0.25);
+  const align = index % 2 === 0 ? 'left' : 'right';
+  return (
+    <div
+      ref={ref}
+      className={`reveal-verse ${visible ? 'on' : ''}`}
+      style={{
+        textAlign: align,
+        margin: '3.4rem 0',
+        transitionDelay: `${index * 70}ms`,
+        position: 'relative',
+      }}
+    >
+      {/* giant roman numeral behind */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          [align === 'left' ? 'right' : 'left']: 0,
+          top: '-0.5em',
+          fontFamily: '"Cinzel", serif',
+          fontWeight: 900,
+          fontSize: 'clamp(6rem, 14vw, 10rem)',
+          color: '#a01020',
+          opacity: 0.1,
+          lineHeight: 1,
+          letterSpacing: '-0.04em',
+          pointerEvents: 'none',
+        }}
+      >
+        {verse.num}
+      </div>
+      <div
+        style={{
+          fontFamily: '"Cinzel", serif',
+          fontSize: '0.7rem',
+          letterSpacing: '0.5em',
+          color: '#a01020',
+          marginBottom: '0.4rem',
+        }}
+      >
+        {verse.num}
+      </div>
+      <p
+        style={{
+          fontFamily: '"IM Fell English", "Cormorant Garamond", serif',
+          fontSize: 'clamp(1.3rem, 2.4vw, 1.9rem)',
+          lineHeight: 1.55,
+          color: '#f0e4d6',
+          fontStyle: 'italic',
+          margin: 0,
+        }}
+      >
+        {verse.text}
+      </p>
+    </div>
+  );
+}
+
+function easeOutQuart(t: number) {
+  return 1 - Math.pow(1 - t, 4);
 }

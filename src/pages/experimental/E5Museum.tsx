@@ -1,440 +1,378 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import {
+  SONA_BLACK,
+  SONA_WHITE,
+  CornerFlourish,
+  OrnateDivider,
+  SHARED_KEYFRAMES,
+  RouteCrossNav,
+  useReveal,
+} from './_shared';
 
-type Exhibit = {
-  id: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  room: string;
-  title: string;
-  year: string;
-  label: string;
-  shape: 'plinth' | 'frame' | 'bench' | 'sculpture';
-  swatch?: string;
-};
+/**
+ * /5 — Grimoire
+ * An illuminated vellum manuscript spread. Gold leaf borders trace
+ * themselves as you scroll. Large rubricated drop caps. Fursona as
+ * frontispiece. Stacked: vellum texture → gilt border → red rubric →
+ * sona miniature → body text → marginalia doodles.
+ */
 
-type Rect = { x: number; y: number; w: number; h: number };
+type Arcana = { roman: string; name: string; motto: string; body: string };
 
-const WORLD_W = 1400;
-const WORLD_H = 900;
-const PLAYER_R = 10;
-const SPEED = 3;
-const PLAQUE_RADIUS = 55;
-
-// Walls — outer + inner dividers between rooms (4 rooms: entrance + 3 galleries)
-const WALLS: Rect[] = [
-  // outer
-  { x: 0, y: 0, w: WORLD_W, h: 20 },
-  { x: 0, y: WORLD_H - 20, w: WORLD_W, h: 20 },
-  { x: 0, y: 0, w: 20, h: WORLD_H },
-  { x: WORLD_W - 20, y: 0, w: 20, h: WORLD_H },
-  // divider: entrance → gallery A (vertical wall with doorway)
-  { x: 340, y: 20, w: 14, h: 340 },
-  { x: 340, y: 460, w: 14, h: 440 },
-  // divider: gallery A → gallery B (horizontal)
-  { x: 354, y: 440, w: 440, h: 14 },
-  { x: 880, y: 440, w: 300, h: 14 },
-  // divider: gallery B → gallery C (vertical)
-  { x: 880, y: 454, w: 14, h: 280 },
-  { x: 880, y: 800, w: 14, h: 100 },
-  // gift shop divider
-  { x: 1180, y: 440, w: 14, h: 460 },
+const ARCANA: Arcana[] = [
+  { roman: 'o', name: 'the fool', motto: 'begin with nothing', body: 'Every project starts in ignorance. The fool walks off the cliff in the tarot and the next card isn\'t death — it\'s the fall, which lasts long enough to learn the ground.' },
+  { roman: 'i', name: 'the programmer', motto: 'make the machine listen', body: 'Before the language there is the will. Before the will there is a problem small enough to pick up without looking.' },
+  { roman: 'vii', name: 'the chariot', motto: 'ship raw, steer later', body: 'Momentum is cheaper than plans. Cut the rope, point the car, fix the wheel while it\'s turning.' },
+  { roman: 'ix', name: 'the hermit', motto: 'one lamp, one problem', body: 'I do my best work alone at 2am. The bugs come out to drink, and I can catch them one by one.' },
+  { roman: 'xiii', name: 'the goose', motto: 'quack or be rated', body: 'An interpreter built for a single joke that turned out to rate your code 1-10. Sometimes the bit becomes the craft.' },
+  { roman: 'xviii', name: 'the moon', motto: 'trust quiet data', body: 'At night the graphs are honest. Daytime dashboards lie. This is a rule I made up but I stand by it.' },
 ];
 
-const EXHIBITS: Exhibit[] = [
-  { id: 'a1', x: 500, y: 120, w: 60, h: 60, room: 'A', shape: 'plinth', swatch: '#c8a876',
-    title: 'DUCK LANG', year: 'Rust · 2024—ongoing',
-    label: 'A programming language in which every source file must begin with the token QUACK. Critics have called it "at once a parody and a love letter to compiler design." Currently at version 0.3.1. The goose, we are told, has opinions.' },
-  { id: 'a2', x: 700, y: 120, w: 180, h: 20, room: 'A', shape: 'frame', swatch: '#2a3a5a',
-    title: 'BLOG CMS', year: 'TypeScript · 2023',
-    label: 'Markdown-first content management running on Cloudflare Workers and D1. Presently powers three of the artist\'s sites. Medium: serverless functions and a SQLite database at the edge.' },
-  { id: 'a3', x: 500, y: 280, w: 140, h: 14, room: 'A', shape: 'frame', swatch: '#5a2a2a',
-    title: 'KCODES.ME / NEWS', year: 'Cloudflare · 2025',
-    label: 'A satirical newsroom styled after a small-town American paper circa 1992. Articles are drafted by a language model under editorial constraint. The slant is described as "skeptical."' },
-  { id: 'a4', x: 800, y: 240, w: 60, h: 60, room: 'A', shape: 'plinth', swatch: '#3a5a3a',
-    title: 'LIKWID', year: 'TypeScript · 2024',
-    label: 'A two-dimensional Navier-Stokes fluid simulation rendered as ASCII art in the terminal. Updates at sixty frames per second on a commodity laptop. Source code unadvisable.' },
-
-  // Gallery B
-  { id: 'b1', x: 500, y: 560, w: 60, h: 60, room: 'B', shape: 'plinth', swatch: '#88a8c8',
-    title: 'UNTITLED, 2019', year: 'Analog photograph',
-    label: 'Portra 400, pushed one stop. A parking lot at dusk. The artist has said only: "Nothing happened here."' },
-  { id: 'b2', x: 700, y: 560, w: 60, h: 60, room: 'B', shape: 'plinth', swatch: '#a88860',
-    title: 'ROLL 22, FRAME 4', year: 'Analog photograph',
-    label: 'A dog, out of focus. The photograph is widely considered unsuccessful, including by the artist, who has nevertheless continued to include it in every exhibition since.' },
-  { id: 'b3', x: 500, y: 720, w: 160, h: 14, room: 'B', shape: 'frame', swatch: '#3a5050',
-    title: 'RALEIGH, 4AM', year: 'Analog photograph',
-    label: 'The view from a kitchen window at four in the morning on a Tuesday. Coffee had been made but not drunk. A refrigerator was humming, reportedly, in the key of D.' },
-  { id: 'b4', x: 760, y: 680, w: 14, h: 100, room: 'B', shape: 'frame', swatch: '#8a3838',
-    title: 'ROLL 14, FRAME 11', year: 'Analog photograph',
-    label: 'Early morning, Raleigh, 2024. The artist arrived before his subject. No subject arrived. The photograph is of the place where the subject was not.' },
-
-  // Gallery C (mid)
-  { id: 'c1', x: 960, y: 560, w: 80, h: 80, room: 'C', shape: 'sculpture', swatch: '#7a5a8a',
-    title: 'CAPSULE (MACHINE 7K)', year: 'Mixed media · 2025',
-    label: 'A functioning plastic capsule retrieved from a fictional vending machine. The contents are a single handwritten line which varies between viewings. Visitors are asked not to shake the capsule.' },
-  { id: 'c2', x: 1080, y: 640, w: 70, h: 70, room: 'C', shape: 'plinth', swatch: '#b8985a',
-    title: 'RECEIPT', year: 'Found object · 2019',
-    label: 'A receipt from a Wendy\'s drive-through, dated 11:47 PM. Two Jr. Bacon Cheeseburgers, one small Frosty. Total: $8.47. Discovered by the artist in a jacket pocket in 2023.' },
-
-  // Gift shop
-  { id: 'g1', x: 1240, y: 120, w: 80, h: 40, room: 'SHOP', shape: 'bench', swatch: '#b8c8d8',
-    title: 'POSTCARD SET', year: '8 for $12 · Available',
-    label: 'A set of eight postcards depicting works from the permanent collection. Printed in Durham, NC on recycled stock. Pen not included.' },
-  { id: 'g2', x: 1240, y: 240, w: 80, h: 40, room: 'SHOP', shape: 'bench', swatch: '#d8b8a8',
-    title: 'TOTE BAG', year: '$22 · Sold out',
-    label: 'A 100% cotton tote bag printed with the phrase "SHIP IT RAW" in Helvetica. Currently sold out at all locations. A restock is not planned.' },
-  { id: 'g3', x: 1240, y: 360, w: 80, h: 40, room: 'SHOP', shape: 'bench', swatch: '#a8d8b8',
-    title: 'EXHIBITION CATALOG', year: '$35 · Available',
-    label: 'A 180-page hardcover catalog with color plates and critical essays by three writers the artist has not personally met. Ships in four to six weeks.' },
-  { id: 'g4', x: 1240, y: 500, w: 80, h: 40, room: 'SHOP', shape: 'bench', swatch: '#c8a8d8',
-    title: 'THE GOOSE', year: '$145 · 1 in stock',
-    label: 'A resin figurine of the Duck Lang compiler goose, produced in a limited run of fifty. Hand-painted. Judgmental. Staff advise against making eye contact.' },
-];
-
-const DOCENT = { x: 180, y: 500, dialog: 'Welcome. Use WASD or the arrow keys. Stand near any piece to read its label. The galleries close at 5. Please do not touch the goose in the gift shop.' };
-
-function rectsOverlap(a: Rect, b: Rect) {
-  return !(a.x + a.w <= b.x || a.x >= b.x + b.w || a.y + a.h <= b.y || a.y >= b.y + b.h);
-}
-
-function dist(ax: number, ay: number, bx: number, by: number) {
-  return Math.hypot(ax - bx, ay - by);
-}
-
-export default function E5Museum() {
-  const [pos, setPos] = useState({ x: 180, y: 220 });
-  const keysRef = useRef<Record<string, boolean>>({});
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [cameraOffset, setCameraOffset] = useState({ x: 0, y: 0 });
-  const [viewSize, setViewSize] = useState({ w: 1000, h: 600 });
-
-  // Nearest exhibit
-  const nearest = EXHIBITS.reduce<{ e: Exhibit; d: number } | null>((best, e) => {
-    const ex = e.x + e.w / 2;
-    const ey = e.y + e.h / 2;
-    const d = dist(pos.x, pos.y, ex, ey);
-    if (d < PLAQUE_RADIUS && (!best || d < best.d)) return { e, d };
-    return best;
-  }, null);
-
-  const nearDocent = dist(pos.x, pos.y, DOCENT.x, DOCENT.y) < 70;
-
-  const tryMove = useCallback((nx: number, ny: number) => {
-    const hb: Rect = { x: nx - PLAYER_R, y: ny - PLAYER_R, w: PLAYER_R * 2, h: PLAYER_R * 2 };
-    for (const w of WALLS) if (rectsOverlap(hb, w)) return false;
-    for (const e of EXHIBITS) if (rectsOverlap(hb, { x: e.x, y: e.y, w: e.w, h: e.h })) return false;
-    return true;
-  }, []);
-
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => { keysRef.current[e.key.toLowerCase()] = true; if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase())) e.preventDefault(); };
-    const up = (e: KeyboardEvent) => { keysRef.current[e.key.toLowerCase()] = false; };
-    window.addEventListener('keydown', down);
-    window.addEventListener('keyup', up);
-    return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); };
-  }, []);
-
-  useEffect(() => {
-    const measure = () => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      setViewSize({ w: rect.width, h: rect.height });
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, []);
-
-  useEffect(() => {
-    let raf = 0;
-    const tick = () => {
-      let dx = 0, dy = 0;
-      const k = keysRef.current;
-      if (k['w'] || k['arrowup']) dy -= 1;
-      if (k['s'] || k['arrowdown']) dy += 1;
-      if (k['a'] || k['arrowleft']) dx -= 1;
-      if (k['d'] || k['arrowright']) dx += 1;
-      if (dx !== 0 || dy !== 0) {
-        const mag = Math.hypot(dx, dy);
-        dx = (dx / mag) * SPEED;
-        dy = (dy / mag) * SPEED;
-        setPos(p => {
-          let nx = p.x + dx;
-          let ny = p.y + dy;
-          if (!tryMove(nx, p.y)) nx = p.x;
-          if (!tryMove(nx, ny)) ny = p.y;
-          return { x: nx, y: ny };
-        });
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [tryMove]);
-
-  useEffect(() => {
-    const ox = Math.max(0, Math.min(WORLD_W - viewSize.w, pos.x - viewSize.w / 2));
-    const oy = Math.max(0, Math.min(WORLD_H - viewSize.h, pos.y - viewSize.h / 2));
-    setCameraOffset({ x: ox, y: oy });
-  }, [pos, viewSize]);
+export default function E5Grimoire() {
+  const { ref: frontRef, visible: frontVisible } = useReveal<HTMLDivElement>(0.2);
 
   return (
-    <div style={{
-      height: '100vh',
-      background: '#1a1612',
-      color: '#d8d0c0',
-      fontFamily: '"EB Garamond", Georgia, "Times New Roman", serif',
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden',
-    }}>
-      {/* Museum header */}
-      <header style={{
-        padding: '0.6rem 1.5rem',
-        background: '#0e0c0a',
-        borderBottom: '1px solid #2a2620',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        background:
+          'radial-gradient(ellipse at 50% 0%, #f4e9c8 0%, #e8d9a8 35%, #d9c58a 80%, #c8b374 100%)',
+        color: '#2a1f12',
+        fontFamily: '"EB Garamond", Georgia, serif',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=UnifrakturMaguntia&family=Cinzel:wght@400;600&display=swap"
+      />
+      <style>{`
+        ${SHARED_KEYFRAMES}
+        html, body { background: #d9c58a; }
+        ::selection { background: #8b1a1a; color: #f4e9c8; }
+
+        .vellum {
+          background-image:
+            radial-gradient(ellipse at 30% 20%, rgba(120,80,40,0.10), transparent 55%),
+            radial-gradient(ellipse at 70% 80%, rgba(120,80,40,0.12), transparent 55%),
+            radial-gradient(ellipse at 15% 60%, rgba(140,100,60,0.06), transparent 40%),
+            repeating-linear-gradient(18deg, rgba(140,100,60,0.04) 0 1px, transparent 1px 30px);
+        }
+        .gilt-draw path, .gilt-draw line, .gilt-draw circle, .gilt-draw rect {
+          stroke-dasharray: var(--len, 1000);
+          stroke-dashoffset: var(--len, 1000);
+          animation: drawStroke 3s 0.4s ease-out forwards;
+        }
+        .drop-cap::first-letter {
+          font-family: '"UnifrakturMaguntia", "EB Garamond", serif';
+          font-size: 5.4em;
+          line-height: 0.85;
+          float: left;
+          margin: 0.08em 0.1em 0 0;
+          color: #8b1a1a;
+          text-shadow: 2px 2px 0 rgba(184,146,58,0.5);
+        }
+        .rubric { color: #8b1a1a; font-family: '"UnifrakturMaguntia", serif'; }
+        .reveal { opacity: 0; transform: translateY(16px); transition: opacity 1.2s ease, transform 1.2s ease; }
+        .reveal.on { opacity: 1; transform: translateY(0); }
+
+        @media (prefers-reduced-motion: reduce) {
+          .gilt-draw path, .gilt-draw line, .gilt-draw circle, .gilt-draw rect { animation: none !important; stroke-dashoffset: 0 !important; }
+          .reveal { opacity: 1; transform: none; transition: none; }
+        }
+      `}</style>
+
+      <div className="vellum" style={{ position: 'absolute', inset: 0, zIndex: 0 }} />
+
+      <header style={{ position: 'relative', zIndex: 6, padding: '1.5rem 2.5rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '2rem', flexWrap: 'wrap' }}>
         <div>
-          <div style={{ fontSize: '0.6rem', letterSpacing: '0.3em', color: '#8a7e60' }}>THE KCODES COLLECTION · EST. MMXIX</div>
-          <div style={{ fontSize: '1.2rem', fontFamily: '"EB Garamond", Georgia, serif', fontWeight: 400, letterSpacing: '0.05em' }}>Permanent Exhibit · West Wing</div>
+          <div style={{ fontFamily: '"Cinzel", serif', fontSize: '0.7rem', letterSpacing: '0.6em', color: '#8b1a1a', fontWeight: 600 }}>ACT · V</div>
+          <div style={{ fontSize: '0.7rem', letterSpacing: '0.3em', color: '#5a4424', textTransform: 'uppercase', marginTop: 4 }}>
+            Grimoire — the illuminated codex
+          </div>
         </div>
-        <div style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: '#8a7e60' }}>
-          WASD / ARROWS TO WALK · APPROACH WORKS FOR LABELS
+        <div style={{ maxWidth: 460, width: '100%' }}>
+          <RouteCrossNav active={5} color="#5a4424" accent="#8b1a1a" />
         </div>
       </header>
 
-      {/* Gallery viewport */}
-      <div ref={containerRef} style={{
-        flex: 1,
-        position: 'relative',
-        overflow: 'hidden',
-        cursor: 'none',
-      }}>
-        {/* Scrolled world */}
-        <div style={{
-          position: 'absolute',
-          transform: `translate(${-cameraOffset.x}px, ${-cameraOffset.y}px)`,
-          width: WORLD_W,
-          height: WORLD_H,
-        }}>
-          {/* Floor */}
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            background: `
-              repeating-linear-gradient(90deg, transparent 0 119px, rgba(40,28,16,0.45) 119px 120px),
-              repeating-linear-gradient(0deg, transparent 0 79px, rgba(40,28,16,0.25) 79px 80px),
-              linear-gradient(180deg, #58422a 0%, #3e2e1c 100%)`,
-          }} />
-
-          {/* Room labels painted on floor */}
-          <div style={{ position: 'absolute', top: 40, left: 120, fontSize: '0.7rem', letterSpacing: '0.5em', color: 'rgba(255,240,200,0.12)', fontWeight: 700 }}>ENTRANCE</div>
-          <div style={{ position: 'absolute', top: 40, left: 520, fontSize: '0.7rem', letterSpacing: '0.5em', color: 'rgba(255,240,200,0.12)', fontWeight: 700 }}>GALLERY A · WORKS</div>
-          <div style={{ position: 'absolute', top: 480, left: 520, fontSize: '0.7rem', letterSpacing: '0.5em', color: 'rgba(255,240,200,0.12)', fontWeight: 700 }}>GALLERY B · PHOTOGRAPHS</div>
-          <div style={{ position: 'absolute', top: 480, left: 930, fontSize: '0.7rem', letterSpacing: '0.5em', color: 'rgba(255,240,200,0.12)', fontWeight: 700 }}>GALLERY C · ARTIFACTS</div>
-          <div style={{ position: 'absolute', top: 40, left: 1230, fontSize: '0.7rem', letterSpacing: '0.5em', color: 'rgba(255,240,200,0.12)', fontWeight: 700 }}>GIFT SHOP</div>
-
-          {/* Walls */}
-          {WALLS.map((w, i) => (
-            <div key={i} style={{
-              position: 'absolute',
-              left: w.x, top: w.y, width: w.w, height: w.h,
-              background: 'linear-gradient(180deg, #e8dfc6 0%, #c8bda0 100%)',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
-            }} />
-          ))}
-
-          {/* Exhibits */}
-          {EXHIBITS.map(e => {
-            const isFrame = e.shape === 'frame';
-            const isSculpture = e.shape === 'sculpture';
-            const isBench = e.shape === 'bench';
-            return (
-              <div key={e.id} style={{ position: 'absolute', left: e.x, top: e.y }}>
-                {/* shadow */}
-                <div style={{
-                  position: 'absolute', inset: '-2px',
-                  width: e.w + 4, height: e.h + 4,
-                  background: 'rgba(0,0,0,0.5)', filter: 'blur(4px)',
-                  borderRadius: isSculpture ? '50%' : '2px',
-                }} />
-                {/* piece */}
-                <div style={{
-                  position: 'relative',
-                  width: e.w, height: e.h,
-                  background: isFrame
-                    ? `linear-gradient(180deg, #3a2a1a 0%, #1a1008 100%)`
-                    : isBench
-                      ? `linear-gradient(180deg, ${e.swatch} 0%, ${e.swatch}88 100%)`
-                      : `linear-gradient(180deg, #2a2018 0%, #120a04 100%)`,
-                  borderRadius: isSculpture ? '50%' : '1px',
-                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  {isFrame && (
-                    <div style={{
-                      position: 'absolute', inset: 3,
-                      background: e.swatch,
-                      boxShadow: 'inset 0 0 8px rgba(0,0,0,0.4)',
-                    }} />
-                  )}
-                  {!isFrame && !isBench && e.swatch && (
-                    <div style={{
-                      width: '60%', height: '60%',
-                      background: e.swatch,
-                      borderRadius: isSculpture ? '50%' : '1px',
-                      boxShadow: '0 0 16px rgba(255,220,160,0.2)',
-                    }} />
-                  )}
-                </div>
-              </div>
-            );
-          })}
-
-          {/* Velvet ropes around gallery A (example) */}
-          {[[490, 100], [570, 100], [490, 200], [570, 200]].map(([x, y], i) => (
-            <div key={i} style={{
-              position: 'absolute', left: x, top: y,
-              width: '8px', height: '8px',
-              background: 'linear-gradient(180deg, #b89058 0%, #5a4020 100%)',
-              borderRadius: '50%',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.6)',
-            }} />
-          ))}
-
-          {/* Docent */}
-          <div style={{
-            position: 'absolute',
-            left: DOCENT.x - 10, top: DOCENT.y - 14,
-            width: 20, height: 28,
-          }}>
-            <div style={{ width: 20, height: 20, background: '#2a2a2a', borderRadius: '3px 3px 0 0', boxShadow: '0 2px 4px rgba(0,0,0,0.6)' }} />
-            <div style={{ width: 20, height: 8, background: '#1a1a1a', borderRadius: '0 0 3px 3px' }} />
-            <div style={{
-              position: 'absolute', top: -6, left: 3, width: 14, height: 14,
-              background: '#d8b898', borderRadius: '50%',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.6)',
-            }} />
-          </div>
-
-          {/* Player */}
-          <div style={{
-            position: 'absolute',
-            left: pos.x - PLAYER_R, top: pos.y - PLAYER_R - 6,
-            width: PLAYER_R * 2, height: PLAYER_R * 2 + 6,
-          }}>
-            <div style={{
-              position: 'absolute', bottom: 0, left: 0,
-              width: PLAYER_R * 2, height: PLAYER_R * 2,
-              background: '#a85030', borderRadius: '50%',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.7)',
-            }} />
-            <div style={{
-              position: 'absolute', bottom: PLAYER_R * 1.4, left: 3,
-              width: PLAYER_R * 2 - 6, height: PLAYER_R * 2 - 6,
-              background: '#d8b898', borderRadius: '50%',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.4)',
-            }} />
-          </div>
-
-          {/* Ground shadow under player */}
-          <div style={{
-            position: 'absolute',
-            left: pos.x - 12, top: pos.y + 6,
-            width: 24, height: 6,
-            background: 'radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, transparent 70%)',
-            borderRadius: '50%',
-          }} />
-        </div>
-
-        {/* HUD minimap */}
-        <div style={{
-          position: 'absolute',
-          top: 10, right: 10,
-          width: 180, height: 115,
-          background: 'rgba(10,8,6,0.85)',
-          border: '1px solid #3a2e1c',
-          padding: '6px',
-        }}>
-          <div style={{ fontSize: '0.55rem', letterSpacing: '0.2em', color: '#8a7e60', marginBottom: '2px' }}>FLOOR PLAN</div>
-          <svg viewBox={`0 0 ${WORLD_W} ${WORLD_H}`} style={{ width: '100%', height: 'calc(100% - 12px)' }}>
-            <rect x="0" y="0" width={WORLD_W} height={WORLD_H} fill="#1a1612" />
-            {WALLS.map((w, i) => <rect key={i} x={w.x} y={w.y} width={w.w} height={w.h} fill="#6a5a40" />)}
-            {EXHIBITS.map(e => <rect key={e.id} x={e.x} y={e.y} width={e.w} height={e.h} fill={e.swatch || '#aaa'} opacity={0.7} />)}
-            <circle cx={pos.x} cy={pos.y} r="30" fill="#a85030" />
+      {/* Frontispiece spread */}
+      <section
+        ref={frontRef}
+        className={`reveal ${frontVisible ? 'on' : ''}`}
+        style={{
+          position: 'relative',
+          zIndex: 2,
+          maxWidth: 1080,
+          margin: '3rem auto 4rem',
+          padding: '0 2rem',
+        }}
+      >
+        <div
+          style={{
+            position: 'relative',
+            background: 'linear-gradient(180deg, #f6ecd0, #ecdcae)',
+            border: '1px solid #8a6a3a',
+            padding: 'clamp(2rem, 5vw, 4rem) clamp(1.2rem, 4vw, 3rem)',
+            boxShadow: '0 20px 60px rgba(74,46,20,0.3), inset 0 0 60px rgba(184,146,58,0.12)',
+            minHeight: 640,
+          }}
+        >
+          {/* gilt border that draws itself */}
+          <svg
+            aria-hidden
+            className="gilt-draw"
+            viewBox="0 0 1000 640"
+            preserveAspectRatio="none"
+            style={{ position: 'absolute', inset: 18, width: 'calc(100% - 36px)', height: 'calc(100% - 36px)', pointerEvents: 'none', filter: 'drop-shadow(0 0 4px rgba(184,146,58,0.6))' }}
+          >
+            <rect x="2" y="2" width="996" height="636" fill="none" stroke="#b8923a" strokeWidth="2" style={{ ['--len' as any]: 3500 }} />
+            <rect x="14" y="14" width="972" height="612" fill="none" stroke="#8b1a1a" strokeWidth="1" strokeDasharray="2 2" style={{ ['--len' as any]: 3300 }} />
+            {/* vines */}
+            <path d="M14 40 Q 60 60 60 120 Q 40 160 80 200 Q 130 240 80 320 Q 40 400 80 480 Q 120 540 60 620" fill="none" stroke="#b8923a" strokeWidth="1.6" style={{ ['--len' as any]: 1400 }} />
+            <path d="M986 40 Q 940 60 940 120 Q 960 160 920 200 Q 870 240 920 320 Q 960 400 920 480 Q 880 540 940 620" fill="none" stroke="#b8923a" strokeWidth="1.6" style={{ ['--len' as any]: 1400 }} />
+            {/* leaves */}
+            {Array.from({ length: 8 }).map((_, i) => (
+              <g key={i}>
+                <path d={`M${70 + (i % 2) * 6} ${60 + i * 70} q 10 -6 16 0 q -6 10 -16 0 z`} fill="#b8923a" style={{ ['--len' as any]: 40 }} />
+                <path d={`M${924 - (i % 2) * 6} ${60 + i * 70} q -10 -6 -16 0 q 6 10 16 0 z`} fill="#b8923a" style={{ ['--len' as any]: 40 }} />
+              </g>
+            ))}
           </svg>
+
+          {/* top rubric line */}
+          <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', marginBottom: '1.2rem' }}>
+            <div className="rubric" style={{ fontSize: '1.2rem', letterSpacing: '0.2em', color: '#8b1a1a' }}>
+              ❦ Liber Lupi — the book of the wolf ❦
+            </div>
+          </div>
+
+          {/* Main spread: sona + opening paragraph */}
+          <div
+            style={{
+              position: 'relative',
+              zIndex: 2,
+              display: 'grid',
+              gridTemplateColumns: 'clamp(180px, 28%, 280px) 1fr',
+              gap: 'clamp(1.2rem, 3vw, 2.4rem)',
+              alignItems: 'start',
+            }}
+          >
+            {/* Fursona miniature with gilt frame */}
+            <div style={{ position: 'relative' }}>
+              <div style={{ position: 'relative', background: '#f1e1b8', padding: '0.8rem', border: '1px solid #b8923a', boxShadow: '0 6px 16px rgba(74,46,20,0.25)' }}>
+                <img
+                  src={SONA_BLACK}
+                  alt="Kona, frontispiece"
+                  style={{
+                    width: '100%',
+                    display: 'block',
+                    filter: 'sepia(0.4) contrast(1.1) drop-shadow(0 2px 4px rgba(0,0,0,0.15))',
+                  }}
+                />
+                {/* inner double line */}
+                <div style={{ position: 'absolute', inset: 4, border: '1px dashed rgba(139,26,26,0.4)', pointerEvents: 'none' }} />
+              </div>
+              <div
+                style={{
+                  textAlign: 'center',
+                  marginTop: '0.6rem',
+                  fontFamily: '"UnifrakturMaguntia", serif',
+                  fontSize: '1.1rem',
+                  color: '#8b1a1a',
+                }}
+              >
+                Kona, the Wolf
+              </div>
+              <div
+                style={{
+                  textAlign: 'center',
+                  fontFamily: '"EB Garamond", serif',
+                  fontStyle: 'italic',
+                  fontSize: '0.85rem',
+                  color: '#5a4424',
+                }}
+              >
+                as drawn by lamplight
+              </div>
+              {/* decorative ornaments — stacked */}
+              <div style={{ position: 'absolute', top: -16, left: -16, color: '#b8923a' }}>
+                <CornerFlourish size={42} rotate={0} strokeWidth={1.4} />
+              </div>
+              <div style={{ position: 'absolute', top: -16, right: -16, color: '#b8923a' }}>
+                <CornerFlourish size={42} rotate={90} strokeWidth={1.4} />
+              </div>
+            </div>
+
+            {/* Opening text with drop cap */}
+            <div>
+              <h1
+                style={{
+                  fontFamily: '"UnifrakturMaguntia", serif',
+                  fontSize: 'clamp(3rem, 7vw, 5.6rem)',
+                  lineHeight: 0.9,
+                  margin: '0 0 0.4rem',
+                  color: '#2a1f12',
+                }}
+              >
+                Grimoire
+              </h1>
+              <div style={{ color: '#8b1a1a', fontFamily: '"Cinzel", serif', fontSize: '0.7rem', letterSpacing: '0.4em', marginBottom: '1.4rem' }}>
+                ❧ a book of small spells ❧
+              </div>
+              <p
+                className="drop-cap"
+                style={{
+                  fontFamily: '"EB Garamond", serif',
+                  fontSize: 'clamp(1.05rem, 1.6vw, 1.2rem)',
+                  lineHeight: 1.75,
+                  color: '#2a1f12',
+                  marginBottom: '1.2rem',
+                  textAlign: 'justify',
+                }}
+              >
+                Herein are recorded the minor arts of one who works
+                at night with the lamps low. Not spells exactly — but
+                the things I return to when the code grows stubborn
+                and the sun is still four hours away. Six cards, six
+                small arcana, and the wolf who keeps them.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <OrnateDivider width={220} color="#b8923a" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Arcana cards — tarot spread */}
+      <section style={{ position: 'relative', zIndex: 2, maxWidth: 1200, margin: '0 auto', padding: '0 1.5rem 5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+          <div className="rubric" style={{ fontSize: '1rem', letterSpacing: '0.3em' }}>
+            ✦ the six minor cards ✦
+          </div>
+          <OrnateDivider width={260} color="#8a6a3a" style={{ margin: '0.4rem auto 0' }} />
         </div>
 
-        {/* Plaque overlay when near exhibit */}
-        {nearest && (
-          <div style={{
-            position: 'absolute',
-            left: '50%', bottom: '2rem',
-            transform: 'translateX(-50%)',
-            width: 'min(600px, 90%)',
-            background: '#f0e4c8',
-            color: '#1a1008',
-            padding: '1.25rem 1.5rem',
-            boxShadow: '0 12px 32px rgba(0,0,0,0.6), 0 0 0 1px #7a6548, inset 0 0 0 1px rgba(255,255,255,0.4)',
-            fontFamily: '"EB Garamond", Georgia, serif',
-          }}>
-            <div style={{ fontSize: '0.6rem', letterSpacing: '0.3em', color: '#5a4020', marginBottom: '0.3rem' }}>
-              GALLERY {nearest.e.room} · ACC.NO. {nearest.e.id.toUpperCase()}.26
-            </div>
-            <div style={{ fontSize: '1.3rem', fontWeight: 600, letterSpacing: '0.02em', marginBottom: '0.15rem' }}>
-              {nearest.e.title}
-            </div>
-            <div style={{ fontSize: '0.85rem', fontStyle: 'italic', color: '#5a4020', marginBottom: '0.6rem' }}>
-              {nearest.e.year}
-            </div>
-            <div style={{ fontSize: '0.92rem', lineHeight: 1.6, color: '#2a1a08' }}>
-              {nearest.e.label}
-            </div>
-          </div>
-        )}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: '1.5rem',
+          }}
+        >
+          {ARCANA.map((a, i) => (
+            <ArcanumCard key={a.roman} a={a} index={i} />
+          ))}
+        </div>
+      </section>
 
-        {/* Docent dialog */}
-        {nearDocent && !nearest && (
-          <div style={{
-            position: 'absolute',
-            left: 100, top: 380,
-            maxWidth: '320px',
-            background: '#faf6ec',
-            color: '#1a1008',
-            padding: '0.75rem 1rem',
-            fontFamily: '"EB Garamond", Georgia, serif',
-            fontSize: '0.9rem',
-            lineHeight: 1.5,
-            border: '1px solid #3a2e1c',
-            boxShadow: '0 8px 20px rgba(0,0,0,0.5)',
-          }}>
-            <div style={{ fontSize: '0.55rem', letterSpacing: '0.25em', color: '#5a4020', marginBottom: '0.3rem' }}>DOCENT — MARGARET</div>
-            "{DOCENT.dialog}"
-          </div>
-        )}
+      <footer style={{ position: 'relative', zIndex: 3, textAlign: 'center', padding: '2rem 2rem 4rem', color: '#5a4424', fontFamily: '"EB Garamond", serif', fontStyle: 'italic', fontSize: '0.85rem', letterSpacing: '0.15em' }}>
+        <img src={SONA_WHITE} alt="" aria-hidden style={{ width: 40, opacity: 0.35, margin: '0 auto 0.6rem', display: 'block', filter: 'sepia(0.6) invert(0.3)' }} />
+        scribe: kcodes · colophon: mmxxvi
+      </footer>
+    </div>
+  );
+}
+
+function ArcanumCard({ a, index }: { a: Arcana; index: number }) {
+  const { ref, visible } = useReveal<HTMLDivElement>(0.2);
+  const tiltRef = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  return (
+    <div
+      ref={(el) => {
+        // assign to both the reveal observer and the local tilt ref
+        ref.current = el;
+        tiltRef.current = el;
+      }}
+      className={`reveal ${visible ? 'on' : ''}`}
+      style={{
+        position: 'relative',
+        padding: '1.8rem 1.4rem 1.6rem',
+        background: 'linear-gradient(180deg, #f6ecd0, #ecdcae)',
+        border: '1px solid #8a6a3a',
+        boxShadow: '0 14px 30px rgba(74,46,20,0.25), inset 0 0 30px rgba(184,146,58,0.18)',
+        transitionDelay: `${index * 80}ms`,
+        transform: `perspective(800px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+        transition: 'transform 0.2s ease, opacity 1s, transform 1s',
+      }}
+      onMouseMove={(e) => {
+        const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        setTilt({ x: ((e.clientX - cx) / rect.width) * 10, y: -((e.clientY - cy) / rect.height) * 10 });
+      }}
+      onMouseLeave={() => setTilt({ x: 0, y: 0 })}
+    >
+      {/* inner frame */}
+      <div style={{ position: 'absolute', inset: 8, border: '1px dashed #b8923a', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', background: '#f4e9c8', padding: '0 0.6rem', fontFamily: '"UnifrakturMaguntia", serif', fontSize: '1.2rem', color: '#8b1a1a' }}>
+        {a.roman.toUpperCase()}
+      </div>
+      <div style={{ position: 'absolute', top: 8, left: 8, color: '#b8923a' }}>
+        <CornerFlourish size={26} rotate={0} strokeWidth={1.2} />
+      </div>
+      <div style={{ position: 'absolute', top: 8, right: 8, color: '#b8923a' }}>
+        <CornerFlourish size={26} rotate={90} strokeWidth={1.2} />
+      </div>
+      <div style={{ position: 'absolute', bottom: 8, left: 8, color: '#b8923a' }}>
+        <CornerFlourish size={26} rotate={270} strokeWidth={1.2} />
+      </div>
+      <div style={{ position: 'absolute', bottom: 8, right: 8, color: '#b8923a' }}>
+        <CornerFlourish size={26} rotate={180} strokeWidth={1.2} />
       </div>
 
-      {/* Bottom bar */}
-      <footer style={{
-        padding: '0.5rem 1.5rem',
-        background: '#0e0c0a',
-        borderTop: '1px solid #2a2620',
-        fontSize: '0.65rem',
-        letterSpacing: '0.18em',
-        color: '#8a7e60',
-        display: 'flex',
-        justifyContent: 'space-between',
-      }}>
-        <a href="/" style={{ color: '#c8a876', textDecoration: 'none' }}>← EXIT</a>
-        <span>ADMISSION: FREE · WITH DONATION SUGGESTED</span>
-      </footer>
+      <h3
+        style={{
+          fontFamily: '"UnifrakturMaguntia", serif',
+          fontSize: '1.9rem',
+          margin: '0.8rem 0 0.2rem',
+          color: '#8b1a1a',
+          textAlign: 'center',
+          fontWeight: 400,
+        }}
+      >
+        {a.name}
+      </h3>
+      <div
+        style={{
+          fontFamily: '"Cinzel", serif',
+          fontSize: '0.7rem',
+          letterSpacing: '0.3em',
+          color: '#5a4424',
+          textAlign: 'center',
+          marginBottom: '0.9rem',
+          fontStyle: 'italic',
+        }}
+      >
+        {a.motto}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.8rem' }}>
+        <img
+          src={SONA_BLACK}
+          alt=""
+          aria-hidden
+          style={{
+            width: '70%',
+            filter: 'sepia(0.7) contrast(0.95)',
+            opacity: 0.8,
+          }}
+        />
+      </div>
+      <p
+        style={{
+          fontFamily: '"EB Garamond", serif',
+          fontSize: '0.9rem',
+          lineHeight: 1.6,
+          color: '#2a1f12',
+          fontStyle: 'italic',
+          margin: 0,
+        }}
+      >
+        {a.body}
+      </p>
     </div>
   );
 }
