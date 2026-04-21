@@ -1,6 +1,6 @@
 import { useEffect, useState, createContext, useContext, useCallback } from "react";
 import "./index.css";
-import BrutalistHome from "./pages/Page1Terminal";
+import FunHome from "./pages/FunHome";
 import PhotosPage from "./pages/PhotosPage";
 import E1Wikipedia from "./pages/experimental/E1Wikipedia";
 import E2Vending from "./pages/experimental/E2Vending";
@@ -576,7 +576,7 @@ export function App() {
     );
   }
 
-  return <BrutalistHome />;
+  return <FunHome />;
 }
 
 export default App;
