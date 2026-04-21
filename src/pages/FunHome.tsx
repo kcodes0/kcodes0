@@ -29,7 +29,6 @@ const STICKERS: { label: string; emoji?: string; href?: string; rot: number }[] 
   { label: 'news', emoji: '📰', href: 'https://news.kcodes.me', rot: 6 },
   { label: 'github', emoji: '🐙', href: 'https://github.com/kcodes0', rot: -3 },
   { label: 'labs', emoji: '⚗️', href: '/labs', rot: 10 },
-  { label: 'photos', emoji: '📷', href: '/photos', rot: -6 },
   { label: 'now', emoji: '🌱', href: '/now', rot: 4 },
   { label: 'uses', emoji: '🛠', href: '/uses', rot: -10 },
   { label: 'duck', emoji: '🦆', href: 'https://github.com/kcodes0/duck-lang', rot: 2 },
@@ -56,13 +55,6 @@ const PROJECTS = [
     tag: 'news · satire · ads',
     href: 'https://news.kcodes.me',
     sticker: '🗞️',
-  },
-  {
-    title: 'Experimental UI',
-    blurb: 'seven themed routes, /1 through /7. museum pages, vending machines, subway maps, a two-cursor thing. tinker bait.',
-    tag: '/1 /2 /3 /4 /5 /6 /7',
-    href: '/1',
-    sticker: '🎛️',
   },
   {
     title: 'LIKWID',
@@ -503,7 +495,6 @@ export default function FunHome() {
         <div className="kc-top-right">
           <a href="/labs" className="kc-link">/labs</a>
           <a href="/now" className="kc-link">/now</a>
-          <a href="/photos" className="kc-link">/photos</a>
           <a href="/uses" className="kc-link">/uses</a>
           <a href="https://blog.kcodes.me" className="kc-link">blog↗</a>
         </div>
@@ -673,27 +664,6 @@ export default function FunHome() {
           <p className="kc-poke-note">
             it does nothing important. but it <i>does</i> keep count. click more if you want to feel something.
           </p>
-        </div>
-      </section>
-
-      {/* Other pages */}
-      <section className="kc-section">
-        <h2 className="kc-h2" style={{ fontFamily }}>other rooms</h2>
-        <div className="kc-rooms">
-          {[
-            { href: '/1', label: 'wikipedia' },
-            { href: '/2', label: 'vending' },
-            { href: '/3', label: 'journal' },
-            { href: '/4', label: 'subway' },
-            { href: '/5', label: 'museum' },
-            { href: '/6', label: 'two cursor' },
-            { href: '/7', label: 'vernacular' },
-          ].map((r) => (
-            <a key={r.href} href={r.href} className="kc-room">
-              <span className="kc-room-slug">{r.href}</span>
-              <span className="kc-room-label">{r.label}</span>
-            </a>
-          ))}
         </div>
       </section>
 
