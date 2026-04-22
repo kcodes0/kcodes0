@@ -1,6 +1,7 @@
 import { useEffect, useState, createContext, useContext, useCallback } from "react";
 import "./index.css";
-import FunHome from "./pages/FunHome";
+import ImmersiveHome from "./pages/ImmersiveHome";
+import PostPage from "./pages/PostPage";
 
 // ============================================
 // Theme Context
@@ -526,7 +527,8 @@ function useRoute() {
       if (anchor && anchor.href.startsWith(window.location.origin)) {
         const url = new URL(anchor.href);
         const internalRoutes = ['/', '/labs', '/now', '/uses'];
-        if (internalRoutes.includes(url.pathname)) {
+        const isPost = url.pathname.startsWith('/post/');
+        if (internalRoutes.includes(url.pathname) || isPost) {
           e.preventDefault();
           window.history.pushState({}, '', url.pathname);
           setPath(url.pathname);
@@ -559,7 +561,12 @@ export function App() {
     );
   }
 
-  return <FunHome />;
+  if (path.startsWith('/post/')) {
+    const slug = path.slice('/post/'.length).replace(/\/$/, '');
+    return <PostPage slug={slug} />;
+  }
+
+  return <ImmersiveHome />;
 }
 
 export default App;
